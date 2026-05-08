@@ -1,0 +1,60 @@
+{
+  "nav": {
+    "kids": "KIDS",
+    "adult": "ADULT",
+    "new": "신상",
+    "collections": "컬렉션",
+    "sale": "세일",
+    "about": "브랜드",
+    "cart": "장바구니",
+    "menu": "메뉴",
+    "close": "닫기"
+  },
+  "product": {
+    "addToCart": "장바구니 담기",
+    "soldOut": "품절",
+    "salePrice": "할인가",
+    "originalPrice": "정가"
+  },
+  "cart": {
+    "title": "장바구니",
+    "empty": "장바구니가 비어있어요",
+    "checkout": "결제하기",
+    "total": "합계",
+    "remove": "삭제"
+  },
+  "footer": {
+    "cs": "고객센터",
+    "privacy": "개인정보처리방침",
+    "terms": "이용약관",
+    "refund": "환불정책",
+    "copyright": "© 2025 applebuttercollege. All rights reserved."
+  },
+  "checkout": {
+    "title": "주문/결제",
+    "name": "받는 분 이름",
+    "phone": "연락처",
+    "zipcode": "우편번호",
+    "address": "주소",
+    "addressDetail": "상세 주소",
+    "memo": "배송 메모",
+    "memoPlaceholder": "배송 시 요청사항을 입력해주세요 (선택)",
+    "orderSummary": "주문 상품",
+    "shippingFee": "배송비",
+    "freeShipping": "무료",
+    "total": "결제 금액",
+    "pay": "결제하기",
+    "required": "필수 항목을 모두 입력해주세요"
+  },
+  "home": {
+    "season": "2025 S/S",
+    "tagline": "어린이의 일상을 특별하게",
+    "cta": "컬렉션 보기",
+    "newArrivals": "신상품"
+  },
+  "common": {
+    "loading": "불러오는 중...",
+    "error": "오류가 발생했어요",
+    "viewAll": "전체 보기"
+  }
+}

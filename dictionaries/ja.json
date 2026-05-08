@@ -1,0 +1,60 @@
+{
+  "nav": {
+    "kids": "KIDS",
+    "adult": "ADULT",
+    "new": "新作",
+    "collections": "コレクション",
+    "sale": "セール",
+    "about": "ブランド",
+    "cart": "カート",
+    "menu": "メニュー",
+    "close": "閉じる"
+  },
+  "product": {
+    "addToCart": "カートに追加",
+    "soldOut": "売り切れ",
+    "salePrice": "セール価格",
+    "originalPrice": "定価"
+  },
+  "cart": {
+    "title": "カート",
+    "empty": "カートは空です",
+    "checkout": "会計する",
+    "total": "合計",
+    "remove": "削除"
+  },
+  "footer": {
+    "cs": "カスタマーサポート",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "refund": "返品ポリシー",
+    "copyright": "© 2025 applebuttercollege. All rights reserved."
+  },
+  "checkout": {
+    "title": "ご注文・お支払い",
+    "name": "お名前",
+    "phone": "電話番号",
+    "zipcode": "郵便番号",
+    "address": "住所",
+    "addressDetail": "番地・建物名",
+    "memo": "配送メモ",
+    "memoPlaceholder": "ご要望があればご記入ください（任意）",
+    "orderSummary": "ご注文商品",
+    "shippingFee": "送料",
+    "freeShipping": "無料",
+    "total": "お支払い金額",
+    "pay": "お支払いへ進む",
+    "required": "必須項目をすべてご入力ください"
+  },
+  "home": {
+    "season": "2025 S/S",
+    "tagline": "子どもの日常を特別に",
+    "cta": "コレクションを見る",
+    "newArrivals": "新着商品"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "viewAll": "すべて見る"
+  }
+}
