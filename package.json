@@ -12,6 +12,7 @@
     "@fontsource-variable/montserrat": "^5.2.8",
     "@fontsource-variable/noto-sans-jp": "^5.2.10",
     "@fontsource-variable/noto-sans-kr": "^5.2.10",
+    "@fontsource/playfair-display": "^5.2.8",
     "@fontsource/poppins": "^5.2.7",
     "@shopify/storefront-api-client": "^1.0.10",
     "next": "16.2.4",

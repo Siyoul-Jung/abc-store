@@ -30,6 +30,18 @@ export const PRODUCT_FRAGMENT = `
         currencyCode
       }
     }
+    compareAtPriceRange {
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    careInstructions: metafield(namespace: "custom", key: "care_instructions") {
+      value
+    }
+    shippingNotice: metafield(namespace: "custom", key: "shipping_notice") {
+      value
+    }
     variants(first: 100) {
       nodes {
         id
@@ -56,7 +68,7 @@ export const GET_PRODUCTS_QUERY = `
   ${PRODUCT_FRAGMENT}
   query GetProducts($first: Int!, $country: CountryCode!, $language: LanguageCode!)
   @inContext(country: $country, language: $language) {
-    products(first: $first) {
+    products(first: $first, sortKey: CREATED_AT, reverse: true) {
       nodes {
         ...ProductFragment
       }
@@ -89,10 +101,22 @@ export const GET_COLLECTION_BY_HANDLE_QUERY = `
         width
         height
       }
-      products(first: $first) {
+      products(first: $first, sortKey: CREATED, reverse: true) {
         nodes {
           ...ProductFragment
         }
+      }
+    }
+  }
+`
+
+export const GET_BEST_SELLING_QUERY = `
+  ${PRODUCT_FRAGMENT}
+  query GetBestSelling($first: Int!, $country: CountryCode!, $language: LanguageCode!)
+  @inContext(country: $country, language: $language) {
+    products(first: $first, sortKey: BEST_SELLING, query: "available_for_sale:true") {
+      nodes {
+        ...ProductFragment
       }
     }
   }

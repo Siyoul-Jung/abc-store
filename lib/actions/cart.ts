@@ -67,6 +67,14 @@ export async function updateCartLine(
   return data.cartLinesUpdate.cart
 }
 
+export async function buyNow(variantId: string, locale: Locale): Promise<string> {
+  const ctx = getShopifyContext(locale)
+  const { data } = await shopifyClient.request(CART_CREATE_MUTATION, {
+    variables: { lines: [{ merchandiseId: variantId, quantity: 1 }], ...ctx },
+  })
+  return data.cartCreate.cart.checkoutUrl as string
+}
+
 export async function removeCartLine(lineId: string, locale: Locale): Promise<Cart | null> {
   const cookieStore = await cookies()
   const cartId = cookieStore.get(CART_COOKIE)?.value

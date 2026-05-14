@@ -38,8 +38,13 @@ export type Product = {
     minVariantPrice: Money
     maxVariantPrice: Money
   }
+  compareAtPriceRange: {
+    maxVariantPrice: Money
+  } | null
   variants: { nodes: ProductVariant[] }
   tags: string[]
+  careInstructions: { value: string } | null
+  shippingNotice: { value: string } | null
 }
 
 export type CartLine = {

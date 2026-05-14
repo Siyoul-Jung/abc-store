@@ -3,7 +3,7 @@ import type { Locale, ShopifyContext } from './types'
 
 export const shopifyClient = createStorefrontApiClient({
   storeDomain: process.env.SHOPIFY_STORE_DOMAIN!,
-  apiVersion: process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2025-01',
+  apiVersion: process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04',
   publicAccessToken: process.env.SHOPIFY_STOREFRONT_API_TOKEN!,
 })
 

@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { gidToNumericId, formatPrice } from '@/lib/utils/format'
+import { gidToNumericId, formatPrice, stripTitlePrefix } from '@/lib/utils/format'
 import type { Product, Locale } from '@/lib/shopify/types'
 
 type Props = {
   products: Product[]
   lang: Locale
   title?: string
-  viewAllLabel: string
+  viewAllLabel?: string
 }
 
 export default function ProductGrid({ products, lang, title, viewAllLabel }: Props) {
@@ -20,23 +20,23 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
         {title && (
           <div className="flex items-baseline justify-between mb-6">
             <h2 className="text-sm font-bold tracking-widest uppercase">{title}</h2>
-            <Link
-              href={`/${lang}/products`}
-              className="text-xs text-ink-muted hover:text-ink transition-colors"
-            >
-              {viewAllLabel} →
-            </Link>
+            {viewAllLabel && (
+              <Link
+                href={`/${lang}/products`}
+                className="text-xs text-ink-muted hover:text-ink transition-colors"
+              >
+                {viewAllLabel} →
+              </Link>
+            )}
           </div>
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-8">
           {products.map((product) => {
             const id    = gidToNumericId(product.id)
-            const price = formatPrice(
-              product.priceRange.minVariantPrice.amount,
-              product.priceRange.minVariantPrice.currencyCode,
-              lang,
-            )
+            const minPrice = product.priceRange.minVariantPrice
+            const compareAt = product.compareAtPriceRange?.maxVariantPrice
+            const isOnSale = compareAt && Number(compareAt.amount) > Number(minPrice.amount)
             return (
               <Link
                 key={product.id}
@@ -55,11 +55,25 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
                   ) : (
                     <div className="absolute inset-0 bg-surface" />
                   )}
+                  {product.tags.includes('adult') && (
+                    <span className="absolute top-2 left-2 bg-white/90 text-ink text-[10px] font-semibold tracking-widest px-2 py-0.5 uppercase">
+                      ADULT
+                    </span>
+                  )}
                 </div>
-                <p className="text-[13px] font-medium text-ink leading-snug line-clamp-2">
-                  {product.title}
+                <p className="text-[13px] font-medium text-ink leading-snug line-clamp-2 text-center break-keep">
+                  {stripTitlePrefix(product.title)}
                 </p>
-                <p className="text-[13px] text-ink-muted mt-1">{price}</p>
+                <div className="flex items-center justify-center gap-2 mt-1">
+                  <span className={`text-[13px] ${isOnSale ? 'text-coral font-medium' : 'text-ink-muted'}`}>
+                    {formatPrice(minPrice.amount, minPrice.currencyCode, lang)}
+                  </span>
+                  {isOnSale && compareAt && (
+                    <span className="text-[12px] text-ink-muted line-through">
+                      {formatPrice(compareAt.amount, compareAt.currencyCode, lang)}
+                    </span>
+                  )}
+                </div>
               </Link>
             )
           })}

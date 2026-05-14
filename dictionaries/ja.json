@@ -1,6 +1,8 @@
 {
   "nav": {
     "kids": "KIDS",
+    "kidsShort": "半袖セット",
+    "kidsLong": "長袖セット",
     "adult": "ADULT",
     "new": "新作",
     "collections": "コレクション",
@@ -12,9 +14,13 @@
   },
   "product": {
     "addToCart": "カートに追加",
+    "buyNow": "今すぐ購入",
     "soldOut": "売り切れ",
     "salePrice": "セール価格",
-    "originalPrice": "定価"
+    "originalPrice": "定価",
+    "sizeGuide": "サイズガイド",
+    "freeShippingNotice": "",
+    "recommended": "おすすめ商品"
   },
   "cart": {
     "title": "カート",
@@ -28,6 +34,7 @@
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
     "refund": "返品ポリシー",
+    "returns": "交換・返品申請",
     "copyright": "© 2025 applebuttercollege. All rights reserved."
   },
   "checkout": {

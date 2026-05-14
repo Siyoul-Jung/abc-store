@@ -7,8 +7,11 @@ import LanguageSwitcher from './LanguageSwitcher'
 import MobileMenu from './MobileMenu'
 import SearchBar from './SearchBar'
 
+type NavChild = { label: string; href: string }
+type NavItem = { label: string; href: string; children?: NavChild[] }
+
 type Dict = {
-  nav: { kids: string; adult: string; new: string; collections: string; sale: string; about: string; cart: string; menu: string; close: string }
+  nav: { kids: string; kidsShort: string; kidsLong: string; adult: string; new: string; collections: string; sale: string; about: string; cart: string; menu: string; close: string }
 }
 
 type Props = { lang: string; dict: Dict }
@@ -28,8 +31,15 @@ export default function Header({ lang, dict }: Props) {
 
   const transparent = isHome && !scrolled
 
-  const navItems = [
-    { label: dict.nav.kids,  href: `/${lang}/collections/kids` },
+  const navItems: NavItem[] = [
+    {
+      label: dict.nav.kids,
+      href: `/${lang}/collections/kids`,
+      children: [
+        { label: dict.nav.kidsShort, href: `/${lang}/collections/kids-short` },
+        { label: dict.nav.kidsLong,  href: `/${lang}/collections/kids-long` },
+      ],
+    },
     { label: dict.nav.adult, href: `/${lang}/collections/adult` },
     { label: dict.nav.new,   href: `/${lang}/collections/new` },
     { label: dict.nav.sale,  href: `/${lang}/collections/sale` },
@@ -42,15 +52,39 @@ export default function Header({ lang, dict }: Props) {
 
         {/* 왼쪽: nav */}
         <div className="hidden md:flex items-center gap-8">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-[13px] font-normal text-ink hover:opacity-60 transition-opacity"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) =>
+            item.children ? (
+              <div key={item.href} className="relative group">
+                <Link
+                  href={item.href}
+                  className="text-[13px] font-normal text-ink hover:opacity-60 transition-opacity"
+                >
+                  {item.label}
+                </Link>
+                <div className="absolute top-full left-0 pt-2 hidden group-hover:block z-20">
+                  <div className="bg-white border border-border py-1 min-w-[110px]">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className="block px-4 py-2.5 text-[12px] text-ink hover:opacity-60 transition-opacity whitespace-nowrap"
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-[13px] font-normal text-ink hover:opacity-60 transition-opacity"
+              >
+                {item.label}
+              </Link>
+            )
+          )}
         </div>
 
         {/* 모바일: 햄버거 */}
@@ -62,21 +96,30 @@ export default function Header({ lang, dict }: Props) {
           />
         </div>
 
-        {/* 가운데: 로고 (절대 중앙 정렬) */}
-        <div className="absolute left-1/2 -translate-x-1/2">
+        {/* 가운데: 로고 — 모바일은 flex-1 중앙, 데스크톱은 absolute 중앙 */}
+        <div className="flex-1 flex md:hidden justify-center">
           <Link
             href={`/${lang}`}
-            className="text-[26px] font-bold text-ink hover:opacity-60 transition-opacity whitespace-nowrap"
-            style={{ fontFamily: 'var(--font-display)' }}
+            className="text-[18px] font-bold hover:opacity-60 transition-opacity whitespace-nowrap"
+            style={{ fontFamily: 'var(--font-display)', color: '#E8000A' }}
+          >
+            applebuttercollege
+          </Link>
+        </div>
+        <div className="hidden md:block absolute left-1/2 -translate-x-1/2">
+          <Link
+            href={`/${lang}`}
+            className="text-[26px] font-bold hover:opacity-60 transition-opacity whitespace-nowrap"
+            style={{ fontFamily: 'var(--font-display)', color: '#E8000A' }}
           >
             applebuttercollege
           </Link>
         </div>
 
-        {/* 오른쪽: 검색 + 언어 + 장바구니 */}
+        {/* 오른쪽: 검색 + 언어(데스크톱만) + 장바구니 */}
         <div className="flex items-center gap-5">
           <SearchBar lang={lang as 'ko' | 'ja'} />
-          <LanguageSwitcher lang={lang} />
+          <div className="hidden md:flex"><LanguageSwitcher lang={lang} /></div>
           <Link
             href={`/${lang}/cart`}
             aria-label={dict.nav.cart}

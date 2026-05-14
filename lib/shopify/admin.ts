@@ -1,0 +1,15 @@
+export async function adminGql(query: string, variables?: Record<string, unknown>) {
+  const res = await fetch(
+    `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/${process.env.SHOPIFY_API_VERSION ?? '2026-04'}/graphql.json`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_TOKEN!,
+      },
+      body: JSON.stringify({ query, variables }),
+      cache: 'no-store',
+    },
+  )
+  return res.json()
+}

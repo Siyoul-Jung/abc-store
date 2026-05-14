@@ -7,7 +7,7 @@ import { formatPrice } from '@/lib/utils/format'
 import type { Cart, Locale } from '@/lib/shopify/types'
 
 const SHIPPING_THRESHOLD = 80000
-const SHIPPING_FEE = 3000
+const SHIPPING_FEE = 3500
 
 type Dict = {
   checkout: {
@@ -83,6 +83,9 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
     const orderId = `abc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
 
     try {
+      // 배송지 정보를 성공 페이지에서 사용할 수 있도록 쿠키에 저장
+      document.cookie = `checkout_shipping=${encodeURIComponent(JSON.stringify(form))};path=/;max-age=600;samesite=lax`
+
       const tossPayments = window.TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!)
       const payment = tossPayments.payment({ customerKey: 'ANONYMOUS' })
       await payment.requestPayment({

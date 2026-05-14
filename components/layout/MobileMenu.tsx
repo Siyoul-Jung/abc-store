@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import LanguageSwitcher from './LanguageSwitcher'
 
-type NavItem = { label: string; href: string }
+type NavItem = { label: string; href: string; children?: { label: string; href: string }[] }
 
 type Props = {
   lang: string
@@ -47,17 +48,32 @@ export default function MobileMenu({ lang, navItems, labels }: Props) {
             </div>
             <nav className="flex flex-col px-6 py-8 gap-6">
               {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="text-lg font-medium tracking-wide hover:text-accent transition-colors"
-                >
-                  {item.label}
-                </Link>
+                <div key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="text-lg font-medium tracking-wide hover:opacity-60 transition-opacity"
+                  >
+                    {item.label}
+                  </Link>
+                  {item.children && (
+                    <div className="flex flex-col gap-3 mt-3 pl-4">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          onClick={() => setOpen(false)}
+                          className="text-sm text-ink-muted hover:text-ink transition-colors"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </nav>
-            <div className="mt-auto px-6 py-8 border-t border-border">
+            <div className="mt-auto px-6 py-8 border-t border-border flex items-center justify-between">
               <Link
                 href={`/${lang}/cart`}
                 onClick={() => setOpen(false)}
@@ -65,6 +81,7 @@ export default function MobileMenu({ lang, navItems, labels }: Props) {
               >
                 {labels.cart}
               </Link>
+              <LanguageSwitcher lang={lang} />
             </div>
           </div>
         </>
