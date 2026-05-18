@@ -17,7 +17,7 @@
 | 프레임워크 | Next.js 16.2.4 (App Router) · React 19 |
 | 스타일 | Tailwind CSS v4 (`@theme` 방식, tailwind.config 없음) |
 | 상품 데이터 | Shopify Storefront API (`@shopify/storefront-api-client`) |
-| 주문 생성 | Shopify Admin API (shpat_ 토큰 미확보 — `lib/shopify/admin.ts` 준비됨) |
+| 주문 생성 | Shopify Admin API (`lib/shopify/admin.ts` — `adminGql()` 사용, 토큰 확보 완료) |
 | 결제 (한국) | Toss Payments v2 (`https://js.tosspayments.com/v2/standard`) |
 | 결제 (일본) | Stripe (미구현, Phase 4 예정) |
 | 배포 | Vercel |
@@ -35,15 +35,15 @@ app/
       products/
         page.tsx        ← 전체 상품 목록
         [id]/page.tsx   ← 상품 상세 (추천 상품 포함)
-      collections/      ← 미구현 (Critical)
-        [handle]/       ← 핸들: new, kids, adult, sale
+      collections/
+        [handle]/       ← 핸들: new, kids, adult, sale (태그 기반 필터링, 정렬 지원)
       cart/page.tsx     ← 장바구니
       checkout/
         page.tsx        ← 체크아웃 (배송지 + 토스 결제)
         success/        ← 결제 성공 → Toss confirm → Shopify 주문 생성
         fail/           ← 결제 실패
       returns/          ← 교환·반품 신청 폼 (2단계: 주문조회 → 신청)
-      about/            ← 미구현 (헤더 링크 있음 — 현재 404)
+      about/            ← 브랜드 소개 페이지 (ko/ja)
       privacy/          ← 개인정보처리방침 (ko/ja 작성 완료)
       terms/            ← 이용약관 (ko/ja 작성 완료)
       refund/           ← 환불정책 (ko/ja 작성 완료)
@@ -93,7 +93,7 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 ## Shopify 구성
 
 - **Storefront API**: `lib/shopify/client.ts`에서 초기화
-- **Admin API**: `lib/shopify/admin.ts`의 `adminGql()` 함수 사용. shpat_ 토큰 미확보.
+- **Admin API**: `lib/shopify/admin.ts`의 `adminGql()` 함수 사용. shpat_ 토큰 확보 완료.
 - **컬렉션 핸들**: `new`, `kids`, `adult`, `sale`
 - **상품 variants**: 사이즈 옵션명이 `Title`이면 단일 옵션으로 간주, 사이즈 버튼 미표시
 - **카트 쿠키**: `cart_id` (httpOnly, 7일)
@@ -107,7 +107,7 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 SHOPIFY_STORE_DOMAIN=
 SHOPIFY_STOREFRONT_ACCESS_TOKEN=
 SHOPIFY_API_VERSION=
-SHOPIFY_ADMIN_API_TOKEN=            # shpat_ 토큰 (미확보)
+SHOPIFY_ADMIN_API_TOKEN=            # shpat_ 토큰 (확보 완료, .env.local에 등록)
 NEXT_PUBLIC_TOSS_CLIENT_KEY=        # 토스 계약 후
 TOSS_SECRET_KEY=                    # 토스 계약 후
 INSTAGRAM_ACCESS_TOKEN=             # Meta Business Suite system user token
@@ -180,17 +180,17 @@ lib/
 
 **Phase 1 — 결제 완성 (토스 계약 직후)**
 - 토스 환경변수 등록 (`NEXT_PUBLIC_TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY`)
-- Shopify Admin API 토큰 확보 (shpat_) → 결제 성공 후 주문 생성
+- ~~Shopify Admin API 토큰 확보~~ ✅ → 결제 성공 후 주문 생성 로직 구현 필요
 - 헤더 카트 수량 배지
 - 404 / 500 에러 페이지
-- ABOUT 페이지 (현재 헤더 링크 → 404)
+- ~~ABOUT 페이지~~ ✅
 - 결제 성공 페이지 다국어
 - Meta Conversions API (CAPI) 연동
   - 필요 환경변수: `META_PIXEL_ID`, `META_CAPI_ACCESS_TOKEN`
 
 **Phase 2 — 상품 데이터 이전**
 - MakeShop → Shopify 상품 bulk 이전
-- 컬렉션 페이지 `/[lang]/collections/[handle]`
+- ~~컬렉션 페이지~~ ✅ (태그 기반 구현 완료)
 - 일본어 상품 설명 번역 (Shopify Translate & Adapt)
 
 **Phase 3 — 한국 런칭 준비**

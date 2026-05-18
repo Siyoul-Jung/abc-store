@@ -24,6 +24,7 @@ export default function CartLineItem({ line, locale }: Props) {
       } else {
         await updateCartLine(line.id, newQuantity, locale)
       }
+      window.dispatchEvent(new Event('cart:updated'))
       router.refresh()
     })
   }

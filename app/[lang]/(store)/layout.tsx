@@ -18,7 +18,7 @@ export default async function StoreLayout({
   return (
     <>
       <Header lang={lang} dict={dict} />
-      <main className="flex-1 pt-20">{children}</main>
+      <main className="flex-1 pt-16">{children}</main>
       <Footer lang={lang} dict={dict} />
     </>
   )

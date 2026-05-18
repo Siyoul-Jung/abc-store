@@ -72,23 +72,24 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
   cookieStore.delete('cart_id')
   cookieStore.delete('checkout_shipping')
 
+  const t = lang === 'ja'
+    ? { title: 'ご注文が完了しました', order: '注文番号', continueShopping: 'ショッピングを続ける' }
+    : { title: '주문이 완료되었습니다', order: '주문번호', continueShopping: '쇼핑 계속하기' }
+
   return (
     <section className="max-w-lg mx-auto px-4 py-24 text-center flex flex-col items-center gap-6">
       <div className="w-12 h-12 rounded-full bg-citrus flex items-center justify-center text-xl">
         ✓
       </div>
       <div className="flex flex-col gap-2">
-        <h1 className="text-base font-semibold">주문이 완료되었습니다</h1>
-        <p className="text-sm text-ink-muted">주문번호: {orderId}</p>
-        {shopifyOrderId && (
-          <p className="text-xs text-ink-muted">Shopify 주문 ID: #{shopifyOrderId}</p>
-        )}
+        <h1 className="text-base font-semibold">{t.title}</h1>
+        <p className="text-sm text-ink-muted">{t.order}: {orderId}</p>
       </div>
       <Link
-        href={`/${lang}/products`}
+        href={`/${lang}/collections/new`}
         className="text-sm underline underline-offset-4 text-ink-muted hover:text-ink transition-colors"
       >
-        쇼핑 계속하기
+        {t.continueShopping}
       </Link>
     </section>
   )

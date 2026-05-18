@@ -110,6 +110,42 @@ export const GET_COLLECTION_BY_HANDLE_QUERY = `
   }
 `
 
+export const GET_PRODUCTS_SORTED_QUERY = `
+  ${PRODUCT_FRAGMENT}
+  query GetProductsSorted($first: Int!, $sortKey: ProductSortKeys!, $reverse: Boolean!, $country: CountryCode!, $language: LanguageCode!)
+  @inContext(country: $country, language: $language) {
+    products(first: $first, sortKey: $sortKey, reverse: $reverse) {
+      nodes {
+        ...ProductFragment
+      }
+    }
+  }
+`
+
+export const GET_PRODUCTS_BY_TAG_SORTED_QUERY = `
+  ${PRODUCT_FRAGMENT}
+  query GetProductsByTagSorted($first: Int!, $tag: String!, $sortKey: ProductSortKeys!, $reverse: Boolean!, $country: CountryCode!, $language: LanguageCode!)
+  @inContext(country: $country, language: $language) {
+    products(first: $first, sortKey: $sortKey, reverse: $reverse, query: $tag) {
+      nodes {
+        ...ProductFragment
+      }
+    }
+  }
+`
+
+export const GET_PRODUCTS_BY_TAG_QUERY = `
+  ${PRODUCT_FRAGMENT}
+  query GetProductsByTag($first: Int!, $tag: String!, $country: CountryCode!, $language: LanguageCode!)
+  @inContext(country: $country, language: $language) {
+    products(first: $first, sortKey: CREATED_AT, reverse: true, query: $tag) {
+      nodes {
+        ...ProductFragment
+      }
+    }
+  }
+`
+
 export const GET_BEST_SELLING_QUERY = `
   ${PRODUCT_FRAGMENT}
   query GetBestSelling($first: Int!, $country: CountryCode!, $language: LanguageCode!)

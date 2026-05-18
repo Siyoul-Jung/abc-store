@@ -1,13 +1,11 @@
 {
   "nav": {
     "kids": "KIDS",
-    "kidsShort": "반팔 세트",
-    "kidsLong": "긴팔 세트",
     "adult": "ADULT",
-    "new": "신상",
+    "new": "NEW",
     "collections": "컬렉션",
-    "sale": "세일",
-    "about": "브랜드",
+    "sale": "SALE",
+    "about": "ABOUT",
     "cart": "장바구니",
     "menu": "메뉴",
     "close": "닫기"
@@ -57,7 +55,7 @@
     "season": "2025 S/S",
     "tagline": "어린이의 일상을 특별하게",
     "cta": "컬렉션 보기",
-    "newArrivals": "신상품"
+    "newArrivals": "NEW"
   },
   "common": {
     "loading": "불러오는 중...",

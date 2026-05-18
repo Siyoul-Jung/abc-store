@@ -6,6 +6,14 @@ import { lookupOrder, submitReturnRequest } from '@/lib/actions/returns'
 import type { OrderData } from '@/lib/actions/returns'
 import type { Locale } from '@/lib/shopify/types'
 
+const BRAND_FAULT_REASONS = new Set(['WRONG_ITEM', 'DEFECTIVE', 'NOT_AS_DESCRIBED'])
+
+const KO_BANKS = [
+  '국민은행', '신한은행', '우리은행', '하나은행', '농협은행',
+  '기업은행', '카카오뱅크', '토스뱅크', '케이뱅크', '새마을금고',
+  'SC제일은행', '우체국', '기타',
+]
+
 const t = {
   ko: {
     title: '교환 · 반품 신청',
@@ -26,6 +34,16 @@ const t = {
     submit: '교환 · 반품 신청하기',
     successTitle: '신청이 완료되었습니다',
     successBody: '영업일 기준 1~2일 내 처리 안내를 드립니다.',
+    shippingCustomer: '반품 배송비는 고객 부담입니다.',
+    shippingBrand: '불량 · 오배송의 경우 반품 배송비는 저희가 부담합니다.',
+    refundAccount: '환불 계좌 정보',
+    refundAccountNote: '카드 결제 시 입력 불필요 · 가상계좌 결제 시 필수',
+    bank: '은행',
+    bankPlaceholder: '은행 선택',
+    accountNumber: '계좌번호',
+    accountNumberPlaceholder: '- 없이 숫자만 입력',
+    accountHolder: '예금주',
+    accountHolderPlaceholder: '예금주명',
     errors: {
       ORDER_NOT_FOUND: '주문을 찾을 수 없습니다. 주문번호를 확인해 주세요.',
       NAME_MISMATCH: '주문자명이 일치하지 않습니다.',
@@ -63,6 +81,16 @@ const t = {
     submit: '交換・返品を申請する',
     successTitle: '申請が完了しました',
     successBody: '営業日1〜2日以内にご連絡いたします。',
+    shippingCustomer: '返送料はお客様のご負担となります。',
+    shippingBrand: '不良品・誤配送の場合、返送料は当店負担です。',
+    refundAccount: '返金口座情報',
+    refundAccountNote: 'クレジットカード決済は不要・銀行振込の場合は必須',
+    bank: '銀行名',
+    bankPlaceholder: '銀行を入力',
+    accountNumber: '口座番号',
+    accountNumberPlaceholder: '数字のみ入力',
+    accountHolder: '口座名義',
+    accountHolderPlaceholder: '口座名義人',
     errors: {
       ORDER_NOT_FOUND: '注文が見つかりません。注文番号をご確認ください。',
       NAME_MISMATCH: 'お名前が一致しません。',
@@ -106,6 +134,13 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
   const [noteText, setNoteText] = useState('')
   const [successRef, setSuccessRef] = useState('')
 
+  // 환불 계좌
+  const [refundBank, setRefundBank] = useState('')
+  const [refundAccount, setRefundAccount] = useState('')
+  const [refundHolder, setRefundHolder] = useState('')
+
+  const isBrandFault = reason ? BRAND_FAULT_REASONS.has(reason) : null
+
   function handleLookup() {
     if (!orderNum.trim() || !custName.trim()) return
     setErrorKey(null)
@@ -143,13 +178,19 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
     if (selectedItems.length === 0) { setErrorKey('NO_ITEMS'); return }
     if (!reason) { setErrorKey('NO_REASON'); return }
     setErrorKey(null)
+
+    const refundNote =
+      returnType === 'return' && refundBank && refundAccount && refundHolder
+        ? `[환불계좌] ${refundBank} ${refundAccount} (${refundHolder})`
+        : null
+
     startTransition(async () => {
       const result = await submitReturnRequest({
         orderId: orderData.id,
         type: returnType,
         items: selectedItems,
         reason,
-        note: noteText,
+        note: [noteText, refundNote].filter(Boolean).join(' / '),
       })
       if ('error' in result) { setErrorKey('GENERIC'); return }
       setSuccessRef(result.returnName)
@@ -252,17 +293,11 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
                 <p className="flex-1 text-sm leading-snug">{item.name}</p>
                 {checked && (
                   <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => changeQty(item.lineItemId, -1, item.quantity)}
-                      className="w-7 h-7 border border-border text-sm flex items-center justify-center hover:border-ink transition-colors"
-                    >−</button>
+                    <button type="button" onClick={() => changeQty(item.lineItemId, -1, item.quantity)}
+                      className="w-7 h-7 border border-border text-sm flex items-center justify-center hover:border-ink transition-colors">−</button>
                     <span className="w-6 text-center text-sm">{quantities[item.lineItemId]}</span>
-                    <button
-                      type="button"
-                      onClick={() => changeQty(item.lineItemId, 1, item.quantity)}
-                      className="w-7 h-7 border border-border text-sm flex items-center justify-center hover:border-ink transition-colors"
-                    >+</button>
+                    <button type="button" onClick={() => changeQty(item.lineItemId, 1, item.quantity)}
+                      className="w-7 h-7 border border-border text-sm flex items-center justify-center hover:border-ink transition-colors">+</button>
                   </div>
                 )}
               </div>
@@ -276,57 +311,81 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
         <p className={labelCls}>{l.type}</p>
         <div className="flex gap-2">
           {(['return', 'exchange'] as const).map((type) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => setReturnType(type)}
+            <button key={type} type="button" onClick={() => setReturnType(type)}
               className={`flex-1 py-3 text-sm border transition-colors ${
-                returnType === type
-                  ? 'border-ink bg-ink text-white'
-                  : 'border-border hover:border-ink'
-              }`}
-            >
+                returnType === type ? 'border-ink bg-ink text-white' : 'border-border hover:border-ink'
+              }`}>
               {type === 'return' ? l.returnType : l.exchangeType}
             </button>
           ))}
         </div>
       </div>
 
-      {/* 사유 */}
+      {/* 사유 + 배송비 안내 */}
       <div className="flex flex-col gap-2">
         <label className={labelCls}>{l.reason}</label>
-        <select
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          className={`${inputCls} bg-white`}
-        >
+        <select value={reason} onChange={(e) => setReason(e.target.value)}
+          className={`${inputCls} bg-white`}>
           <option value="">{l.reasonPlaceholder}</option>
           {l.reasons.map((r) => (
             <option key={r.value} value={r.value}>{r.label}</option>
           ))}
         </select>
+        {reason && (
+          <p className={`text-xs px-3 py-2 ${isBrandFault ? 'bg-citrus/30 text-ink' : 'bg-surface text-ink-muted'}`}>
+            {isBrandFault ? l.shippingBrand : l.shippingCustomer}
+          </p>
+        )}
       </div>
 
       {/* 상세 내용 */}
       <div className="flex flex-col gap-2">
         <label className={labelCls}>{l.note}</label>
-        <textarea
-          value={noteText}
-          onChange={(e) => setNoteText(e.target.value)}
+        <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)}
           placeholder={l.notePlaceholder}
-          className={`${inputCls} resize-none h-24`}
-        />
+          className={`${inputCls} resize-none h-24`} />
       </div>
+
+      {/* 환불 계좌 (반품 선택 시에만) */}
+      {returnType === 'return' && (
+        <div className="flex flex-col gap-3 border border-border p-4">
+          <div>
+            <p className={labelCls}>{l.refundAccount}</p>
+            <p className="text-xs text-ink-muted mt-1">{l.refundAccountNote}</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className={labelCls}>{l.bank}</label>
+            {locale === 'ko' ? (
+              <select value={refundBank} onChange={(e) => setRefundBank(e.target.value)}
+                className={`${inputCls} bg-white`}>
+                <option value="">{l.bankPlaceholder}</option>
+                {KO_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+              </select>
+            ) : (
+              <input className={inputCls} placeholder={l.bankPlaceholder}
+                value={refundBank} onChange={(e) => setRefundBank(e.target.value)} />
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className={labelCls}>{l.accountNumber}</label>
+            <input className={inputCls} placeholder={l.accountNumberPlaceholder}
+              inputMode="numeric" value={refundAccount}
+              onChange={(e) => setRefundAccount(e.target.value)} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className={labelCls}>{l.accountHolder}</label>
+            <input className={inputCls} placeholder={l.accountHolderPlaceholder}
+              value={refundHolder} onChange={(e) => setRefundHolder(e.target.value)} />
+          </div>
+        </div>
+      )}
 
       {errorKey && (
         <p className="text-sm text-coral">{l.errors[errorKey] ?? l.errors.GENERIC}</p>
       )}
 
-      <button
-        onClick={handleSubmit}
-        disabled={isPending}
-        className="w-full py-4 text-sm font-medium tracking-widest uppercase bg-ink text-white hover:opacity-80 transition-opacity disabled:opacity-40"
-      >
+      <button onClick={handleSubmit} disabled={isPending}
+        className="w-full py-4 text-sm font-medium tracking-widest uppercase bg-ink text-white hover:opacity-80 transition-opacity disabled:opacity-40">
         {isPending ? '···' : l.submit}
       </button>
     </div>

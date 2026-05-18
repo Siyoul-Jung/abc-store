@@ -30,7 +30,7 @@ export default async function InstagramFeed() {
                 href={post.permalink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group block overflow-hidden bg-surface"
+                className="group block overflow-hidden rounded-xl bg-surface"
               >
                 <Image
                   src={src}

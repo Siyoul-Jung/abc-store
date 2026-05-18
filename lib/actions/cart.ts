@@ -13,6 +13,19 @@ import type { Cart, Locale } from '@/lib/shopify/types'
 
 const CART_COOKIE = 'cart_id'
 
+export async function getCartCount(): Promise<number> {
+  const cookieStore = await cookies()
+  const cartId = cookieStore.get(CART_COOKIE)?.value
+  if (!cartId) return 0
+
+  const ctx = getShopifyContext('ko')
+  const { data, errors } = await shopifyClient.request(GET_CART_QUERY, {
+    variables: { cartId, ...ctx },
+  })
+  if (errors || !data?.cart) return 0
+  return data.cart.totalQuantity ?? 0
+}
+
 export async function getCart(locale: Locale): Promise<Cart | null> {
   const cookieStore = await cookies()
   const cartId = cookieStore.get(CART_COOKIE)?.value

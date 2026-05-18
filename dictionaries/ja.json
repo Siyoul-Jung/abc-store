@@ -1,13 +1,11 @@
 {
   "nav": {
     "kids": "KIDS",
-    "kidsShort": "半袖セット",
-    "kidsLong": "長袖セット",
     "adult": "ADULT",
-    "new": "新作",
+    "new": "NEW",
     "collections": "コレクション",
-    "sale": "セール",
-    "about": "ブランド",
+    "sale": "SALE",
+    "about": "ABOUT",
     "cart": "カート",
     "menu": "メニュー",
     "close": "閉じる"
@@ -57,7 +55,7 @@
     "season": "2025 S/S",
     "tagline": "子どもの日常を特別に",
     "cta": "コレクションを見る",
-    "newArrivals": "新着商品"
+    "newArrivals": "NEW"
   },
   "common": {
     "loading": "読み込み中...",

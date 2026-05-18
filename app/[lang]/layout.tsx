@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import '../globals.css'
 import { hasLocale } from './dictionaries'
 import { notFound } from 'next/navigation'
+import LangSetter from './LangSetter'
 
 export const metadata: Metadata = {
   title: {
@@ -9,6 +9,15 @@ export const metadata: Metadata = {
     template: '%s — applebuttercollege',
   },
   description: '아이들을 위한 특별한 옷, applebuttercollege',
+  metadataBase: new URL('https://applebuttercollege.com'),
+  openGraph: {
+    siteName: 'applebuttercollege',
+    images: [{ url: '/insta_logo.png' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/insta_logo.png'],
+  },
 }
 
 export async function generateStaticParams() {
@@ -26,10 +35,9 @@ export default async function LangLayout({
   if (!hasLocale(lang)) notFound()
 
   return (
-    <html lang={lang} className="h-full">
-      <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
-        {children}
-      </body>
-    </html>
+    <>
+      <LangSetter lang={lang} />
+      {children}
+    </>
   )
 }

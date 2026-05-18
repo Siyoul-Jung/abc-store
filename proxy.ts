@@ -13,6 +13,17 @@ function getLocale(request: NextRequest): string {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // /coming-soon (locale 포함 변형 포함) 항상 통과 또는 /coming-soon으로 정규화
+  if (pathname === '/coming-soon') return
+  if (locales.some(l => pathname === `/${l}/coming-soon`)) {
+    return NextResponse.redirect(new URL('/coming-soon', request.url))
+  }
+
+  // Coming Soon 모드: 나머지 모든 경로를 /coming-soon으로 리다이렉트
+  if (process.env.NEXT_PUBLIC_COMING_SOON === 'true') {
+    return NextResponse.redirect(new URL('/coming-soon', request.url))
+  }
+
   const hasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   )
