@@ -49,6 +49,11 @@ const LOOKUP_ORDER_QUERY = `
               }
             }
           }
+          returns(first: 5) {
+            edges {
+              node { status }
+            }
+          }
         }
       }
     }
@@ -95,6 +100,12 @@ export async function lookupOrder(
     (n) => n.includes(inputName) || inputName.includes(n)
   )
   if (!nameMatch) return { error: 'NAME_MISMATCH' }
+
+  const activeReturnStatuses = new Set(['OPEN', 'IN_PROGRESS'])
+  const hasActiveReturn = (node.returns?.edges ?? []).some(
+    ({ node: r }: { node: { status: string } }) => activeReturnStatuses.has(r.status)
+  )
+  if (hasActiveReturn) return { error: 'RETURN_EXISTS' }
 
   // Build fulfillmentLineItemId map: lineItemId → fulfillmentLineItemId
   const fulfillmentMap = new Map<string, string>()
