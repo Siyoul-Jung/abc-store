@@ -3,8 +3,19 @@ import type { NextRequest } from 'next/server'
 
 const locales = ['ko', 'ja'] as const
 const defaultLocale = 'ko'
+const COOKIE_NAME = 'lang'
 
 function getLocale(request: NextRequest): string {
+  // 1. 쿠키 우선 (수동 선택 기억)
+  const cookie = request.cookies.get(COOKIE_NAME)?.value
+  if (cookie && (locales as readonly string[]).includes(cookie)) return cookie
+
+  // 2. Vercel geo (국가 기반)
+  const country = (request as NextRequest & { geo?: { country?: string } }).geo?.country
+  if (country === 'JP') return 'ja'
+  if (country === 'KR') return 'ko'
+
+  // 3. Accept-Language 헤더
   const acceptLanguage = request.headers.get('accept-language') ?? ''
   const preferred = acceptLanguage.split(',')[0].split('-')[0].toLowerCase()
   return (locales as readonly string[]).includes(preferred) ? preferred : defaultLocale
