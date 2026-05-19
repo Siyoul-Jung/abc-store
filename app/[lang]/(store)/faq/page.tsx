@@ -28,6 +28,14 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
             q: '현금영수증 발급이 가능한가요?',
             a: '구매 후 1주일 이내에 발급받으실 번호를 이메일로 보내주시면 처리해 드립니다.',
           },
+          {
+            q: '적립금은 어떻게 사용하나요?',
+            a: [
+              '적립금은 10,000원 이상 적립되어야 사용 가능합니다.',
+              '배송비를 제외한 상품 합계 금액이 80,000원 이상이어야 사용 가능합니다.',
+              '구매 금액의 1%가 적립됩니다.',
+            ],
+          },
         ],
       },
       {
@@ -310,33 +318,34 @@ export default async function FaqPage({
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-16 sm:py-24">
-      <h1 className="text-sm font-bold tracking-widest uppercase mb-10">{title}</h1>
-      <div className="flex flex-col gap-8">
+
+      {/* 페이지 헤더 */}
+      <div className="mb-14 pb-8 border-b border-border">
+        <p className="text-[11px] tracking-[0.2em] uppercase text-ink-muted mb-3">applebuttercollege</p>
+        <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">{title}</h1>
+      </div>
+
+      <div className="flex flex-col gap-12">
         {sections.map((section) => (
           <section key={section.title}>
-            <h2 className="text-xs font-semibold tracking-widest uppercase text-ink-muted mb-4 pb-2 border-b border-border">
+            <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-ink-muted mb-3">
               {section.title}
-            </h2>
-            <div className="flex flex-col">
+            </p>
+            <div className="border-t border-border">
               {section.items.map((item) => (
-                <details key={item.q} className="group border-b border-border last:border-b-0">
-                  <summary className="list-none flex items-center justify-between py-4 cursor-pointer select-none gap-4">
-                    <span className="text-sm font-medium">{item.q}</span>
-                    <svg
-                      width="12" height="12" viewBox="0 0 12 12"
-                      className="shrink-0 transition-transform duration-200 group-open:rotate-180"
-                    >
-                      <path d="M1 4 L6 8 L11 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                <details key={item.q} className="group border-b border-border">
+                  <summary className="list-none flex items-center justify-between py-4 cursor-pointer select-none gap-6">
+                    <span className="text-sm leading-snug">{item.q}</span>
+                    <svg width="14" height="14" viewBox="0 0 14 14"
+                      className="shrink-0 text-ink-muted transition-transform duration-200 group-open:rotate-180">
+                      <path d="M2 5 L7 9.5 L12 5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </summary>
-                  <div className="pb-4 text-sm text-ink-muted leading-relaxed">
+                  <div className="pb-5 pr-6 text-sm text-ink-muted leading-relaxed">
                     {Array.isArray(item.a) ? (
-                      <ul className="flex flex-col gap-1">
+                      <ul className="flex flex-col gap-2">
                         {item.a.map((line, i) => (
-                          <li key={i} className="flex gap-2">
-                            <span className="shrink-0 text-ink-muted/50">—</span>
-                            <span>{line}</span>
-                          </li>
+                          <li key={i} className="pl-3 border-l border-border">{line}</li>
                         ))}
                       </ul>
                     ) : (
@@ -349,6 +358,7 @@ export default async function FaqPage({
           </section>
         ))}
       </div>
+
     </main>
   )
 }
