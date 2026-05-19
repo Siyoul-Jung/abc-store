@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { lookupOrder, submitReturnRequest } from '@/lib/actions/returns'
 import type { OrderData } from '@/lib/actions/returns'
 import type { Locale } from '@/lib/shopify/types'
@@ -31,6 +32,7 @@ const t = {
     submit: '반품 신청하기',
     successTitle: '반품 신청이 완료되었습니다',
     successBody: '신청 내용을 검토 후 빠르게 안내드리겠습니다.',
+    backToHome: '홈으로 돌아가기',
     exchangeNotice: '사이즈 교환을 원하시면 반품 후 환불 확인 시 원하시는 상품을 새로 주문해 주세요.',
     shippingCustomer: '반품 배송비는 고객 부담입니다.',
     shippingBrand: '불량 · 오배송의 경우 반품 배송비는 저희가 부담합니다.',
@@ -77,6 +79,7 @@ const t = {
     submit: '返品を申請する',
     successTitle: '返品申請が完了しました',
     successBody: '内容を確認のうえ、速やかにご連絡いたします。',
+    backToHome: 'ホームへ戻る',
     exchangeNotice: 'サイズ交換をご希望の場合は、返品・ご返金確認後に改めてご注文ください。',
     shippingCustomer: '返送料はお客様のご負担となります。',
     shippingBrand: '不良品・誤配送の場合、返送料は当店負担です。',
@@ -203,6 +206,12 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
         <span className="text-3xl text-ink">✓</span>
         <h2 className="text-sm font-bold tracking-widest uppercase">{l.successTitle}</h2>
         <p className="text-sm text-ink-muted">{l.successBody}</p>
+        <Link
+          href={`/${locale}`}
+          className="mt-2 text-xs text-ink-muted underline underline-offset-4 hover:text-ink transition-colors"
+        >
+          {l.backToHome}
+        </Link>
       </div>
     )
   }
