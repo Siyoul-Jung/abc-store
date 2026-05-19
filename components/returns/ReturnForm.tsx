@@ -203,7 +203,6 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
         <span className="text-3xl text-ink">✓</span>
         <h2 className="text-sm font-bold tracking-widest uppercase">{l.successTitle}</h2>
         <p className="text-sm text-ink-muted">{l.successBody}</p>
-        {successRef && <p className="text-xs text-ink-muted mt-1">{successRef}</p>}
       </div>
     )
   }
