@@ -11,5 +11,9 @@ export async function adminGql(query: string, variables?: Record<string, unknown
       cache: 'no-store',
     },
   )
-  return res.json()
+  const json = await res.json()
+  if (!res.ok || json.errors) {
+    console.error('[adminGql] error:', res.status, JSON.stringify(json.errors ?? json))
+  }
+  return json
 }

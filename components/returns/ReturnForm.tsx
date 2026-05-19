@@ -16,7 +16,7 @@ const KO_BANKS = [
 
 const t = {
   ko: {
-    title: '교환 · 반품 신청',
+    title: '반품 신청',
     orderNumber: '주문번호',
     customerName: '주문자명',
     orderNumberPlaceholder: '숫자만 입력  예) 1001',
@@ -24,16 +24,14 @@ const t = {
     lookup: '주문 조회',
     back: '← 다시 조회',
     selectItems: '반품할 상품',
-    type: '신청 유형',
-    returnType: '반품',
-    exchangeType: '교환',
     reason: '사유',
     reasonPlaceholder: '사유를 선택해 주세요',
     note: '상세 내용',
     notePlaceholder: '추가 내용을 입력해 주세요.',
-    submit: '교환 · 반품 신청하기',
-    successTitle: '신청이 완료되었습니다',
+    submit: '반품 신청하기',
+    successTitle: '반품 신청이 완료되었습니다',
     successBody: '영업일 기준 1~2일 내 처리 안내를 드립니다.',
+    exchangeNotice: '사이즈 교환을 원하시면 반품 후 환불 확인 시 원하시는 상품을 새로 주문해 주세요.',
     shippingCustomer: '반품 배송비는 고객 부담입니다.',
     shippingBrand: '불량 · 오배송의 경우 반품 배송비는 저희가 부담합니다.',
     refundAccount: '환불 계좌 정보',
@@ -63,7 +61,7 @@ const t = {
     ],
   },
   ja: {
-    title: '交換・返品申請',
+    title: '返品申請',
     orderNumber: '注文番号',
     customerName: 'お名前',
     orderNumberPlaceholder: '数字のみ  例) 1001',
@@ -71,16 +69,14 @@ const t = {
     lookup: '注文を確認',
     back: '← 再検索',
     selectItems: '返品する商品',
-    type: '申請種別',
-    returnType: '返品',
-    exchangeType: '交換',
     reason: '理由',
     reasonPlaceholder: '理由を選択してください',
     note: '詳細内容',
     notePlaceholder: '追加内容があれば入力してください。',
-    submit: '交換・返品を申請する',
-    successTitle: '申請が完了しました',
+    submit: '返品を申請する',
+    successTitle: '返品申請が完了しました',
     successBody: '営業日1〜2日以内にご連絡いたします。',
+    exchangeNotice: 'サイズ交換をご希望の場合は、返品・ご返金確認後に改めてご注文ください。',
     shippingCustomer: '返送料はお客様のご負担となります。',
     shippingBrand: '不良品・誤配送の場合、返送料は当店負担です。',
     refundAccount: '返金口座情報',
@@ -129,7 +125,6 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
 
   // Step 2
   const [quantities, setQuantities] = useState<Record<string, number>>({})
-  const [returnType, setReturnType] = useState<'return' | 'exchange'>('return')
   const [reason, setReason] = useState('')
   const [noteText, setNoteText] = useState('')
   const [successRef, setSuccessRef] = useState('')
@@ -180,14 +175,14 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
     setErrorKey(null)
 
     const refundNote =
-      returnType === 'return' && refundBank && refundAccount && refundHolder
+      refundBank && refundAccount && refundHolder
         ? `[환불계좌] ${refundBank} ${refundAccount} (${refundHolder})`
         : null
 
     startTransition(async () => {
       const result = await submitReturnRequest({
         orderId: orderData.id,
-        type: returnType,
+        type: 'return',
         items: selectedItems,
         reason,
         note: [noteText, refundNote].filter(Boolean).join(' / '),
@@ -206,6 +201,7 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
         <h2 className="text-sm font-bold tracking-widest uppercase">{l.successTitle}</h2>
         <p className="text-sm text-ink-muted">{l.successBody}</p>
         {successRef && <p className="text-xs text-ink-muted mt-1">{successRef}</p>}
+        <p className="text-xs text-ink-muted mt-4 max-w-xs border-t border-border pt-4">{l.exchangeNotice}</p>
       </div>
     )
   }
@@ -306,21 +302,6 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
         </div>
       </div>
 
-      {/* 신청 유형 */}
-      <div className="flex flex-col gap-2">
-        <p className={labelCls}>{l.type}</p>
-        <div className="flex gap-2">
-          {(['return', 'exchange'] as const).map((type) => (
-            <button key={type} type="button" onClick={() => setReturnType(type)}
-              className={`flex-1 py-3 text-sm border transition-colors ${
-                returnType === type ? 'border-ink bg-ink text-white' : 'border-border hover:border-ink'
-              }`}>
-              {type === 'return' ? l.returnType : l.exchangeType}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* 사유 + 배송비 안내 */}
       <div className="flex flex-col gap-2">
         <label className={labelCls}>{l.reason}</label>
@@ -346,9 +327,8 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
           className={`${inputCls} resize-none h-24`} />
       </div>
 
-      {/* 환불 계좌 (반품 선택 시에만) */}
-      {returnType === 'return' && (
-        <div className="flex flex-col gap-3 border border-border p-4">
+      {/* 환불 계좌 */}
+      <div className="flex flex-col gap-3 border border-border p-4">
           <div>
             <p className={labelCls}>{l.refundAccount}</p>
             <p className="text-xs text-ink-muted mt-1">{l.refundAccountNote}</p>
@@ -377,8 +357,7 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
             <input className={inputCls} placeholder={l.accountHolderPlaceholder}
               value={refundHolder} onChange={(e) => setRefundHolder(e.target.value)} />
           </div>
-        </div>
-      )}
+      </div>
 
       {errorKey && (
         <p className="text-sm text-coral">{l.errors[errorKey] ?? l.errors.GENERIC}</p>

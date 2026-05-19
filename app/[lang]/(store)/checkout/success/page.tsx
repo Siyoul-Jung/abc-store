@@ -73,8 +73,8 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
   cookieStore.delete('checkout_shipping')
 
   const t = lang === 'ja'
-    ? { title: 'ご注文が完了しました', order: '注文番号', continueShopping: 'ショッピングを続ける', returns: '交換・返品の申請はこちら →' }
-    : { title: '주문이 완료되었습니다', order: '주문번호', continueShopping: '쇼핑 계속하기', returns: '교환·반품 신청하기 →' }
+    ? { title: 'ご注文が完了しました', order: '注文番号', continueShopping: 'ショッピングを続ける', returns: '返品の申請はこちら →' }
+    : { title: '주문이 완료되었습니다', order: '주문번호', continueShopping: '쇼핑 계속하기', returns: '반품 신청하기 →' }
 
   return (
     <section className="max-w-lg mx-auto px-4 py-24 text-center flex flex-col items-center gap-6">

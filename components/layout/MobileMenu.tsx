@@ -64,7 +64,7 @@ export default function MobileMenu({ lang, navItems, labels }: Props) {
                 onClick={() => setOpen(false)}
                 className="text-sm text-ink-muted hover:text-ink transition-colors"
               >
-                교환 · 반품
+                반품 신청
               </Link>
               <div className="flex items-center justify-between">
                 <Link
