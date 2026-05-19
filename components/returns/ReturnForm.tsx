@@ -34,8 +34,9 @@ const t = {
     exchangeNotice: '사이즈 교환을 원하시면 반품 후 환불 확인 시 원하시는 상품을 새로 주문해 주세요.',
     shippingCustomer: '반품 배송비는 고객 부담입니다.',
     shippingBrand: '불량 · 오배송의 경우 반품 배송비는 저희가 부담합니다.',
+    refundAccountCheck: '가상계좌 · 무통장 입금으로 결제하셨나요?',
     refundAccount: '환불 계좌 정보',
-    refundAccountNote: '카드 결제 시 입력 불필요 · 가상계좌 결제 시 필수',
+    refundAccountNote: '환불받을 계좌를 입력해 주세요.',
     bank: '은행',
     bankPlaceholder: '은행 선택',
     accountNumber: '계좌번호',
@@ -79,8 +80,9 @@ const t = {
     exchangeNotice: 'サイズ交換をご希望の場合は、返品・ご返金確認後に改めてご注文ください。',
     shippingCustomer: '返送料はお客様のご負担となります。',
     shippingBrand: '不良品・誤配送の場合、返送料は当店負担です。',
+    refundAccountCheck: '銀行振込でお支払いでしたか？',
     refundAccount: '返金口座情報',
-    refundAccountNote: 'クレジットカード決済は不要・銀行振込の場合は必須',
+    refundAccountNote: '返金先の口座情報をご入力ください。',
     bank: '銀行名',
     bankPlaceholder: '銀行を入力',
     accountNumber: '口座番号',
@@ -130,6 +132,7 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
   const [successRef, setSuccessRef] = useState('')
 
   // 환불 계좌
+  const [needsRefundAccount, setNeedsRefundAccount] = useState(false)
   const [refundBank, setRefundBank] = useState('')
   const [refundAccount, setRefundAccount] = useState('')
   const [refundHolder, setRefundHolder] = useState('')
@@ -328,7 +331,18 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
       </div>
 
       {/* 환불 계좌 */}
-      <div className="flex flex-col gap-3 border border-border p-4">
+      <label className="flex items-center gap-2 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={needsRefundAccount}
+          onChange={(e) => setNeedsRefundAccount(e.target.checked)}
+          className="w-4 h-4 accent-ink shrink-0"
+        />
+        <span className="text-sm text-ink">{l.refundAccountCheck}</span>
+      </label>
+
+      {needsRefundAccount && (
+        <div className="flex flex-col gap-3 border border-border p-4">
           <div>
             <p className={labelCls}>{l.refundAccount}</p>
             <p className="text-xs text-ink-muted mt-1">{l.refundAccountNote}</p>
@@ -357,7 +371,8 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
             <input className={inputCls} placeholder={l.accountHolderPlaceholder}
               value={refundHolder} onChange={(e) => setRefundHolder(e.target.value)} />
           </div>
-      </div>
+        </div>
+      )}
 
       {errorKey && (
         <p className="text-sm text-coral">{l.errors[errorKey] ?? l.errors.GENERIC}</p>
