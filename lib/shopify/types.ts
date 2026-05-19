@@ -1,8 +1,8 @@
-export type Locale = 'ko' | 'ja'
+export type Locale = 'ko' | 'ja' | 'en'
 
 export type ShopifyContext = {
-  country: 'KR' | 'JP'
-  language: 'KO' | 'JA'
+  country: 'KR' | 'JP' | 'US'
+  language: 'KO' | 'JA' | 'EN'
 }
 
 export type Money = {

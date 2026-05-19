@@ -23,6 +23,16 @@ const content = {
     contact: 'お問い合わせ',
     contactText: 'ご不明な点はサイト内のお問い合わせフォームよりご連絡ください。',
   },
+  en: {
+    title: 'About Us',
+    body: [
+      'applebuttercollege is a children\'s clothing brand that makes everyday moments more special for kids.',
+      'We create clothes with comfortable fabrics and thoughtful designs so children can run and play freely.',
+      'Each piece is made with care, and we hope our clothes brighten your child\'s every day.',
+    ],
+    contact: 'Contact',
+    contactText: 'For any inquiries, please use the customer message board on our website.',
+  },
 }
 
 export default async function AboutPage({

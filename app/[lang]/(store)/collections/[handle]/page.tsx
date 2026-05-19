@@ -6,11 +6,11 @@ import ProductCard from '@/components/product/ProductCard'
 import SortSelector from '@/components/collections/SortSelector'
 import type { Locale, Product } from '@/lib/shopify/types'
 
-const COLLECTION_META: Record<string, { ko: string; ja: string }> = {
-  kids:  { ko: 'KIDS',  ja: 'KIDS' },
-  adult: { ko: 'ADULT', ja: 'ADULT' },
-  new:   { ko: 'NEW',   ja: 'NEW' },
-  sale:  { ko: 'SALE',  ja: 'SALE' },
+const COLLECTION_META: Record<string, { ko: string; ja: string; en: string }> = {
+  kids:  { ko: 'KIDS',  ja: 'KIDS',  en: 'KIDS' },
+  adult: { ko: 'ADULT', ja: 'ADULT', en: 'ADULT' },
+  new:   { ko: 'NEW',   ja: 'NEW',   en: 'NEW' },
+  sale:  { ko: 'SALE',  ja: 'SALE',  en: 'SALE' },
 }
 
 async function getCollectionProducts(handle: string, locale: Locale, sort: SortOption): Promise<Product[]> {

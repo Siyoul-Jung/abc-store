@@ -35,6 +35,17 @@ const labels = {
     shipping: '配送',
     sale: 'セール',
   },
+  en: {
+    add: 'Add',
+    adding: 'Adding...',
+    added: 'Added ✓',
+    soldOut: 'Sold Out',
+    selectSize: 'Select Size',
+    close: 'Close',
+    confirm: 'Add to Cart',
+    shipping: 'Shipping',
+    sale: 'Sale',
+  },
 }
 
 export default function QuickAddButton({ product, lang, soldOut }: Props) {

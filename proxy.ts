@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const locales = ['ko', 'ja'] as const
+const locales = ['ko', 'ja', 'en'] as const
 const defaultLocale = 'ko'
 const COOKIE_NAME = 'lang'
 

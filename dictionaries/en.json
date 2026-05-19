@@ -1,0 +1,65 @@
+{
+  "nav": {
+    "kids": "KIDS",
+    "adult": "ADULT",
+    "new": "NEW",
+    "collections": "Collections",
+    "sale": "SALE",
+    "about": "ABOUT",
+    "cart": "Cart",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "soldOut": "Sold Out",
+    "salePrice": "Sale Price",
+    "originalPrice": "Original Price",
+    "sizeGuide": "Size Guide",
+    "freeShippingNotice": "",
+    "recommended": "You May Also Like"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "checkout": "Checkout",
+    "total": "Total",
+    "remove": "Remove"
+  },
+  "footer": {
+    "cs": "Customer Support",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "refund": "Refund Policy",
+    "returns": "Returns",
+    "copyright": "© 2025 applebuttercollege. All rights reserved."
+  },
+  "checkout": {
+    "title": "Order / Payment",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "zipcode": "ZIP Code",
+    "address": "Address",
+    "addressDetail": "Apartment, suite, etc.",
+    "memo": "Delivery Note",
+    "memoPlaceholder": "Special instructions for delivery (optional)",
+    "orderSummary": "Order Summary",
+    "shippingFee": "Shipping",
+    "freeShipping": "Free",
+    "total": "Total",
+    "pay": "Pay Now",
+    "required": "Please fill in all required fields"
+  },
+  "home": {
+    "season": "2025 S/S",
+    "tagline": "Making everyday moments special",
+    "cta": "View Collection",
+    "newArrivals": "NEW"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "viewAll": "View All"
+  }
+}

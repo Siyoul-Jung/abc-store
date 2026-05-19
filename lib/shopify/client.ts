@@ -10,6 +10,7 @@ export const shopifyClient = createStorefrontApiClient({
 const localeContextMap: Record<Locale, ShopifyContext> = {
   ko: { country: 'KR', language: 'KO' },
   ja: { country: 'JP', language: 'JA' },
+  en: { country: 'US', language: 'EN' },
 }
 
 export function getShopifyContext(locale: Locale): ShopifyContext {

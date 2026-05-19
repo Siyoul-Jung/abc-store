@@ -64,6 +64,36 @@ const t = {
       ],
     },
   },
+  en: {
+    title: 'Shipping · Returns · Payment',
+    shipping: {
+      heading: 'Shipping',
+      items: [
+        'Flat shipping fee of ₩3,500 (free for orders ₩80,000 and above)',
+        'Additional surcharges may apply for remote areas and islands.',
+        'Items with different shipping dates cannot be combined — please place separate orders.',
+        'Cancellation may not be possible once an order enters preparation. Please order carefully.',
+      ],
+    },
+    returns: {
+      heading: 'Returns & Exchanges',
+      items: [
+        'Returns and exchanges must be requested within 7 days of receiving your item via the Returns page.',
+        'Once your request is confirmed, we will guide you through the return shipping process.',
+        'Items with removed tags cannot be exchanged or refunded.',
+        'We do not provide phone-based customer support.',
+      ],
+    },
+    payment: {
+      heading: 'Orders & Payment',
+      items: [
+        'Bank transfers not received within 1 hour will be automatically cancelled.',
+        'The depositor name must match the name used when placing the order.',
+        'The deposited amount must exactly match the order total.',
+        'To change a size, please cancel your order and place a new one.',
+      ],
+    },
+  },
 }
 
 type Props = { locale: Locale; onClose: () => void }
