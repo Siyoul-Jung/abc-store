@@ -204,7 +204,6 @@ export default function ReturnForm({ locale }: { locale: Locale }) {
         <h2 className="text-sm font-bold tracking-widest uppercase">{l.successTitle}</h2>
         <p className="text-sm text-ink-muted">{l.successBody}</p>
         {successRef && <p className="text-xs text-ink-muted mt-1">{successRef}</p>}
-        <p className="text-xs text-ink-muted mt-4 max-w-xs border-t border-border pt-4">{l.exchangeNotice}</p>
       </div>
     )
   }

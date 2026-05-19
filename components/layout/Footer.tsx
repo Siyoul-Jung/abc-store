@@ -26,7 +26,7 @@ export default function Footer({ lang, dict }: Props) {
 
   return (
     <footer className="bg-surface border-t border-border mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 flex flex-col gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-10 flex flex-col gap-4 sm:gap-6">
 
         {/* 브랜드 + SNS */}
         <div className="flex items-center justify-between">
@@ -75,8 +75,8 @@ export default function Footer({ lang, dict }: Props) {
         </details>
 
         {/* 하단: 법적 링크 + 저작권 */}
-        <div className="flex flex-col sm:flex-row justify-between gap-3 border-t border-border pt-5">
-          <nav className="flex flex-wrap gap-x-5 gap-y-2">
+        <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-3 border-t border-border pt-4 sm:pt-5">
+          <nav className="flex flex-wrap gap-x-4 gap-y-1.5 sm:gap-x-5 sm:gap-y-2">
             {legalLinks.map((link) => (
               <Link
                 key={link.href}
