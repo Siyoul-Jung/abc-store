@@ -26,8 +26,8 @@ const LOOKUP_ORDER_QUERY = `
           id
           name
           createdAt
-          customer { displayName }
-          shippingAddress { name }
+          shippingAddress { name firstName lastName }
+          customer { displayName firstName lastName }
           lineItems(first: 20) {
             edges {
               node {
@@ -76,13 +76,24 @@ export async function lookupOrder(
   const { data } = await adminGql(LOOKUP_ORDER_QUERY, { query: `name:#${num}` })
 
   const node = data?.orders?.edges?.[0]?.node
-  if (!node) return { error: 'ORDER_NOT_FOUND' }
+  if (!node) {
+    console.error('[lookupOrder] not found. query:', `name:#${num}`, 'response:', JSON.stringify(data))
+    return { error: 'ORDER_NOT_FOUND' }
+  }
 
-  const orderName = (node.shippingAddress?.name ?? node.customer?.displayName ?? '').trim()
-  const inputName = customerName.trim()
-  const nameMatch =
-    orderName.toLowerCase().includes(inputName.toLowerCase()) ||
-    inputName.toLowerCase().includes(orderName.toLowerCase())
+  const nameCandidates = [
+    node.shippingAddress?.name,
+    node.shippingAddress?.firstName,
+    node.shippingAddress?.lastName,
+    node.customer?.displayName,
+    node.customer?.firstName,
+    node.customer?.lastName,
+  ].filter(Boolean).map((s: string) => s.toLowerCase())
+
+  const inputName = customerName.trim().toLowerCase()
+  const nameMatch = nameCandidates.length === 0 || nameCandidates.some(
+    (n) => n.includes(inputName) || inputName.includes(n)
+  )
   if (!nameMatch) return { error: 'NAME_MISMATCH' }
 
   // Build fulfillmentLineItemId map: lineItemId → fulfillmentLineItemId

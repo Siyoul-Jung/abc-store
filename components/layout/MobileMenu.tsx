@@ -58,15 +58,24 @@ export default function MobileMenu({ lang, navItems, labels }: Props) {
                 </Link>
               ))}
             </nav>
-            <div className="mt-auto px-6 py-8 border-t border-border flex items-center justify-between">
+            <div className="mt-auto px-6 py-8 border-t border-border flex flex-col gap-4">
               <Link
-                href={`/${lang}/cart`}
+                href={`/${lang}/returns`}
                 onClick={() => setOpen(false)}
                 className="text-sm text-ink-muted hover:text-ink transition-colors"
               >
-                {labels.cart}
+                교환 · 반품
               </Link>
-              <LanguageSwitcher lang={lang} />
+              <div className="flex items-center justify-between">
+                <Link
+                  href={`/${lang}/cart`}
+                  onClick={() => setOpen(false)}
+                  className="text-sm text-ink-muted hover:text-ink transition-colors"
+                >
+                  {labels.cart}
+                </Link>
+                <LanguageSwitcher lang={lang} />
+              </div>
             </div>
           </div>
         </>

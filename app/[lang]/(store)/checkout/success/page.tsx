@@ -73,8 +73,8 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
   cookieStore.delete('checkout_shipping')
 
   const t = lang === 'ja'
-    ? { title: 'ご注文が完了しました', order: '注文番号', continueShopping: 'ショッピングを続ける' }
-    : { title: '주문이 완료되었습니다', order: '주문번호', continueShopping: '쇼핑 계속하기' }
+    ? { title: 'ご注文が完了しました', order: '注文番号', continueShopping: 'ショッピングを続ける', returns: '交換・返品の申請はこちら →' }
+    : { title: '주문이 완료되었습니다', order: '주문번호', continueShopping: '쇼핑 계속하기', returns: '교환·반품 신청하기 →' }
 
   return (
     <section className="max-w-lg mx-auto px-4 py-24 text-center flex flex-col items-center gap-6">
@@ -85,12 +85,20 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
         <h1 className="text-base font-semibold">{t.title}</h1>
         <p className="text-sm text-ink-muted">{t.order}: {orderId}</p>
       </div>
-      <Link
-        href={`/${lang}/collections/new`}
-        className="text-sm underline underline-offset-4 text-ink-muted hover:text-ink transition-colors"
-      >
-        {t.continueShopping}
-      </Link>
+      <div className="flex flex-col items-center gap-3 mt-2">
+        <Link
+          href={`/${lang}/collections/new`}
+          className="text-sm underline underline-offset-4 text-ink-muted hover:text-ink transition-colors"
+        >
+          {t.continueShopping}
+        </Link>
+        <Link
+          href={`/${lang}/returns`}
+          className="text-xs text-ink-muted hover:text-ink transition-colors"
+        >
+          {t.returns}
+        </Link>
+      </div>
     </section>
   )
 }
