@@ -44,22 +44,18 @@ export async function GET(request: Request) {
   const maxAge: number = expires_in ?? 3600
   const secure = process.env.NODE_ENV === 'production'
 
-  // 2. OIDC userinfo 엔드포인트로 고객 정보 조회 (표준 방식)
+  // 2. id_token JWT 디코딩으로 email + sub 추출
+  // Shopify는 userinfo_endpoint를 제공하지 않으며 claims_supported에 email/sub 포함
   let customerId = ''
   let customerEmail = ''
-  const userInfoRes = await fetch(
-    `https://shopify.com/authentication/${SHOP_ID}/oauth/userinfo`,
-    { headers: { Authorization: `Bearer ${access_token}` }, cache: 'no-store' }
-  )
-  console.log('[auth/callback] userinfo status:', userInfoRes.status)
-  if (userInfoRes.ok) {
-    const info = await userInfoRes.json()
-    console.log('[auth/callback] userinfo:', JSON.stringify(info))
-    customerId = (info.sub as string ?? '').split('/').pop() ?? ''
-    customerEmail = info.email ?? ''
-  } else {
-    const errText = await userInfoRes.text()
-    console.error('[auth/callback] userinfo error:', errText)
+  try {
+    const payload = JSON.parse(
+      Buffer.from(id_token.split('.')[1], 'base64url').toString('utf-8')
+    )
+    customerEmail = payload.email ?? ''
+    customerId = (payload.sub as string ?? '').split('/').pop() ?? ''
+  } catch (e) {
+    console.error('[auth/callback] id_token decode error:', e)
   }
 
   const response = NextResponse.redirect(new URL(redirectTo, origin))
