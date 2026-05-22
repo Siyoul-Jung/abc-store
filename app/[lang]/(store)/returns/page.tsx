@@ -6,20 +6,9 @@ import type { Locale } from '@/lib/shopify/types'
 import { caQuery } from '@/lib/shopify/customer-account'
 import type { CustomerOrder } from '@/components/returns/ReturnForm'
 
-const ORDERS_QUERY = `{
-  customer {
-    firstName
-    lastName
-    orders(first: 20, sortKey: PROCESSED_AT, reverse: true) {
-      edges {
-        node {
-          id name processedAt displayFulfillmentStatus
-          lineItems(first: 3) { edges { node { title } } }
-        }
-      }
-    }
-  }
-}`
+const SHOPIFY_STORE = process.env.SHOPIFY_STORE_DOMAIN!
+const SHOPIFY_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN!
+const API_VERSION   = process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'
 
 type Props = { params: Promise<{ lang: string }> }
 
@@ -39,19 +28,42 @@ export default async function ReturnsPage({ params }: Props) {
   let customerName = ''
 
   if (token) {
-    const data = await caQuery<{
+    // CA API로 이메일/이름 확인
+    const customerData = await caQuery<{
       customer: {
         firstName: string
         lastName: string
-        orders: { edges: { node: CustomerOrder & { displayFulfillmentStatus: string } }[] }
+        emailAddress: { emailAddress: string }
       }
-    }>(token, ORDERS_QUERY)
+    }>(token, `{ customer { firstName lastName emailAddress { emailAddress } } }`)
 
-    if (data?.customer) {
-      customerName = `${data.customer.firstName ?? ''} ${data.customer.lastName ?? ''}`.trim()
-      orders = data.customer.orders.edges
-        .map(e => e.node)
-        .filter(o => o.displayFulfillmentStatus === 'FULFILLED')
+    if (customerData?.customer) {
+      const c = customerData.customer
+      customerName = `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim()
+
+      const email = c.emailAddress?.emailAddress
+      if (email) {
+        // Admin API로 fulfilled 주문만 조회
+        const res = await fetch(
+          `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?email=${encodeURIComponent(email)}&status=any&limit=20`,
+          { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
+        )
+        if (res.ok) {
+          const data = await res.json()
+          orders = (data.orders as {
+            id: number; name: string; processed_at: string
+            fulfillment_status: string | null
+            line_items: { name: string }[]
+          }[])
+            .filter(o => o.fulfillment_status === 'fulfilled')
+            .map(o => ({
+              id: `gid://shopify/Order/${o.id}`,
+              name: o.name,
+              processedAt: o.processed_at,
+              lineItems: { edges: o.line_items.slice(0, 3).map(i => ({ node: { title: i.name } })) },
+            }))
+        }
+      }
     }
   }
 

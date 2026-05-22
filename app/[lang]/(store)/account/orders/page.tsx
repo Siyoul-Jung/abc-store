@@ -6,6 +6,10 @@ import type { Locale } from '@/lib/shopify/types'
 import { caQuery, gidToId } from '@/lib/shopify/customer-account'
 import CancelOrderButton from './_components/CancelOrderButton'
 
+const SHOPIFY_STORE   = process.env.SHOPIFY_STORE_DOMAIN!
+const SHOPIFY_TOKEN   = process.env.SHOPIFY_ADMIN_API_TOKEN!
+const API_VERSION     = process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'
+
 type Order = {
   id: string
   name: string
@@ -16,24 +20,32 @@ type Order = {
   lineItems: { edges: { node: { title: string; quantity: number } }[] }
 }
 
-const QUERY = `{
-  customer {
-    orders(first: 20, sortKey: PROCESSED_AT, reverse: true) {
-      edges {
-        node {
-          id name number processedAt displayFulfillmentStatus
-          totalPrice { amount currencyCode }
-          lineItems(first: 2) { edges { node { title quantity } } }
-        }
-      }
-    }
-  }
-}`
+type AdminOrderRaw = {
+  id: number
+  name: string
+  order_number: number
+  processed_at: string
+  fulfillment_status: string | null
+  total_price: string
+  currency: string
+  line_items: { name: string; quantity: number }[]
+}
 
-const mockOrders: Order[] = [
-  { id: 'gid://shopify/Order/1', name: '#1001', number: 1001, processedAt: '2026-04-10T00:00:00Z', displayFulfillmentStatus: 'FULFILLED', totalPrice: { amount: '49000', currencyCode: 'KRW' }, lineItems: { edges: [{ node: { title: '베이직 반팔 티셔츠 (M)', quantity: 2 } }] } },
-  { id: 'gid://shopify/Order/2', name: '#1002', number: 1002, processedAt: '2026-05-01T00:00:00Z', displayFulfillmentStatus: 'UNFULFILLED', totalPrice: { amount: '89000', currencyCode: 'KRW' }, lineItems: { edges: [{ node: { title: '스트라이프 원피스 (S)', quantity: 1 } }, { node: { title: '코튼 팬츠 (XS)', quantity: 1 } }] } },
-]
+function mapAdminOrder(o: AdminOrderRaw): Order {
+  return {
+    id: `gid://shopify/Order/${o.id}`,
+    name: o.name,
+    number: o.order_number,
+    processedAt: o.processed_at,
+    displayFulfillmentStatus: o.fulfillment_status?.toUpperCase() ?? 'UNFULFILLED',
+    totalPrice: { amount: o.total_price, currencyCode: o.currency },
+    lineItems: {
+      edges: o.line_items.slice(0, 2).map((item) => ({
+        node: { title: item.name, quantity: item.quantity },
+      })),
+    },
+  }
+}
 
 const dateLocale: Record<Locale, string> = { ko: 'ko-KR', ja: 'ja-JP', en: 'en-US' }
 const t: Record<Locale, {
@@ -73,14 +85,31 @@ export default async function OrdersPage({
   if (!hasLocale(lang)) notFound()
   const locale = lang as Locale
 
-  const isDev = process.env.NODE_ENV === 'development'
   const cookieStore = await cookies()
   const token = cookieStore.get('customer_token')?.value
 
-  let orders: Order[] = isDev ? mockOrders : []
-  if (!isDev && token) {
-    const data = await caQuery<{ customer: { orders: { edges: { node: Order }[] } } }>(token, QUERY)
-    orders = data?.customer?.orders?.edges?.map(e => e.node) ?? []
+  let orders: Order[] = []
+
+  if (token) {
+    // CA API로 이메일만 확인 (인증 목적)
+    const customerData = await caQuery<{
+      customer: { emailAddress: { emailAddress: string } }
+    }>(token, `{ customer { emailAddress { emailAddress } } }`)
+
+    const email = customerData?.customer?.emailAddress?.emailAddress
+    if (email) {
+      // Admin API로 실제 주문 조회 (admin 생성 주문 포함)
+      const res = await fetch(
+        `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?email=${encodeURIComponent(email)}&status=any&limit=20`,
+        { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        orders = (data.orders as AdminOrderRaw[])
+          .sort((a, b) => new Date(b.processed_at).getTime() - new Date(a.processed_at).getTime())
+          .map(mapAdminOrder)
+      }
+    }
   }
 
   const labels = t[locale]
@@ -104,7 +133,7 @@ export default async function OrdersPage({
               <div className="flex justify-between items-center mb-3">
                 <Link href={`/${lang}/account/orders/${gidToId(order.id)}`}
                   className="text-sm font-semibold hover:text-ink-muted transition-colors">
-                  #{order.number}
+                  {order.name}
                 </Link>
                 <span className="text-xs text-ink-muted">
                   {new Date(order.processedAt).toLocaleDateString(dateLocale[locale])}
