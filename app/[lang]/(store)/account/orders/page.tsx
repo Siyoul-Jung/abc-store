@@ -93,14 +93,14 @@ export default async function OrdersPage({
   if (token) {
     const caData = await caQuery<{ customer: { id: string } }>(token, `{ customer { id } }`)
     const customerId = caData?.customer?.id?.split('/').pop()
-    console.log('[orders-debug] token:yes caData:', !!caData?.customer, 'customerId:', customerId ?? 'none')
+    console.log(`[OD1] ca:${!!caData?.customer} id:${customerId ?? 'NONE'}`)
     if (customerId) {
       const res = await fetch(
         `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?customer_id=${customerId}&status=any&limit=20`,
         { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
       )
       const data = res.ok ? await res.json() : null
-      console.log('[orders-debug] admin status:', res.status, 'count:', data?.orders?.length ?? 'err')
+      console.log(`[OD2] s:${res.status} n:${data?.orders?.length ?? 'err'}`)
       if (res.ok && data) {
         orders = (data.orders as AdminOrderRaw[])
           .sort((a, b) => new Date(b.processed_at).getTime() - new Date(a.processed_at).getTime())
@@ -108,7 +108,7 @@ export default async function OrdersPage({
       }
     }
   } else {
-    console.log('[orders-debug] token:NO')
+    console.log('[OD0] NO TOKEN')
   }
 
   const labels = t[locale]
