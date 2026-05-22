@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/?auth_error=invalid', origin))
   }
 
+  // 1. 토큰 교환
   const tokenRes = await fetch(
     `https://shopify.com/authentication/${SHOP_ID}/oauth/token`,
     {
@@ -43,58 +44,32 @@ export async function GET(request: Request) {
   const maxAge: number = expires_in ?? 3600
   const secure = process.env.NODE_ENV === 'production'
 
-  // id_token JWT 디코딩으로 이메일 + customer ID 추출
-  let customerEmail = ''
+  // 2. OIDC userinfo 엔드포인트로 고객 정보 조회 (표준 방식)
   let customerId = ''
-  try {
-    const payload = JSON.parse(
-      Buffer.from(id_token.split('.')[1], 'base64url').toString('utf-8')
-    )
-    customerEmail = payload.email ?? ''
+  let customerEmail = ''
+  const userInfoRes = await fetch(
+    `https://shopify.com/authentication/${SHOP_ID}/oauth/userinfo`,
+    { headers: { Authorization: `Bearer ${access_token}` }, cache: 'no-store' }
+  )
+  if (userInfoRes.ok) {
+    const info = await userInfoRes.json()
     // sub: "gid://shopify/Customer/9168135094500" → "9168135094500"
-    const sub: string = payload.sub ?? ''
-    customerId = sub.split('/').pop() ?? ''
-  } catch { /* 디코딩 실패 시 무시 */ }
+    customerId = (info.sub as string ?? '').split('/').pop() ?? ''
+    customerEmail = info.email ?? ''
+  }
 
   const response = NextResponse.redirect(new URL(redirectTo, origin))
-
   response.cookies.delete('_auth_state')
   response.cookies.delete('_auth_verifier')
   response.cookies.delete('_auth_redirect')
 
-  response.cookies.set('customer_token', access_token, {
-    httpOnly: true,
-    secure,
-    sameSite: 'lax',
-    path: '/',
-    maxAge,
-  })
-  response.cookies.set('customer_logged_in', '1', {
-    httpOnly: false,
-    secure,
-    sameSite: 'lax',
-    path: '/',
-    maxAge,
-  })
-  if (customerEmail) {
-    response.cookies.set('customer_email', customerEmail, {
-      httpOnly: true, secure, sameSite: 'lax', path: '/', maxAge,
-    })
-  }
-  if (customerId) {
-    response.cookies.set('customer_id', customerId, {
-      httpOnly: true, secure, sameSite: 'lax', path: '/', maxAge,
-    })
-  }
-  if (id_token) {
-    response.cookies.set('customer_id_token', id_token, {
-      httpOnly: true,
-      secure,
-      sameSite: 'lax',
-      path: '/',
-      maxAge,
-    })
-  }
+  const cookieOpts = { httpOnly: true, secure, sameSite: 'lax' as const, path: '/', maxAge }
+
+  response.cookies.set('customer_token', access_token, cookieOpts)
+  response.cookies.set('customer_logged_in', '1', { ...cookieOpts, httpOnly: false })
+  if (id_token) response.cookies.set('customer_id_token', id_token, cookieOpts)
+  if (customerId) response.cookies.set('customer_id', customerId, cookieOpts)
+  if (customerEmail) response.cookies.set('customer_email', customerEmail, cookieOpts)
 
   return response
 }
