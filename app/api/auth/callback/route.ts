@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/?auth_error=token', origin))
   }
 
-  const { access_token, expires_in } = await tokenRes.json()
+  const { access_token, id_token, expires_in } = await tokenRes.json()
   const maxAge: number = expires_in ?? 3600
   const secure = process.env.NODE_ENV === 'production'
 
@@ -81,6 +81,15 @@ export async function GET(request: Request) {
   })
   if (customerEmail) {
     response.cookies.set('customer_email', customerEmail, {
+      httpOnly: true,
+      secure,
+      sameSite: 'lax',
+      path: '/',
+      maxAge,
+    })
+  }
+  if (id_token) {
+    response.cookies.set('customer_id_token', id_token, {
       httpOnly: true,
       secure,
       sameSite: 'lax',
