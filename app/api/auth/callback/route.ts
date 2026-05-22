@@ -49,9 +49,8 @@ export async function GET(request: Request) {
   let customerId = ''
   let customerEmail = ''
   try {
-    const payload = JSON.parse(
-      Buffer.from(id_token.split('.')[1], 'base64url').toString('utf-8')
-    )
+    const b64 = id_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    const payload = JSON.parse(Buffer.from(b64, 'base64').toString('utf-8'))
     customerEmail = payload.email ?? ''
     customerId = (payload.sub as string ?? '').split('/').pop() ?? ''
   } catch (e) {
