@@ -43,13 +43,17 @@ export async function GET(request: Request) {
   const maxAge: number = expires_in ?? 3600
   const secure = process.env.NODE_ENV === 'production'
 
-  // id_token JWT 디코딩으로 이메일 추출 (openid email 스코프 포함)
+  // id_token JWT 디코딩으로 이메일 + customer ID 추출
   let customerEmail = ''
+  let customerId = ''
   try {
     const payload = JSON.parse(
       Buffer.from(id_token.split('.')[1], 'base64url').toString('utf-8')
     )
     customerEmail = payload.email ?? ''
+    // sub: "gid://shopify/Customer/9168135094500" → "9168135094500"
+    const sub: string = payload.sub ?? ''
+    customerId = sub.split('/').pop() ?? ''
   } catch { /* 디코딩 실패 시 무시 */ }
 
   const response = NextResponse.redirect(new URL(redirectTo, origin))
@@ -74,11 +78,12 @@ export async function GET(request: Request) {
   })
   if (customerEmail) {
     response.cookies.set('customer_email', customerEmail, {
-      httpOnly: true,
-      secure,
-      sameSite: 'lax',
-      path: '/',
-      maxAge,
+      httpOnly: true, secure, sameSite: 'lax', path: '/', maxAge,
+    })
+  }
+  if (customerId) {
+    response.cookies.set('customer_id', customerId, {
+      httpOnly: true, secure, sameSite: 'lax', path: '/', maxAge,
     })
   }
   if (id_token) {

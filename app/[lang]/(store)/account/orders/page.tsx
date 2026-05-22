@@ -90,10 +90,14 @@ export default async function OrdersPage({
 
   let orders: Order[] = []
 
-  const email = cookieStore.get('customer_email')?.value
-  if (token && email) {
+  const customerId = cookieStore.get('customer_id')?.value
+    ?? cookieStore.get('customer_email')?.value  // 이전 세션 fallback
+  if (token && customerId) {
+    const param = customerId.includes('@')
+      ? `email=${encodeURIComponent(customerId)}`
+      : `customer_id=${customerId}`
     const res = await fetch(
-      `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?email=${encodeURIComponent(email)}&status=any&limit=20`,
+      `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?${param}&status=any&limit=20`,
       { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
     )
     if (res.ok) {

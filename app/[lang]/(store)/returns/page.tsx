@@ -37,10 +37,14 @@ export default async function ReturnsPage({ params }: Props) {
       customerName = `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim()
     }
 
-    const email = cookieStore.get('customer_email')?.value
-    if (email) {
+    const customerId = cookieStore.get('customer_id')?.value
+    const customerEmail = cookieStore.get('customer_email')?.value
+    const param = customerId
+      ? `customer_id=${customerId}`
+      : customerEmail ? `email=${encodeURIComponent(customerEmail)}` : ''
+    if (param) {
       const res = await fetch(
-        `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?email=${encodeURIComponent(email)}&status=any&limit=20`,
+        `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?${param}&status=any&limit=20`,
         { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
       )
       if (res.ok) {
