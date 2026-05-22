@@ -8,7 +8,6 @@ const t: Record<Locale, {
   category: string; titleLabel: string; content: string
   orderNumber: string; orderNumberRequired: string
   orderNumberHint: string; orderNumberHintRequired: string
-  isPrivate: string; isPrivateHint: string
   submit: string
   categories: Record<string, string>
   returnIntercept: { heading: string; body: string; cta: string }
@@ -18,7 +17,6 @@ const t: Record<Locale, {
     orderNumber: '주문번호 (선택)', orderNumberRequired: '주문번호 (필수)',
     orderNumberHint: '관련 주문번호가 있으면 입력해주세요',
     orderNumberHintRequired: '주문번호를 입력해야 처리가 가능합니다',
-    isPrivate: '비공개 문의', isPrivateHint: '비공개 설정 시 본인만 확인 가능합니다',
     submit: '문의 등록',
     categories: { shipping: '배송', return: '교환/반품', refund: '환불', product: '상품', other: '기타' },
     returnIntercept: {
@@ -32,7 +30,6 @@ const t: Record<Locale, {
     orderNumber: '注文番号 (任意)', orderNumberRequired: '注文番号 (必須)',
     orderNumberHint: '関連する注文番号がある場合はご入力ください',
     orderNumberHintRequired: '注文番号がないとご対応できない場合があります',
-    isPrivate: '非公開', isPrivateHint: '非公開にすると、ご本人のみ確認できます',
     submit: '送信する',
     categories: { shipping: '配送', return: '交換・返品', refund: '返金', product: '商品', other: 'その他' },
     returnIntercept: {
@@ -46,7 +43,6 @@ const t: Record<Locale, {
     orderNumber: 'Order number (optional)', orderNumberRequired: 'Order number (required)',
     orderNumberHint: 'Enter your order number if relevant',
     orderNumberHintRequired: 'Required so we can look up your order',
-    isPrivate: 'Private question', isPrivateHint: 'Only you and our team can see this',
     submit: 'Submit',
     categories: { shipping: 'Shipping', return: 'Exchange/Return', refund: 'Refund', product: 'Product', other: 'Other' },
     returnIntercept: {
@@ -143,16 +139,7 @@ export default function NewQuestionForm({ lang }: { lang: Locale }) {
             />
           </div>
 
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox" name="is_private" value="true"
-              className="mt-0.5 w-4 h-4 rounded border-border accent-ink"
-            />
-            <div>
-              <p className="text-sm">{labels.isPrivate}</p>
-              <p className="text-xs text-ink-muted mt-0.5">{labels.isPrivateHint}</p>
-            </div>
-          </label>
+          <input type="hidden" name="is_private" value="true" />
 
           <button
             type="submit"
