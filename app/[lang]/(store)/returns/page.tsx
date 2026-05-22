@@ -28,41 +28,35 @@ export default async function ReturnsPage({ params }: Props) {
   let customerName = ''
 
   if (token) {
-    // CA API로 이메일/이름 확인
+    // CA API로 이름 확인
     const customerData = await caQuery<{
-      customer: {
-        firstName: string
-        lastName: string
-        emailAddress: { emailAddress: string }
-      }
-    }>(token, `{ customer { firstName lastName emailAddress { emailAddress } } }`)
-
+      customer: { firstName: string; lastName: string }
+    }>(token, `{ customer { firstName lastName } }`)
     if (customerData?.customer) {
       const c = customerData.customer
       customerName = `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim()
+    }
 
-      const email = c.emailAddress?.emailAddress
-      if (email) {
-        // Admin API로 fulfilled 주문만 조회
-        const res = await fetch(
-          `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?email=${encodeURIComponent(email)}&status=any&limit=20`,
-          { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
-        )
-        if (res.ok) {
-          const data = await res.json()
-          orders = (data.orders as {
-            id: number; name: string; processed_at: string
-            fulfillment_status: string | null
-            line_items: { name: string }[]
-          }[])
-            .filter(o => o.fulfillment_status === 'fulfilled')
-            .map(o => ({
-              id: `gid://shopify/Order/${o.id}`,
-              name: o.name,
-              processedAt: o.processed_at,
-              lineItems: { edges: o.line_items.slice(0, 3).map(i => ({ node: { title: i.name } })) },
-            }))
-        }
+    const email = cookieStore.get('customer_email')?.value
+    if (email) {
+      const res = await fetch(
+        `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?email=${encodeURIComponent(email)}&status=any&limit=20`,
+        { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        orders = (data.orders as {
+          id: number; name: string; processed_at: string
+          fulfillment_status: string | null
+          line_items: { name: string }[]
+        }[])
+          .filter(o => o.fulfillment_status === 'fulfilled')
+          .map(o => ({
+            id: `gid://shopify/Order/${o.id}`,
+            name: o.name,
+            processedAt: o.processed_at,
+            lineItems: { edges: o.line_items.slice(0, 3).map(i => ({ node: { title: i.name } })) },
+          }))
       }
     }
   }

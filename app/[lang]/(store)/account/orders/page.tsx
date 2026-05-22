@@ -90,25 +90,17 @@ export default async function OrdersPage({
 
   let orders: Order[] = []
 
-  if (token) {
-    // CA API로 이메일만 확인 (인증 목적)
-    const customerData = await caQuery<{
-      customer: { emailAddress: { emailAddress: string } }
-    }>(token, `{ customer { emailAddress { emailAddress } } }`)
-
-    const email = customerData?.customer?.emailAddress?.emailAddress
-    if (email) {
-      // Admin API로 실제 주문 조회 (admin 생성 주문 포함)
-      const res = await fetch(
-        `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?email=${encodeURIComponent(email)}&status=any&limit=20`,
-        { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        orders = (data.orders as AdminOrderRaw[])
-          .sort((a, b) => new Date(b.processed_at).getTime() - new Date(a.processed_at).getTime())
-          .map(mapAdminOrder)
-      }
+  const email = cookieStore.get('customer_email')?.value
+  if (token && email) {
+    const res = await fetch(
+      `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?email=${encodeURIComponent(email)}&status=any&limit=20`,
+      { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
+    )
+    if (res.ok) {
+      const data = await res.json()
+      orders = (data.orders as AdminOrderRaw[])
+        .sort((a, b) => new Date(b.processed_at).getTime() - new Date(a.processed_at).getTime())
+        .map(mapAdminOrder)
     }
   }
 

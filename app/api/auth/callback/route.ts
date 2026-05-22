@@ -43,6 +43,22 @@ export async function GET(request: Request) {
   const maxAge: number = expires_in ?? 3600
   const secure = process.env.NODE_ENV === 'production'
 
+  // 이메일 조회 (주문 조회에 사용)
+  let customerEmail = ''
+  try {
+    const CA_ENDPOINT = `https://shopify.com/${SHOP_ID}/account/customer/api/2026-04/graphql`
+    const profileRes = await fetch(CA_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: access_token },
+      body: JSON.stringify({ query: '{ customer { emailAddress { emailAddress } } }' }),
+      cache: 'no-store',
+    })
+    if (profileRes.ok) {
+      const profileData = await profileRes.json()
+      customerEmail = profileData?.data?.customer?.emailAddress?.emailAddress ?? ''
+    }
+  } catch { /* 이메일 조회 실패 시 무시 */ }
+
   const response = NextResponse.redirect(new URL(redirectTo, origin))
 
   response.cookies.delete('_auth_state')
@@ -56,7 +72,6 @@ export async function GET(request: Request) {
     path: '/',
     maxAge,
   })
-  // non-httpOnly: client 컴포넌트에서 로그인 상태 확인용
   response.cookies.set('customer_logged_in', '1', {
     httpOnly: false,
     secure,
@@ -64,6 +79,15 @@ export async function GET(request: Request) {
     path: '/',
     maxAge,
   })
+  if (customerEmail) {
+    response.cookies.set('customer_email', customerEmail, {
+      httpOnly: true,
+      secure,
+      sameSite: 'lax',
+      path: '/',
+      maxAge,
+    })
+  }
 
   return response
 }
