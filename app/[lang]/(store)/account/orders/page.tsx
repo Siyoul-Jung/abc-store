@@ -98,18 +98,13 @@ export default async function OrdersPage({
         `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?customer_id=${customerId}&status=any&limit=20`,
         { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
       )
-      const data = res.ok ? await res.json() : null
-      console.log(`[OD] id:${customerId} s:${res.status} n:${data?.orders?.length ?? 'ERR'}`)
-      if (res.ok && data) {
+      if (res.ok) {
+        const data = await res.json()
         orders = (data.orders as AdminOrderRaw[])
           .sort((a, b) => new Date(b.processed_at).getTime() - new Date(a.processed_at).getTime())
           .map(mapAdminOrder)
       }
-    } else {
-      console.log(`[OD] ca:${!!caData?.customer} NO_ID`)
     }
-  } else {
-    console.log('[OD] NO_TOKEN')
   }
 
   const labels = t[locale]
