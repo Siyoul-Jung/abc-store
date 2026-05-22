@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import LanguageSwitcher from './LanguageSwitcher'
 
@@ -9,28 +9,36 @@ type NavItem = { label: string; href: string }
 type Props = {
   lang: string
   navItems: NavItem[]
-  labels: { menu: string; close: string; cart: string }
+  labels: { menu: string; close: string; cart: string; account: string; login: string }
+  loggedIn: boolean
 }
 
-export default function MobileMenu({ lang, navItems, labels }: Props) {
+export default function MobileMenu({ lang, navItems, labels, loggedIn }: Props) {
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [open])
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
         aria-label={labels.menu}
-        className="flex flex-col gap-1.5 p-1"
+        className="p-1 text-ink hover:opacity-60 transition-opacity"
       >
-        <span className="block w-5 h-px bg-ink" />
-        <span className="block w-5 h-px bg-ink" />
-        <span className="block w-5 h-px bg-ink" />
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <line x1="3" y1="6" x2="19" y2="6" />
+          <line x1="3" y1="11" x2="19" y2="11" />
+          <line x1="3" y1="16" x2="19" y2="16" />
+        </svg>
       </button>
 
       {open && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-ink/20"
+            className="fixed inset-0 z-40 bg-black/60"
             onClick={() => setOpen(false)}
           />
           <div className="fixed inset-y-0 left-0 z-50 w-72 bg-white flex flex-col">
@@ -59,6 +67,13 @@ export default function MobileMenu({ lang, navItems, labels }: Props) {
               ))}
             </nav>
             <div className="mt-auto px-6 py-8 border-t border-border flex flex-col gap-4">
+              <a
+                href={loggedIn ? `/${lang}/account` : `/api/auth/login?redirect=/${lang}/account`}
+                onClick={() => setOpen(false)}
+                className="text-sm text-ink-muted hover:text-ink transition-colors"
+              >
+                {loggedIn ? labels.account : labels.login}
+              </a>
               <Link
                 href={`/${lang}/returns`}
                 onClick={() => setOpen(false)}

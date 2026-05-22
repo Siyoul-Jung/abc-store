@@ -15,10 +15,12 @@
     "@fontsource/playfair-display": "^5.2.8",
     "@fontsource/poppins": "^5.2.7",
     "@shopify/storefront-api-client": "^1.0.10",
+    "@supabase/supabase-js": "^2.106.1",
     "next": "16.2.4",
     "next-intl": "^4.11.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "resend": "^6.12.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

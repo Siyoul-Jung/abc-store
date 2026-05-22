@@ -8,7 +8,9 @@
     "about": "ABOUT",
     "cart": "Cart",
     "menu": "Menu",
-    "close": "Close"
+    "close": "Close",
+    "account": "My Account",
+    "login": "Log In"
   },
   "product": {
     "addToCart": "Add to Cart",
@@ -28,9 +30,10 @@
     "remove": "Remove"
   },
   "footer": {
+    "about": "About",
     "cs": "Customer Support",
     "faq": "FAQ",
-    "privacy": "Privacy Policy",
+    "privacy": "Privacy",
     "terms": "Terms of Service",
     "refund": "Refund Policy",
     "returns": "Returns",
@@ -50,7 +53,19 @@
     "freeShipping": "Free",
     "total": "Total",
     "pay": "Pay Now",
-    "required": "Please fill in all required fields"
+    "required": "Please fill in all required fields",
+    "paymentMethod": "Payment Method",
+    "card": "Credit Card",
+    "bankTransfer": "Bank Transfer",
+    "refundAccount": "Refund Account",
+    "refundAccountNote": "Used for cancellations and refunds",
+    "bank": "Bank",
+    "bankPlaceholder": "Enter bank name",
+    "accountNumber": "Account Number",
+    "accountNumberPlaceholder": "Numbers only",
+    "accountHolder": "Account Holder",
+    "accountHolderPlaceholder": "Account holder name",
+    "requiredBankInfo": "Please fill in all refund account fields"
   },
   "home": {
     "season": "2025 S/S",

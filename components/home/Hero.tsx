@@ -10,7 +10,7 @@ type Props = {
 
 export default function Hero({ lang, season, tagline, ctaLabel }: Props) {
   return (
-    <section className="relative w-full h-[50vh]">
+    <section className="relative w-full h-[32vh] sm:h-[55vh]">
       <Image
         src="/new_main03.png"
         alt="applebuttercollege 2025 S/S"

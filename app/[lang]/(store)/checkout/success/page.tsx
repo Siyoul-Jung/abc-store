@@ -6,12 +6,22 @@ import { getCart } from '@/lib/actions/cart'
 import { createShopifyOrder } from '@/lib/actions/order'
 import type { Locale } from '@/lib/shopify/types'
 
-type Props = {
-  params: Promise<{ lang: string }>
-  searchParams: Promise<{ paymentKey?: string; orderId?: string; amount?: string }>
+type TossVirtualAccount = {
+  bankName: string
+  accountNumber: string
+  customerName: string
+  dueDate: string
 }
 
-async function confirmTossPayment(paymentKey: string, orderId: string, amount: number) {
+type TossConfirmResult =
+  | { ok: false }
+  | { ok: true; method: string; virtualAccount?: TossVirtualAccount }
+
+async function confirmTossPayment(
+  paymentKey: string,
+  orderId: string,
+  amount: number,
+): Promise<TossConfirmResult> {
   const secretKey = process.env.TOSS_SECRET_KEY!
   const encoded = Buffer.from(`${secretKey}:`).toString('base64')
 
@@ -25,26 +35,91 @@ async function confirmTossPayment(paymentKey: string, orderId: string, amount: n
     cache: 'no-store',
   })
 
-  return res.ok
+  if (!res.ok) return { ok: false }
+  const data = await res.json()
+  return {
+    ok: true,
+    method: data.method ?? '',
+    virtualAccount: data.virtualAccount
+      ? {
+          bankName: data.virtualAccount.bankName ?? data.virtualAccount.bank ?? '',
+          accountNumber: data.virtualAccount.accountNumber ?? '',
+          customerName: data.virtualAccount.customerName ?? '',
+          dueDate: data.virtualAccount.dueDate ?? '',
+        }
+      : undefined,
+  }
+}
+
+type Props = {
+  params: Promise<{ lang: string }>
+  searchParams: Promise<{ paymentKey?: string; orderId?: string; amount?: string }>
+}
+
+const t: Record<Locale, {
+  titleCard: string; titleVbank: string
+  orderNum: string
+  depositGuide: string; depositBank: string; depositAccount: string; depositAmount: string; depositDue: string
+  depositNote: string
+  continueShopping: string; returns: string
+}> = {
+  ko: {
+    titleCard: '주문이 완료되었습니다',
+    titleVbank: '입금 계좌를 확인해 주세요',
+    orderNum: '주문번호',
+    depositGuide: '아래 계좌로 입금하시면 주문이 확정됩니다.',
+    depositBank: '은행',
+    depositAccount: '계좌번호',
+    depositAmount: '입금 금액',
+    depositDue: '입금 기한',
+    depositNote: '입금자명은 주문자명과 동일하게 입력해 주세요.',
+    continueShopping: '쇼핑 계속하기',
+    returns: '반품 신청하기 →',
+  },
+  ja: {
+    titleCard: 'ご注文が完了しました',
+    titleVbank: '振込先口座をご確認ください',
+    orderNum: '注文番号',
+    depositGuide: '下記の口座へお振込みいただくとご注文が確定します。',
+    depositBank: '銀行名',
+    depositAccount: '口座番号',
+    depositAmount: 'お振込み金額',
+    depositDue: '振込期限',
+    depositNote: '振込名義はご注文者名と同じにしてください。',
+    continueShopping: 'ショッピングを続ける',
+    returns: '返品の申請はこちら →',
+  },
+  en: {
+    titleCard: 'Order Confirmed',
+    titleVbank: 'Please complete your bank transfer',
+    orderNum: 'Order',
+    depositGuide: 'Your order will be confirmed once we receive your payment.',
+    depositBank: 'Bank',
+    depositAccount: 'Account Number',
+    depositAmount: 'Amount',
+    depositDue: 'Due Date',
+    depositNote: 'Please use your name as the transfer reference.',
+    continueShopping: 'Continue Shopping',
+    returns: 'Request a Return →',
+  },
 }
 
 export default async function CheckoutSuccessPage({ params, searchParams }: Props) {
   const { lang } = await params
   if (!hasLocale(lang)) notFound()
+  const locale = lang as Locale
 
   const { paymentKey, orderId, amount } = await searchParams
   if (!paymentKey || !orderId || !amount) redirect(`/${lang}/cart`)
 
-  // 1. Toss 결제 확정
   const confirmed = await confirmTossPayment(paymentKey, orderId, Number(amount))
-  if (!confirmed) redirect(`/${lang}/checkout/fail`)
+  if (!confirmed.ok) redirect(`/${lang}/checkout/fail`)
 
-  // 2. 카트 + 배송지 정보 수집
   const cookieStore = await cookies()
-  const cart = await getCart(lang as Locale)
+  const cart = await getCart(locale)
   const shippingRaw = cookieStore.get('checkout_shipping')?.value
 
-  let shopifyOrderId: string | undefined
+  let shopifyOrderName: string | undefined
 
   if (cart && shippingRaw) {
     try {
@@ -53,50 +128,66 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
         variantGid: line.merchandise.id,
         quantity: line.quantity,
       }))
-
-      const result = await createShopifyOrder({
-        orderId,
-        amount: Number(amount),
-        paymentKey,
-        shipping,
-        lineItems,
-      })
-
-      if (result.ok) shopifyOrderId = result.shopifyOrderId
+      const result = await createShopifyOrder({ orderId, amount: Number(amount), paymentKey, shipping, lineItems })
+      if (result.ok) shopifyOrderName = result.shopifyOrderName
     } catch (e) {
       console.error('[success] order creation failed:', e)
     }
   }
 
-  // 3. 쿠키 정리
   cookieStore.delete('cart_id')
   cookieStore.delete('checkout_shipping')
 
-  const t = lang === 'ja'
-    ? { title: 'ご注文が完了しました', order: '注文番号', continueShopping: 'ショッピングを続ける', returns: '返品の申請はこちら →' }
-    : { title: '주문이 완료되었습니다', order: '주문번호', continueShopping: '쇼핑 계속하기', returns: '반품 신청하기 →' }
+  const d = t[locale]
+  const isVbank = confirmed.method === '가상계좌' || confirmed.method === 'VIRTUAL_ACCOUNT'
+  const va = confirmed.virtualAccount
 
   return (
-    <section className="max-w-lg mx-auto px-4 py-24 text-center flex flex-col items-center gap-6">
-      <div className="w-12 h-12 rounded-full bg-citrus flex items-center justify-center text-xl">
-        ✓
+    <section className="max-w-lg mx-auto px-4 py-24 flex flex-col items-center gap-6">
+      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl ${isVbank ? 'bg-surface' : 'bg-citrus'}`}>
+        {isVbank ? '💳' : '✓'}
       </div>
-      <div className="flex flex-col gap-2">
-        <h1 className="text-base font-semibold">{t.title}</h1>
-        <p className="text-sm text-ink-muted">{t.order}: {orderId}</p>
+
+      <div className="flex flex-col gap-2 text-center">
+        <h1 className="text-base font-semibold">{isVbank ? d.titleVbank : d.titleCard}</h1>
+        {shopifyOrderName && (
+          <p className="text-sm text-ink-muted">{d.orderNum}: {shopifyOrderName}</p>
+        )}
       </div>
+
+      {/* 가상계좌 입금 안내 */}
+      {isVbank && va && (
+        <div className="w-full border border-border p-5 flex flex-col gap-3">
+          <p className="text-xs text-ink-muted">{d.depositGuide}</p>
+          <div className="flex flex-col gap-2">
+            {[
+              [d.depositBank, va.bankName],
+              [d.depositAccount, va.accountNumber],
+              [d.depositAmount, `${Number(amount).toLocaleString()}원`],
+              [d.depositDue, va.dueDate ? new Date(va.dueDate).toLocaleString('ko-KR') : ''],
+            ].map(([label, value]) => value && (
+              <div key={label} className="flex justify-between text-sm">
+                <span className="text-ink-muted">{label}</span>
+                <span className="font-medium">{value}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-ink-muted border-t border-border pt-3">{d.depositNote}</p>
+        </div>
+      )}
+
       <div className="flex flex-col items-center gap-3 mt-2">
         <Link
           href={`/${lang}/collections/new`}
           className="text-sm underline underline-offset-4 text-ink-muted hover:text-ink transition-colors"
         >
-          {t.continueShopping}
+          {d.continueShopping}
         </Link>
         <Link
           href={`/${lang}/returns`}
           className="text-xs text-ink-muted hover:text-ink transition-colors"
         >
-          {t.returns}
+          {d.returns}
         </Link>
       </div>
     </section>

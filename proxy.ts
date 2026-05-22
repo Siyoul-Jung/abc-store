@@ -35,6 +35,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/coming-soon', request.url))
   }
 
+  // /admin 경로는 로케일 라우팅 제외
+  if (pathname.startsWith('/admin')) return
+
   const hasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   )

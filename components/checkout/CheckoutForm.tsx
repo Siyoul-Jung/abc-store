@@ -9,21 +9,24 @@ import type { Cart, Locale } from '@/lib/shopify/types'
 const SHIPPING_THRESHOLD = 80000
 const SHIPPING_FEE = 3500
 
+const KO_BANKS = [
+  '국민은행', '신한은행', '우리은행', '하나은행', '농협은행',
+  '기업은행', '카카오뱅크', '토스뱅크', '케이뱅크', '새마을금고',
+  'SC제일은행', '우체국', '기타',
+]
+
 type Dict = {
   checkout: {
-    name: string
-    phone: string
-    zipcode: string
-    address: string
-    addressDetail: string
-    memo: string
-    memoPlaceholder: string
-    orderSummary: string
-    shippingFee: string
-    freeShipping: string
-    total: string
-    pay: string
-    required: string
+    name: string; phone: string; zipcode: string; address: string
+    addressDetail: string; memo: string; memoPlaceholder: string
+    orderSummary: string; shippingFee: string; freeShipping: string
+    total: string; pay: string; required: string
+    paymentMethod: string; card: string; bankTransfer: string
+    refundAccount: string; refundAccountNote: string
+    bank: string; bankPlaceholder: string
+    accountNumber: string; accountNumberPlaceholder: string
+    accountHolder: string; accountHolderPlaceholder: string
+    requiredBankInfo: string
   }
 }
 
@@ -45,13 +48,12 @@ declare global {
 
 export default function CheckoutForm({ cart, locale, dict }: Props) {
   const [form, setForm] = useState({
-    name: '',
-    phone: '',
-    zipcode: '',
-    address: '',
-    addressDetail: '',
-    memo: '',
+    name: '', phone: '', zipcode: '', address: '', addressDetail: '', memo: '',
   })
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer'>('card')
+  const [refundBank, setRefundBank] = useState('')
+  const [refundAccountNum, setRefundAccountNum] = useState('')
+  const [refundHolder, setRefundHolder] = useState('')
   const [isPaying, setIsPaying] = useState(false)
   const [tossReady, setTossReady] = useState(false)
   const [error, setError] = useState('')
@@ -76,6 +78,10 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
       setError(d.required)
       return
     }
+    if (paymentMethod === 'bank_transfer' && (!refundBank || !refundAccountNum || !refundHolder)) {
+      setError(d.requiredBankInfo)
+      return
+    }
     if (!tossReady || isPaying) return
     setError('')
     setIsPaying(true)
@@ -83,21 +89,43 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
     const orderId = `abc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
 
     try {
-      // 배송지 정보를 성공 페이지에서 사용할 수 있도록 쿠키에 저장
-      document.cookie = `checkout_shipping=${encodeURIComponent(JSON.stringify(form))};path=/;max-age=600;samesite=lax`
+      const cookiePayload = {
+        ...form,
+        paymentMethod,
+        ...(paymentMethod === 'bank_transfer' && {
+          refundBank,
+          refundAccountNum,
+          refundHolder,
+        }),
+      }
+      document.cookie = `checkout_shipping=${encodeURIComponent(JSON.stringify(cookiePayload))};path=/;max-age=600;samesite=lax`
 
       const tossPayments = window.TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!)
       const payment = tossPayments.payment({ customerKey: 'ANONYMOUS' })
-      await payment.requestPayment({
-        method: 'CARD',
-        amount: { currency: 'KRW', value: total },
-        orderId,
-        orderName,
-        successUrl: `${window.location.origin}/${locale}/checkout/success`,
-        failUrl: `${window.location.origin}/${locale}/checkout/fail`,
-        customerName: form.name,
-        customerMobilePhone: form.phone.replace(/-/g, ''),
-      })
+
+      if (paymentMethod === 'card') {
+        await payment.requestPayment({
+          method: 'CARD',
+          amount: { currency: 'KRW', value: total },
+          orderId,
+          orderName,
+          successUrl: `${window.location.origin}/${locale}/checkout/success`,
+          failUrl: `${window.location.origin}/${locale}/checkout/fail`,
+          customerName: form.name,
+          customerMobilePhone: form.phone.replace(/-/g, ''),
+        })
+      } else {
+        await payment.requestPayment({
+          method: 'VIRTUAL_ACCOUNT',
+          amount: { currency: 'KRW', value: total },
+          orderId,
+          orderName,
+          successUrl: `${window.location.origin}/${locale}/checkout/success`,
+          failUrl: `${window.location.origin}/${locale}/checkout/fail`,
+          customerName: form.name,
+          customerMobilePhone: form.phone.replace(/-/g, ''),
+        })
+      }
     } catch {
       setIsPaying(false)
     }
@@ -116,7 +144,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
       <form onSubmit={handlePay} className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-10">
         {/* Shipping form */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold">배송지</h2>
+          <h2 className="text-sm font-semibold">{locale === 'ja' ? '配送先' : '배송지'}</h2>
 
           <div className="flex flex-col gap-3">
             <input
@@ -159,6 +187,60 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
               value={form.memo}
               onChange={update('memo')}
             />
+          </div>
+
+          {/* 결제 수단 */}
+          <div className="flex flex-col gap-3 pt-2">
+            <h2 className="text-sm font-semibold">{d.paymentMethod}</h2>
+            <div className="flex gap-2">
+              {(['card', 'bank_transfer'] as const).map((method) => (
+                <button
+                  key={method}
+                  type="button"
+                  onClick={() => setPaymentMethod(method)}
+                  className={`flex-1 py-2.5 text-sm border transition-colors ${
+                    paymentMethod === method
+                      ? 'border-ink bg-ink text-white'
+                      : 'border-border text-ink-muted hover:border-ink-muted'
+                  }`}
+                >
+                  {method === 'card' ? d.card : d.bankTransfer}
+                </button>
+              ))}
+            </div>
+
+            {/* 무통장입금: 환불 계좌 */}
+            {paymentMethod === 'bank_transfer' && (
+              <div className="flex flex-col gap-3 border border-border p-4">
+                <div>
+                  <p className="text-xs font-semibold tracking-widest uppercase text-ink-muted">
+                    {d.refundAccount}
+                  </p>
+                  <p className="text-xs text-ink-muted mt-1">{d.refundAccountNote}</p>
+                </div>
+                <select
+                  value={refundBank}
+                  onChange={(e) => setRefundBank(e.target.value)}
+                  className={`${inputCls} bg-white`}
+                >
+                  <option value="">{d.bankPlaceholder}</option>
+                  {KO_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+                </select>
+                <input
+                  className={inputCls}
+                  placeholder={d.accountNumberPlaceholder}
+                  inputMode="numeric"
+                  value={refundAccountNum}
+                  onChange={(e) => setRefundAccountNum(e.target.value)}
+                />
+                <input
+                  className={inputCls}
+                  placeholder={d.accountHolderPlaceholder}
+                  value={refundHolder}
+                  onChange={(e) => setRefundHolder(e.target.value)}
+                />
+              </div>
+            )}
           </div>
         </div>
 

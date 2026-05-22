@@ -114,14 +114,16 @@ export default function QuickAddButton({ product, lang, soldOut }: Props) {
     <>
       <button
         onClick={openModal}
-        disabled={isPending || added}
+        disabled={isPending}
         aria-label={t.add}
-        className="w-full flex items-center justify-center py-2 text-ink-muted hover:text-ink transition-colors disabled:opacity-40"
+        className="w-8 h-8 flex items-center justify-center transition-opacity hover:opacity-60 disabled:opacity-40"
       >
         {added ? (
-          <span className="text-xs">{t.added}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
         ) : (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
             <line x1="3" y1="6" x2="21" y2="6" />
             <path d="M16 10a4 4 0 01-8 0" />

@@ -1,4 +1,4 @@
-export async function adminGql(query: string, variables?: Record<string, unknown>) {
+export async function adminGql<T = any>(query: string, variables?: Record<string, unknown>): Promise<{ data: T }> {
   const res = await fetch(
     `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/${process.env.SHOPIFY_API_VERSION ?? '2026-04'}/graphql.json`,
     {

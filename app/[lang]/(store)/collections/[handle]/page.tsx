@@ -38,7 +38,7 @@ export default async function CollectionPage({
   const title = meta[locale] ?? meta.ko
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <section className="max-w-7xl mx-auto px-0 sm:px-6 py-10">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-sm font-bold tracking-widest uppercase">{title}</h1>
         <SortSelector lang={lang} current={sort} />
@@ -49,7 +49,7 @@ export default async function CollectionPage({
           {locale === 'ko' ? '상품이 없어요.' : '商品がありません。'}
         </p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-0.5 gap-y-8 sm:gap-x-4 sm:gap-y-10">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} lang={locale} />
           ))}

@@ -8,7 +8,9 @@
     "about": "ABOUT",
     "cart": "カート",
     "menu": "メニュー",
-    "close": "閉じる"
+    "close": "閉じる",
+    "account": "マイページ",
+    "login": "ログイン"
   },
   "product": {
     "addToCart": "カートに追加",
@@ -28,12 +30,13 @@
     "remove": "削除"
   },
   "footer": {
-    "cs": "カスタマーサポート",
-    "faq": "よくある質問",
-    "privacy": "プライバシーポリシー",
-    "terms": "利用規約",
-    "refund": "返品ポリシー",
-    "returns": "返品申請",
+    "about": "About",
+    "cs": "Customer Service",
+    "faq": "FAQ",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "refund": "Refund Policy",
+    "returns": "Returns",
     "copyright": "© 2025 applebuttercollege. All rights reserved."
   },
   "checkout": {
@@ -50,7 +53,19 @@
     "freeShipping": "無料",
     "total": "お支払い金額",
     "pay": "お支払いへ進む",
-    "required": "必須項目をすべてご入力ください"
+    "required": "必須項目をすべてご入力ください",
+    "paymentMethod": "お支払い方法",
+    "card": "クレジットカード",
+    "bankTransfer": "銀行振込",
+    "refundAccount": "返金口座",
+    "refundAccountNote": "キャンセル・返金時にこの口座へお振込みします",
+    "bank": "銀行名",
+    "bankPlaceholder": "銀行名を入力",
+    "accountNumber": "口座番号",
+    "accountNumberPlaceholder": "数字のみ入力",
+    "accountHolder": "口座名義",
+    "accountHolderPlaceholder": "口座名義人",
+    "requiredBankInfo": "返金口座情報をすべてご入力ください"
   },
   "home": {
     "season": "2025 S/S",

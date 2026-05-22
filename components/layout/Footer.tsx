@@ -1,28 +1,28 @@
 import Link from 'next/link'
 
 type Dict = {
-  footer: { cs: string; faq: string; privacy: string; terms: string; refund: string; returns: string; copyright: string }
+  footer: { about: string; cs: string; faq: string; privacy: string; terms: string; returns: string; copyright: string }
 }
 
 type Props = { lang: string; dict: Dict }
 
 const bizInfo = [
-  ['상호',             'HFFF Co., Ltd.'],
-  ['대표자',           '구승범'],
-  ['개인정보책임자',   '구승범'],
-  ['주소',             '경기도 남양주시 다산순환로 20, 10층'],
-  ['사업자등록번호',   '846-81-02489'],
-  ['통신판매업신고',   '2022-다산-1147'],
-  ['호스팅',           'Vercel'],
+  ['Company',          'HFFF Co., Ltd.'],
+  ['CEO',              '구승범'],
+  ['Privacy Officer',  '구승범'],
+  ['Address',          '경기도 남양주시 다산순환로 20, 10층'],
+  ['Business Reg.',    '846-81-02489'],
+  ['E-commerce Reg.',  '2022-다산-1147'],
+  ['Hosting',          'Vercel'],
 ]
 
 export default function Footer({ lang, dict }: Props) {
   const legalLinks = [
+    { label: dict.footer.about,   href: `/${lang}/about` },
     { label: dict.footer.faq,     href: `/${lang}/faq` },
     { label: dict.footer.returns, href: `/${lang}/returns` },
     { label: dict.footer.privacy, href: `/${lang}/privacy` },
     { label: dict.footer.terms,   href: `/${lang}/terms` },
-    { label: dict.footer.refund,  href: `/${lang}/refund` },
   ]
 
   return (
@@ -62,7 +62,7 @@ export default function Footer({ lang, dict }: Props) {
         {/* 사업자 정보 (접기) */}
         <details className="group">
           <summary className="list-none flex items-center gap-1 w-fit cursor-pointer text-xs text-ink-muted hover:text-ink transition-colors select-none">
-            사업자 정보
+            Business Info
             <span className="text-[10px] transition-transform duration-200 group-open:rotate-180 inline-block">▾</span>
           </summary>
           <div className="mt-3 flex flex-col gap-1.5">
