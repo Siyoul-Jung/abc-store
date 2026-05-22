@@ -43,21 +43,14 @@ export async function GET(request: Request) {
   const maxAge: number = expires_in ?? 3600
   const secure = process.env.NODE_ENV === 'production'
 
-  // 이메일 조회 (주문 조회에 사용)
+  // id_token JWT 디코딩으로 이메일 추출 (openid email 스코프 포함)
   let customerEmail = ''
   try {
-    const CA_ENDPOINT = `https://shopify.com/${SHOP_ID}/account/customer/api/2026-04/graphql`
-    const profileRes = await fetch(CA_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: access_token },
-      body: JSON.stringify({ query: '{ customer { emailAddress { emailAddress } } }' }),
-      cache: 'no-store',
-    })
-    if (profileRes.ok) {
-      const profileData = await profileRes.json()
-      customerEmail = profileData?.data?.customer?.emailAddress?.emailAddress ?? ''
-    }
-  } catch { /* 이메일 조회 실패 시 무시 */ }
+    const payload = JSON.parse(
+      Buffer.from(id_token.split('.')[1], 'base64url').toString('utf-8')
+    )
+    customerEmail = payload.email ?? ''
+  } catch { /* 디코딩 실패 시 무시 */ }
 
   const response = NextResponse.redirect(new URL(redirectTo, origin))
 
