@@ -90,16 +90,21 @@ export default async function OrdersPage({
 
   let orders: Order[] = []
 
+  console.log('[orders] token present:', !!token)
   if (token) {
     const caData = await caQuery<{ customer: { id: string } }>(token, `{ customer { id } }`)
+    console.log('[orders] caData:', JSON.stringify(caData))
     const customerId = caData?.customer?.id?.split('/').pop()
+    console.log('[orders] customerId:', customerId)
     if (customerId) {
       const res = await fetch(
         `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?customer_id=${customerId}&status=any&limit=20`,
         { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
       )
+      console.log('[orders] admin api status:', res.status)
       if (res.ok) {
         const data = await res.json()
+        console.log('[orders] order count:', (data.orders as unknown[]).length)
         orders = (data.orders as AdminOrderRaw[])
           .sort((a, b) => new Date(b.processed_at).getTime() - new Date(a.processed_at).getTime())
           .map(mapAdminOrder)
