@@ -90,22 +90,20 @@ export default async function OrdersPage({
 
   let orders: Order[] = []
 
-  const customerId = cookieStore.get('customer_id')?.value
-    ?? cookieStore.get('customer_email')?.value
-  console.log('[orders] token:', !!token, 'customerId:', customerId)
-  if (token && customerId) {
-    const param = customerId.includes('@')
-      ? `email=${encodeURIComponent(customerId)}`
-      : `customer_id=${customerId}`
-    const res = await fetch(
-      `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?${param}&status=any&limit=20`,
-      { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
-    )
-    if (res.ok) {
-      const data = await res.json()
-      orders = (data.orders as AdminOrderRaw[])
-        .sort((a, b) => new Date(b.processed_at).getTime() - new Date(a.processed_at).getTime())
-        .map(mapAdminOrder)
+  if (token) {
+    const caData = await caQuery<{ customer: { id: string } }>(token, `{ customer { id } }`)
+    const customerId = caData?.customer?.id?.split('/').pop()
+    if (customerId) {
+      const res = await fetch(
+        `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?customer_id=${customerId}&status=any&limit=20`,
+        { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        orders = (data.orders as AdminOrderRaw[])
+          .sort((a, b) => new Date(b.processed_at).getTime() - new Date(a.processed_at).getTime())
+          .map(mapAdminOrder)
+      }
     }
   }
 
