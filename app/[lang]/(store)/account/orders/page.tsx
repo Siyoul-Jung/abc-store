@@ -91,7 +91,8 @@ export default async function OrdersPage({
   let orders: Order[] = []
 
   const customerId = cookieStore.get('customer_id')?.value
-    ?? cookieStore.get('customer_email')?.value  // 이전 세션 fallback
+    ?? cookieStore.get('customer_email')?.value
+  console.log('[orders] token:', !!token, 'customerId:', customerId)
   if (token && customerId) {
     const param = customerId.includes('@')
       ? `email=${encodeURIComponent(customerId)}`
