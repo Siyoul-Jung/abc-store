@@ -51,11 +51,15 @@ export async function GET(request: Request) {
     `https://shopify.com/authentication/${SHOP_ID}/oauth/userinfo`,
     { headers: { Authorization: `Bearer ${access_token}` }, cache: 'no-store' }
   )
+  console.log('[auth/callback] userinfo status:', userInfoRes.status)
   if (userInfoRes.ok) {
     const info = await userInfoRes.json()
-    // sub: "gid://shopify/Customer/9168135094500" → "9168135094500"
+    console.log('[auth/callback] userinfo:', JSON.stringify(info))
     customerId = (info.sub as string ?? '').split('/').pop() ?? ''
     customerEmail = info.email ?? ''
+  } else {
+    const errText = await userInfoRes.text()
+    console.error('[auth/callback] userinfo error:', errText)
   }
 
   const response = NextResponse.redirect(new URL(redirectTo, origin))
