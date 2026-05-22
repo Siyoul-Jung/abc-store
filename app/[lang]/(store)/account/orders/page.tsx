@@ -90,26 +90,25 @@ export default async function OrdersPage({
 
   let orders: Order[] = []
 
-  console.log('[orders] token present:', !!token)
   if (token) {
     const caData = await caQuery<{ customer: { id: string } }>(token, `{ customer { id } }`)
-    console.log('[orders] caData:', JSON.stringify(caData))
     const customerId = caData?.customer?.id?.split('/').pop()
-    console.log('[orders] customerId:', customerId)
+    console.log('[orders-debug] token:yes caData:', !!caData?.customer, 'customerId:', customerId ?? 'none')
     if (customerId) {
       const res = await fetch(
         `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?customer_id=${customerId}&status=any&limit=20`,
         { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' }
       )
-      console.log('[orders] admin api status:', res.status)
-      if (res.ok) {
-        const data = await res.json()
-        console.log('[orders] order count:', (data.orders as unknown[]).length)
+      const data = res.ok ? await res.json() : null
+      console.log('[orders-debug] admin status:', res.status, 'count:', data?.orders?.length ?? 'err')
+      if (res.ok && data) {
         orders = (data.orders as AdminOrderRaw[])
           .sort((a, b) => new Date(b.processed_at).getTime() - new Date(a.processed_at).getTime())
           .map(mapAdminOrder)
       }
     }
+  } else {
+    console.log('[orders-debug] token:NO')
   }
 
   const labels = t[locale]

@@ -40,7 +40,9 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/?auth_error=token', origin))
   }
 
-  const { access_token, id_token, expires_in } = await tokenRes.json()
+  const tokenJson = await tokenRes.json()
+  console.log('[callback-debug] token keys:', Object.keys(tokenJson).join(','), 'has_access:', !!tokenJson.access_token)
+  const { access_token, id_token, expires_in } = tokenJson
   const maxAge: number = expires_in ?? 3600
   const secure = process.env.NODE_ENV === 'production'
 
