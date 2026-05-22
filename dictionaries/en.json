@@ -10,7 +10,8 @@
     "menu": "Menu",
     "close": "Close",
     "account": "My Account",
-    "login": "Log In"
+    "login": "Log In",
+    "qa": "Q&A"
   },
   "product": {
     "addToCart": "Add to Cart",
@@ -37,6 +38,7 @@
     "terms": "Terms of Service",
     "refund": "Refund Policy",
     "returns": "Returns",
+    "qa": "Q&A",
     "copyright": "© 2025 applebuttercollege. All rights reserved."
   },
   "checkout": {

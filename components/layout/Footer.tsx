@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 type Dict = {
-  footer: { about: string; cs: string; faq: string; privacy: string; terms: string; returns: string; copyright: string }
+  footer: { about: string; cs: string; faq: string; privacy: string; terms: string; returns: string; qa: string; copyright: string }
 }
 
 type Props = { lang: string; dict: Dict }
@@ -21,6 +21,7 @@ export default function Footer({ lang, dict }: Props) {
     { label: dict.footer.about,   href: `/${lang}/about` },
     { label: dict.footer.faq,     href: `/${lang}/faq` },
     { label: dict.footer.returns, href: `/${lang}/returns` },
+    { label: dict.footer.qa,      href: `/${lang}/qa` },
     { label: dict.footer.privacy, href: `/${lang}/privacy` },
     { label: dict.footer.terms,   href: `/${lang}/terms` },
   ]

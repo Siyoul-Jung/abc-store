@@ -10,7 +10,8 @@
     "menu": "메뉴",
     "close": "닫기",
     "account": "내 계정",
-    "login": "로그인"
+    "login": "로그인",
+    "qa": "Q&A"
   },
   "product": {
     "addToCart": "장바구니 담기",
@@ -37,6 +38,7 @@
     "terms": "Terms",
     "refund": "Refund Policy",
     "returns": "Returns",
+    "qa": "Q&A",
     "copyright": "© 2025 applebuttercollege. All rights reserved."
   },
   "checkout": {

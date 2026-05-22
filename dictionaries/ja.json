@@ -10,7 +10,8 @@
     "menu": "メニュー",
     "close": "閉じる",
     "account": "マイページ",
-    "login": "ログイン"
+    "login": "ログイン",
+    "qa": "Q&A"
   },
   "product": {
     "addToCart": "カートに追加",
@@ -37,6 +38,7 @@
     "terms": "Terms",
     "refund": "Refund Policy",
     "returns": "Returns",
+    "qa": "Q&A",
     "copyright": "© 2025 applebuttercollege. All rights reserved."
   },
   "checkout": {

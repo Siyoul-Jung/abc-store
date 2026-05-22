@@ -1,11 +1,26 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const service = process.env.SUPABASE_SERVICE_ROLE_KEY!
+function lazy(factory: () => SupabaseClient): SupabaseClient {
+  let instance: SupabaseClient | undefined
+  return new Proxy({} as SupabaseClient, {
+    get(_, prop) {
+      if (!instance) instance = factory()
+      const val = Reflect.get(instance, prop, instance)
+      return typeof val === 'function' ? (val as (...args: unknown[]) => unknown).bind(instance) : val
+    },
+  })
+}
 
-// 공개 클라이언트 (RLS 적용)
-export const supabase = createClient(url, anon)
+export const supabase = lazy(() =>
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
+)
 
-// 서버 전용 클라이언트 (RLS 우회, 서버 액션에서만 사용)
-export const supabaseAdmin = createClient(url, service)
+export const supabaseAdmin = lazy(() =>
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+)
