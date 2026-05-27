@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { markShopifyOrderPaid } from '@/lib/actions/order'
+import { sendCAPIEvent } from '@/lib/meta-capi'
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -26,6 +27,22 @@ export async function POST(req: NextRequest) {
       console.error('[toss-webhook] markShopifyOrderPaid failed for orderId:', orderId)
       return new NextResponse('Internal Server Error', { status: 500 })
     }
+
+    const { capiData } = result
+    sendCAPIEvent({
+      eventName: 'Purchase',
+      eventSourceUrl: 'https://applebuttercollege.com/ko/checkout/success',
+      value: amount,
+      currency: 'KRW',
+      orderId,
+      contents: capiData?.contents ?? [],
+      userData: {
+        email: capiData?.email,
+        phone: capiData?.phone,
+        firstName: capiData?.firstName,
+        zipcode: capiData?.zipcode,
+      },
+    }).catch(() => {})
   }
 
   return new NextResponse('OK', { status: 200 })

@@ -1,9 +1,10 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { hasLocale } from '../../../dictionaries'
 import { getCart } from '@/lib/actions/cart'
 import { createShopifyOrder } from '@/lib/actions/order'
+import { sendCAPIEvent } from '@/lib/meta-capi'
 import type { Locale } from '@/lib/shopify/types'
 
 type TossVirtualAccount = {
@@ -115,15 +116,16 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
   const confirmed = await confirmTossPayment(paymentKey, orderId, Number(amount))
   if (!confirmed.ok) redirect(`/${lang}/checkout/fail`)
 
-  const cookieStore = await cookies()
+  const [cookieStore, headersList] = await Promise.all([cookies(), headers()])
   const cart = await getCart(locale)
   const shippingRaw = cookieStore.get('checkout_shipping')?.value
 
   let shopifyOrderName: string | undefined
+  let shipping: ReturnType<typeof JSON.parse> | undefined
 
   if (cart && shippingRaw) {
     try {
-      const shipping = JSON.parse(decodeURIComponent(shippingRaw))
+      shipping = JSON.parse(decodeURIComponent(shippingRaw))
       const lineItems = cart.lines.nodes.map((line) => ({
         variantGid: line.merchandise.id,
         quantity: line.quantity,
@@ -133,6 +135,33 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
     } catch (e) {
       console.error('[success] order creation failed:', e)
     }
+  }
+
+  // Meta CAPI Purchase 이벤트 (가상계좌는 입금 후 웹훅에서 별도 전송)
+  if (confirmed.ok && !confirmed.virtualAccount && cart && shipping) {
+    const contents = cart.lines.nodes.map((line) => ({
+      id: line.merchandise.product.id.split('/').pop() ?? '',
+      quantity: line.quantity,
+      item_price: Number(line.merchandise.price.amount),
+    }))
+    sendCAPIEvent({
+      eventName: 'Purchase',
+      eventSourceUrl: `https://applebuttercollege.com/${lang}/checkout/success`,
+      value: Number(amount),
+      currency: 'KRW',
+      orderId,
+      contents,
+      userData: {
+        email: shipping.email,
+        phone: shipping.phone,
+        firstName: shipping.name,
+        zipcode: shipping.zipcode,
+        clientIp: headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? headersList.get('x-real-ip') ?? undefined,
+        clientUserAgent: headersList.get('user-agent') ?? undefined,
+        fbp: cookieStore.get('_fbp')?.value,
+        fbc: cookieStore.get('_fbc')?.value,
+      },
+    }).catch(() => {})
   }
 
   cookieStore.delete('cart_id')

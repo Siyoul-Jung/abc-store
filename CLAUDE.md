@@ -29,24 +29,34 @@
 
 ```
 app/
-  [lang]/               ← Locale: 'ko' | 'ja'
+  [lang]/               ← Locale: 'ko' | 'ja' | 'en'
     (store)/
       page.tsx          ← 홈 (Hero + 상품 그리드 + 인스타 피드)
       products/
         page.tsx        ← 전체 상품 목록
-        [id]/page.tsx   ← 상품 상세 (추천 상품 포함)
+        [id]/page.tsx   ← 상품 상세 (추천 상품 + JSON-LD 포함)
       collections/
         [handle]/       ← 핸들: new, kids, adult, sale (태그 기반 필터링, 정렬 지원)
       cart/page.tsx     ← 장바구니
       checkout/
         page.tsx        ← 체크아웃 (배송지 + 토스 결제)
-        success/        ← 결제 성공 → Toss confirm → Shopify 주문 생성
+        success/        ← 결제 성공 → Toss confirm → Shopify 주문 생성 → Meta CAPI
         fail/           ← 결제 실패
+      account/          ← 마이페이지 (OIDC 로그인 필요)
+        page.tsx        ← 계정 홈
+        orders/         ← 주문내역 목록 + 상세, 주문 취소
+        addresses/      ← 배송지 목록 + 추가/수정/삭제
       returns/          ← 교환·반품 신청 폼 (2단계: 주문조회 → 신청)
+      qa/               ← Q&A 게시판 (목록, 상세, 새 질문) — Supabase
       about/            ← 브랜드 소개 페이지 (ko/ja)
       privacy/          ← 개인정보처리방침 (ko/ja 작성 완료)
       terms/            ← 이용약관 (ko/ja 작성 완료)
       refund/           ← 환불정책 (ko/ja 작성 완료)
+  admin/
+    qa/                 ← 관리자 Q&A 답변 페이지
+  api/
+    auth/               ← OIDC 로그인 (login, callback, logout)
+    toss/webhook/       ← 가상계좌 입금 웹훅
 ```
 
 ---
@@ -104,14 +114,25 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 ## 환경변수 (`.env.local`)
 
 ```
-SHOPIFY_STORE_DOMAIN=
-SHOPIFY_STOREFRONT_ACCESS_TOKEN=
-SHOPIFY_API_VERSION=
-SHOPIFY_ADMIN_API_TOKEN=            # shpat_ 토큰 (확보 완료, .env.local에 등록)
-NEXT_PUBLIC_TOSS_CLIENT_KEY=        # 토스 계약 후
-TOSS_SECRET_KEY=                    # 토스 계약 후
-INSTAGRAM_ACCESS_TOKEN=             # Meta Business Suite system user token
+SHOPIFY_STORE_DOMAIN=               # 등록 완료
+SHOPIFY_STOREFRONT_API_TOKEN=       # 등록 완료
+SHOPIFY_STOREFRONT_API_VERSION=     # 등록 완료
+SHOPIFY_ADMIN_API_TOKEN=            # shpat_ 토큰 등록 완료
+SHOPIFY_CLIENT_ID=                  # OIDC 로그인용, 등록 완료
+SHOPIFY_CLIENT_SECRET=              # OIDC 로그인용, 등록 완료
+NEXT_PUBLIC_TOSS_CLIENT_KEY=        # 테스트 키 등록됨 — 실 계약 후 교체
+TOSS_SECRET_KEY=                    # 테스트 키 등록됨 — 실 계약 후 교체
+INSTAGRAM_ACCESS_TOKEN=             # 등록 완료
 INSTAGRAM_USER_ID=17841436592849949
+META_PIXEL_ID=                      # 등록 완료
+META_CAPI_ACCESS_TOKEN=             # 등록 완료
+NEXT_PUBLIC_SUPABASE_URL=           # 등록 완료 (Q&A 게시판)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=      # 등록 완료
+SUPABASE_SERVICE_ROLE_KEY=          # 등록 완료
+ADMIN_SECRET=                       # 관리자 페이지 접근용
+ADMIN_EMAIL=                        # 등록 완료
+NEXT_PUBLIC_SITE_URL=               # 등록 완료
+RESEND_API_KEY=                     # 나중에 Resend 가입 후 추가
 ```
 
 ---
@@ -121,7 +142,7 @@ INSTAGRAM_USER_ID=17841436592849949
 ```
 components/
   layout/
-    Header.tsx          ← 네비게이션, 카트 아이콘 (수량 배지 미구현)
+    Header.tsx          ← 네비게이션, 카트 수량 배지 (coral), 로그인 상태 반영
     Footer.tsx          ← 사업자 정보(접기) + 연락처 링크 + 법적 링크
     MobileMenu.tsx      ← 전체화면 사이드바 (모바일 전용)
   home/
@@ -144,13 +165,26 @@ lib/
     client.ts           ← Storefront API 클라이언트
     storefront.ts       ← 상품/카트 조회 함수
     admin.ts            ← Admin API adminGql() 함수
+    customer-account.ts ← Customer Account API (caQuery, gidToId)
     queries/products.ts ← GraphQL 쿼리 (GET_PRODUCTS_QUERY, GET_BEST_SELLING_QUERY 등)
   actions/
     cart.ts             ← 장바구니 서버 액션
     returns.ts          ← 교환·반품 서버 액션 (lookupOrder, submitReturnRequest)
+    order.ts            ← createShopifyOrder(), markShopifyOrderPaid()
   utils/
     format.ts           ← formatPrice(), gidToNumericId(), stripHtml() 등
   instagram.ts          ← Instagram Graph API 피드 조회
+  meta-capi.ts          ← Meta Conversions API (sendCAPIEvent — Purchase 등)
+
+app/
+  api/
+    auth/               ← OIDC 로그인 (login, callback, logout)
+    toss/webhook/       ← 가상계좌 입금 웹훅 → markShopifyOrderPaid()
+  [lang]/(store)/
+    account/            ← 마이페이지 (주문내역, 주소관리) — 로그인 필요
+    qa/                 ← Q&A 게시판 (목록, 상세, 새 질문)
+  admin/
+    qa/                 ← 관리자 Q&A 답변 페이지
 ```
 
 ---
@@ -160,8 +194,10 @@ lib/
 ### 완료
 - 상품 목록 / 상세 페이지 (추천 상품 섹션 포함)
 - 장바구니 (추가, 수정, 삭제)
-- 체크아웃 폼 + 토스 결제 SDK 연동 코드
-- 결제 성공/실패 페이지 (기본 구조)
+- 체크아웃 폼 + 토스 결제 SDK 연동 코드 (테스트 키)
+- 결제 성공 → Toss confirm → Shopify 주문 생성 (`lib/actions/order.ts`)
+- 결제 성공/실패 페이지 (ko/ja/en 다국어 완료)
+- 가상계좌 입금 웹훅 (`app/api/toss/webhook/`) → markShopifyOrderPaid()
 - 교환·반품 신청 폼 (`/[lang]/returns`) — Shopify Admin API `returnCreate` 연동
 - 다국어 (ko/ja) 전반 — SizeGuide, VariantSelector, PolicyModal, ReturnForm 포함
 - 인스타그램 피드
@@ -173,46 +209,42 @@ lib/
 - 모바일 메뉴 (전체화면 사이드바)
 - 검색 바 (인라인 드롭다운)
 - Hero 섹션 (홈페이지)
+- 헤더 카트 수량 배지 (coral, 99+ 처리)
+- 404 / 500 에러 페이지
+- SEO — sitemap.xml, robots.txt, Product JSON-LD (`app/[lang]/(store)/products/[id]/page.tsx`)
+- Meta Conversions API — `lib/meta-capi.ts`, Purchase 이벤트 (`checkout/success`)
+- OIDC 로그인 (`app/api/auth/`) — Shopify Customer Account API, JWT id_token 디코딩
+- 마이페이지 — 주문내역 (`/account/orders`), 주문 취소, 배송지 관리 (`/account/addresses`)
+- Q&A 게시판 (`/qa`) — Supabase 기반, 목록/상세/새 질문, 관리자 답변 (`/admin/qa`)
+- ABOUT 페이지 (ko/ja)
+- 컬렉션 페이지 (태그 기반, new/kids/adult/sale)
 
 ### 미구현 / 미완성
 
 > 상세 항목은 `docs/launch-checklist.md` 참조
 
-**Phase 1 — 결제 완성 (토스 계약 직후)**
-- 토스 환경변수 등록 (`NEXT_PUBLIC_TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY`)
-- ~~Shopify Admin API 토큰 확보~~ ✅ → 결제 성공 후 주문 생성 로직 구현 필요
-- 헤더 카트 수량 배지
-- 404 / 500 에러 페이지
-- ~~ABOUT 페이지~~ ✅
-- 결제 성공 페이지 다국어
-- Meta Conversions API (CAPI) 연동
-  - 필요 환경변수: `META_PIXEL_ID`, `META_CAPI_ACCESS_TOKEN`
+**Phase 1 — 결제 완성 (토스 실 계약 직후)**
+- 토스 실 키로 교체 (`NEXT_PUBLIC_TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY`)
 
 **Phase 2 — 상품 데이터 이전**
 - MakeShop → Shopify 상품 bulk 이전
-- ~~컬렉션 페이지~~ ✅ (태그 기반 구현 완료)
 - 일본어 상품 설명 번역 (Shopify Translate & Adapt)
 
 **Phase 3 — 한국 런칭 준비**
-- SEO (sitemap.xml, robots.txt, Product JSON-LD)
-- CS 채널 플로팅 버튼 (채널톡 또는 카카오 채널)
 - Vercel 환경변수 전체 등록
 - 도메인 연결 (applebuttercollege.com)
 
 **Phase 4 — 일본 런칭**
 - Stripe 결제 연동
 - 일본 특정상거래법 페이지
-- CS 채널 일본어 지원 (LINE 또는 채널톡)
 
 **Phase 5 — 대시보드 마이그레이션**
 - 프로젝트: `abc-migration` (Plotly Dash v3.0, Python)
 - MakeShop Open API → Shopify Admin API 커넥터 교체
-- Meta Pixel 기반 funnel → CAPI 이벤트 기반으로 전환
 
 **런칭 후**
 - 포토 리뷰 (Judge.me 등)
 - 위시리스트
-- 로그인 / 주문내역
 - 포인트 / 쿠폰
 
 ---

@@ -3,11 +3,38 @@ import { unstable_noStore } from 'next/cache'
 import type { Metadata } from 'next'
 import { hasLocale, getDictionary } from '../../../dictionaries'
 import { getProductById, getProductMetafields, numericIdToGid, getProducts } from '@/lib/shopify/storefront'
-import { stripHtml, stripTitlePrefix } from '@/lib/utils/format'
+import { stripHtml, stripTitlePrefix, gidToNumericId } from '@/lib/utils/format'
 import ProductImageGallery from '@/components/product/ProductImageGallery'
 import VariantSelector from '@/components/product/VariantSelector'
 import ProductGrid from '@/components/home/ProductGrid'
-import type { Locale } from '@/lib/shopify/types'
+import type { Locale, Product } from '@/lib/shopify/types'
+
+const BASE = 'https://applebuttercollege.com'
+
+function buildProductJsonLd(product: Product, lang: Locale, id: string) {
+  const numId = gidToNumericId(product.id)
+  const available = product.variants.nodes.some((v) => v.availableForSale)
+  const price = product.priceRange.minVariantPrice
+  const images = product.images.nodes.map((img) => img.url)
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: stripTitlePrefix(product.title),
+    description: product.description,
+    image: images,
+    url: `${BASE}/${lang}/products/${numId}`,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: price.currencyCode,
+      price: price.amount,
+      availability: available
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      url: `${BASE}/${lang}/products/${numId}`,
+    },
+  }
+}
 
 type Props = { params: Promise<{ lang: string; id: string }> }
 
@@ -46,8 +73,14 @@ export default async function ProductPage({ params }: Props) {
     .sort(() => Math.random() - 0.5)
     .slice(0, 4)
 
+  const jsonLd = buildProductJsonLd(product, lang as Locale, id)
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* 상단: 이미지 좌 | 제목+가격+사이즈 우 */}
       <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-10 lg:gap-16">

@@ -106,9 +106,9 @@ export async function createShopifyOrder(params: {
 }
 
 export async function markShopifyOrderPaid(tossOrderId: string, amount: number, paymentKey: string) {
-  // 1. 태그로 주문 검색
+  // 1. 태그로 주문 검색 (CAPI용 고객/상품 정보 포함)
   const searchRes = await fetch(
-    `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?tag=toss-${tossOrderId}&status=any&fields=id,name`,
+    `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?tag=toss-${tossOrderId}&status=any&fields=id,name,email,phone,shipping_address,line_items`,
     {
       headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN },
       cache: 'no-store',
@@ -148,5 +148,19 @@ export async function markShopifyOrderPaid(tossOrderId: string, amount: number, 
     return { ok: false }
   }
 
-  return { ok: true, shopifyOrderName: order.name }
+  return {
+    ok: true,
+    shopifyOrderName: order.name as string,
+    capiData: {
+      email: order.email as string | undefined,
+      phone: order.phone as string | undefined,
+      firstName: order.shipping_address?.first_name as string | undefined,
+      zipcode: order.shipping_address?.zip as string | undefined,
+      contents: (order.line_items as { variant_id: number; quantity: number; price: string }[]).map((item) => ({
+        id: String(item.variant_id),
+        quantity: item.quantity,
+        item_price: Number(item.price),
+      })),
+    },
+  }
 }
