@@ -35,6 +35,16 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/coming-soon', request.url))
   }
 
+  // 체크아웃 일시 중단: /ko/checkout, /ja/checkout → 카트로 리다이렉트
+  if (process.env.CHECKOUT_PAUSED === 'true') {
+    if (/^\/[a-z]{2}\/checkout$/.test(pathname)) {
+      const url = request.nextUrl.clone()
+      url.pathname = pathname.replace('/checkout', '/cart')
+      url.searchParams.set('notice', 'checkout_paused')
+      return NextResponse.redirect(url)
+    }
+  }
+
   // /admin 경로는 로케일 라우팅 제외
   if (pathname.startsWith('/admin')) return
 

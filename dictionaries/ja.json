@@ -9,9 +9,9 @@
     "cart": "カート",
     "menu": "メニュー",
     "close": "閉じる",
-    "account": "マイページ",
-    "login": "ログイン",
-    "qa": "Q&A"
+    "account": "My Account",
+    "login": "Login",
+    "qa": "Contact Us"
   },
   "product": {
     "addToCart": "カートに追加",
@@ -38,7 +38,7 @@
     "terms": "Terms",
     "refund": "Refund Policy",
     "returns": "Returns",
-    "qa": "Q&A",
+    "qa": "Contact Us",
     "copyright": "© 2025 applebuttercollege. All rights reserved."
   },
   "checkout": {
@@ -78,6 +78,6 @@
   "common": {
     "loading": "読み込み中...",
     "error": "エラーが発生しました",
-    "viewAll": "すべて見る"
+    "viewAll": "View all"
   }
 }

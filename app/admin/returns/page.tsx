@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/lib/supabase/client'
+import { getRefundPreview, type RefundPreview } from '@/lib/actions/refund'
 import AdminReturnActions from './_components/AdminReturnActions'
 
 const reasonLabels: Record<string, string> = {
@@ -39,6 +40,18 @@ export default async function AdminReturnsPage({
 
   if (status !== 'all') query = query.eq('status', status)
   const { data: returns } = await query
+
+  // 수령완료 상태 항목만 Shopify에서 환불 미리보기 조회
+  const refundPreviews: Record<string, RefundPreview | null> = {}
+  if (returns) {
+    await Promise.all(
+      returns
+        .filter((r) => r.status === 'received' && r.order_number)
+        .map(async (r) => {
+          refundPreviews[r.id] = await getRefundPreview(r.order_number, r.reason)
+        }),
+    )
+  }
 
   const pendingCount = await supabaseAdmin
     .from('return_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')
@@ -109,7 +122,12 @@ export default async function AdminReturnsPage({
               )}
 
               {/* 어드민 액션 */}
-              <AdminReturnActions returnId={r.id} status={r.status} hasBankInfo={!!r.bank_name} />
+              <AdminReturnActions
+                returnId={r.id}
+                status={r.status}
+                hasBankInfo={!!r.bank_name}
+                refundPreview={refundPreviews[r.id] ?? null}
+              />
             </div>
           ))
         )}

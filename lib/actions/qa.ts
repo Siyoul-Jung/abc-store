@@ -114,7 +114,7 @@ export async function submitAnswer(questionId: string, content: string, lang: st
   // 고객 이메일 알림
   const { data: q } = await supabaseAdmin.from('questions').select('customer_email, title').eq('id', questionId).single()
   if (q) {
-    await notifyCustomerAnswered({ email: q.customer_email, title: q.title, content, lang })
+    await notifyCustomerAnswered({ email: q.customer_email, title: q.title, lang })
   }
 
   revalidatePath('/admin/qa')
@@ -208,19 +208,22 @@ async function notifyAdminNewQuestion({
 async function notifyCustomerAnswered({
   email,
   title,
-  content,
   lang,
 }: {
   email: string
   title: string
-  content: string
   lang: string
 }) {
   const resendKey = process.env.RESEND_API_KEY
   if (!resendKey) return
 
-  const subject =
-    lang === 'ja' ? `【applebuttercollege】お問い合わせに回答しました` : `[applebuttercollege] 문의에 답변이 등록되었습니다`
+  const isJa = lang === 'ja'
+  const subject = isJa
+    ? `【applebuttercollege】お問い合わせに回答しました`
+    : `[applebuttercollege] 문의에 답변이 등록되었습니다`
+  const body = isJa
+    ? `<p>「<b>${title}</b>」へのご回答が届きました。</p><p>下記リンクよりご確認ください。</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/qa">マイお問い合わせを確認する →</a></p>`
+    : `<p>문의하신 "<b>${title}</b>"에 답변이 등록되었습니다.</p><p>아래 링크에서 확인해 주세요.</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/qa">내 문의 확인하기 →</a></p>`
 
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -229,7 +232,7 @@ async function notifyCustomerAnswered({
       from: `applebuttercollege CS <cs@applebuttercollege.com>`,
       to: email,
       subject,
-      html: `<p>문의하신 "<b>${title}</b>"에 답변이 등록되었습니다.</p><hr/><p style="white-space:pre-wrap">${content}</p><hr/><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/qa">내 문의 확인하기 →</a></p>`,
+      html: body,
     }),
   })
 }

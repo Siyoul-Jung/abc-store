@@ -61,10 +61,10 @@ const mockOrder: OrderDetail = {
 }
 
 const dateLocale: Record<Locale, string> = { ko: 'ko-KR', ja: 'ja-JP', en: 'en-US' }
-const t: Record<Locale, { back: string; items: string; shipping: string; subtotal: string; shippingFee: string; total: string; address: string; returns: string }> = {
-  ko: { back: '← 주문 목록', items: '주문 상품', shipping: '배송지', subtotal: '상품 합계', shippingFee: '배송비', total: '결제 금액', address: '배송 주소', returns: '반품 신청' },
-  ja: { back: '← 注文一覧', items: 'ご注文商品', shipping: 'お届け先', subtotal: '小計', shippingFee: '送料', total: 'お支払い金額', address: 'お届け先住所', returns: '返品申請' },
-  en: { back: '← Orders', items: 'Items', shipping: 'Shipping', subtotal: 'Subtotal', shippingFee: 'Shipping fee', total: 'Total', address: 'Shipping address', returns: 'Request return' },
+const t: Record<Locale, { back: string; items: string; shipping: string; subtotal: string; shippingFee: string; total: string; address: string; returns: string; contact: string }> = {
+  ko: { back: '← 주문 목록', items: '주문 상품', shipping: '배송지', subtotal: '상품 합계', shippingFee: '배송비', total: '결제 금액', address: '배송 주소', returns: '반품 신청', contact: '1:1 문의' },
+  ja: { back: '← 注文一覧', items: 'ご注文商品', shipping: 'お届け先', subtotal: '小計', shippingFee: '送料', total: 'お支払い金額', address: 'お届け先住所', returns: '返品申請', contact: '1:1 お問い合わせ' },
+  en: { back: '← Orders', items: 'Items', shipping: 'Shipping', subtotal: 'Subtotal', shippingFee: 'Shipping fee', total: 'Total', address: 'Shipping address', returns: 'Request return', contact: 'Contact Us' },
 }
 
 function formatPrice(amount: string, currency: string) {
@@ -156,11 +156,17 @@ export default async function OrderDetailPage({
         </div>
       )}
 
-      {/* 반품 신청 */}
-      <Link href={`/${lang}/returns`}
-        className="text-center text-sm py-3 border border-border rounded-lg hover:bg-surface transition-colors">
-        {labels.returns}
-      </Link>
+      {/* 액션 버튼 */}
+      <div className="grid grid-cols-2 gap-3">
+        <Link href={`/${lang}/returns`}
+          className="text-center text-sm py-3 border border-border rounded-lg hover:bg-surface transition-colors">
+          {labels.returns}
+        </Link>
+        <Link href={`/${lang}/qa/new`}
+          className="text-center text-sm py-3 border border-border rounded-lg hover:bg-surface transition-colors">
+          {labels.contact}
+        </Link>
+      </div>
 
     </div>
   )

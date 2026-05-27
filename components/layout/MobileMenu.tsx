@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import LanguageSwitcher from './LanguageSwitcher'
+import Image from 'next/image'
 
 type NavItem = { label: string; href: string }
 
 type Props = {
   lang: string
   navItems: NavItem[]
-  labels: { menu: string; close: string; cart: string; account: string; login: string }
+  labels: { menu: string; close: string; account: string; login: string }
   loggedIn: boolean
 }
 
@@ -35,65 +36,63 @@ export default function MobileMenu({ lang, navItems, labels, loggedIn }: Props) 
         </svg>
       </button>
 
-      {open && (
+      {open && createPortal(
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/60"
+            className="fixed inset-0 z-[100] bg-black/60"
             onClick={() => setOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 z-50 w-72 bg-white flex flex-col">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-              <span className="text-sm font-medium tracking-widest uppercase">
-                applebuttercollege
-              </span>
+          <div className="fixed inset-y-0 left-0 z-[101] w-72 bg-white flex flex-col">
+
+            {/* 헤더 */}
+            <div className="flex items-center justify-between px-6 py-5">
+              <Link href={`/${lang}`} onClick={() => setOpen(false)} className="hover:opacity-60 transition-opacity">
+                <Image src="/logo.png" alt="applebuttercollege" width={160} height={24} className="h-6 w-auto object-contain" />
+              </Link>
               <button
                 onClick={() => setOpen(false)}
                 aria-label={labels.close}
-                className="text-ink-muted hover:text-ink transition-colors text-xl leading-none"
+                className="text-ink-muted hover:text-ink transition-colors"
               >
-                ✕
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <line x1="2" y1="2" x2="16" y2="16" />
+                  <line x1="16" y1="2" x2="2" y2="16" />
+                </svg>
               </button>
             </div>
-            <nav className="flex flex-col px-6 py-8 gap-6">
+
+            {/* 계정 */}
+            <div className="px-6 py-4 border-t border-border">
+              <a
+                href={loggedIn ? `/${lang}/account` : `/api/auth/login?redirect=/${lang}/account`}
+                onClick={() => setOpen(false)}
+                className={`block text-center text-sm py-3 rounded-full transition-colors ${
+                  loggedIn
+                    ? 'border border-border text-ink-muted hover:text-ink'
+                    : 'bg-ink text-white hover:opacity-75'
+                }`}
+              >
+                {loggedIn ? labels.account : labels.login}
+              </a>
+            </div>
+
+            {/* nav */}
+            <nav className="flex flex-col px-6 pt-2 pb-8">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="text-lg font-medium tracking-wide hover:opacity-60 transition-opacity"
+                  className="py-4 text-[15px] font-medium tracking-widest uppercase border-b border-border/50 hover:opacity-50 transition-opacity"
                 >
                   {item.label}
                 </Link>
               ))}
             </nav>
-            <div className="mt-auto px-6 py-8 border-t border-border flex flex-col gap-4">
-              <a
-                href={loggedIn ? `/${lang}/account` : `/api/auth/login?redirect=/${lang}/account`}
-                onClick={() => setOpen(false)}
-                className="text-sm text-ink-muted hover:text-ink transition-colors"
-              >
-                {loggedIn ? labels.account : labels.login}
-              </a>
-              <Link
-                href={`/${lang}/returns`}
-                onClick={() => setOpen(false)}
-                className="text-sm text-ink-muted hover:text-ink transition-colors"
-              >
-                반품 신청
-              </Link>
-              <div className="flex items-center justify-between">
-                <Link
-                  href={`/${lang}/cart`}
-                  onClick={() => setOpen(false)}
-                  className="text-sm text-ink-muted hover:text-ink transition-colors"
-                >
-                  {labels.cart}
-                </Link>
-                <LanguageSwitcher lang={lang} />
-              </div>
-            </div>
+
           </div>
-        </>
+        </>,
+        document.body
       )}
     </>
   )

@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { createQuestion } from '@/lib/actions/qa'
 import type { Locale } from '@/lib/shopify/types'
+import type { CustomerOrder } from '../page'
 
 const t: Record<Locale, {
   category: string; titleLabel: string; content: string
@@ -53,9 +54,16 @@ const t: Record<Locale, {
   },
 }
 
-export default function NewQuestionForm({ lang }: { lang: Locale }) {
+function formatOrderLabel(order: CustomerOrder): string {
+  const date = new Date(order.processedAt).toLocaleDateString('ko-KR', { year: '2-digit', month: '2-digit', day: '2-digit' })
+  const items = order.lineItems.nodes.map((li) => `${li.title}${li.quantity > 1 ? ` ×${li.quantity}` : ''}`).join(', ')
+  return `${order.name} · ${date} · ${items}`
+}
+
+export default function NewQuestionForm({ lang, orders }: { lang: Locale; orders: CustomerOrder[] }) {
   const labels = t[lang]
   const [category, setCategory] = useState('shipping')
+  const [selectedOrderName, setSelectedOrderName] = useState('')
   const [pending, startTransition] = useTransition()
 
   const isReturn = category === 'return'
@@ -131,12 +139,29 @@ export default function NewQuestionForm({ lang }: { lang: Locale }) {
             <label className="text-[11px] font-semibold tracking-[0.15em] uppercase text-ink-muted block mb-2">
               {orderRequired ? labels.orderNumberRequired : labels.orderNumber}
             </label>
-            <input
-              type="text" name="order_number"
-              required={orderRequired}
-              className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-ink transition-colors"
-              placeholder={orderRequired ? labels.orderNumberHintRequired : labels.orderNumberHint}
-            />
+            {orders.length > 0 ? (
+              <>
+                <select
+                  value={selectedOrderName}
+                  onChange={(e) => setSelectedOrderName(e.target.value)}
+                  required={orderRequired}
+                  className="w-full border border-border rounded-lg px-4 py-3 text-sm bg-white focus:outline-none focus:border-ink transition-colors"
+                >
+                  <option value="">{orderRequired ? labels.orderNumberHintRequired : labels.orderNumberHint}</option>
+                  {orders.map((order) => (
+                    <option key={order.id} value={order.name}>{formatOrderLabel(order)}</option>
+                  ))}
+                </select>
+                <input type="hidden" name="order_number" value={selectedOrderName} />
+              </>
+            ) : (
+              <input
+                type="text" name="order_number"
+                required={orderRequired}
+                className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-ink transition-colors"
+                placeholder={orderRequired ? labels.orderNumberHintRequired : labels.orderNumberHint}
+              />
+            )}
           </div>
 
           <input type="hidden" name="is_private" value="true" />

@@ -13,7 +13,7 @@ export default async function HomePage({ params }: Props) {
   if (!hasLocale(lang)) notFound()
 
   const [products, dict] = await Promise.all([
-    getProducts(lang as Locale, 12),
+    getProducts(lang as Locale, 6),
     getDictionary(lang as Locale),
   ])
 

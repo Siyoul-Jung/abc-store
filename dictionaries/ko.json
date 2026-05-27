@@ -9,9 +9,9 @@
     "cart": "장바구니",
     "menu": "메뉴",
     "close": "닫기",
-    "account": "내 계정",
-    "login": "로그인",
-    "qa": "Q&A"
+    "account": "My Account",
+    "login": "Login",
+    "qa": "Contact Us"
   },
   "product": {
     "addToCart": "장바구니 담기",
@@ -38,7 +38,7 @@
     "terms": "Terms",
     "refund": "Refund Policy",
     "returns": "Returns",
-    "qa": "Q&A",
+    "qa": "Contact Us",
     "copyright": "© 2025 applebuttercollege. All rights reserved."
   },
   "checkout": {
@@ -78,6 +78,6 @@
   "common": {
     "loading": "불러오는 중...",
     "error": "오류가 발생했어요",
-    "viewAll": "전체 보기"
+    "viewAll": "View all"
   }
 }

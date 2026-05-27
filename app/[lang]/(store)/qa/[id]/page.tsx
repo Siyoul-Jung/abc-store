@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { hasLocale } from '../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
@@ -46,14 +46,11 @@ export default async function QuestionDetailPage({
   const question = await getQuestion(id)
   if (!question) notFound()
 
-  // 비공개 질문은 본인만 접근 가능
-  if (question.is_private) {
-    const cookieStore = await cookies()
-    const token = cookieStore.get('customer_token')?.value
-    if (!token) notFound()
-    const data = await caQuery<{ customer: { id: string } }>(token, `{ customer { id } }`)
-    if (data?.customer?.id !== question.customer_id) notFound()
-  }
+  const cookieStore = await cookies()
+  const token = cookieStore.get('customer_token')?.value
+  if (!token) redirect(`/api/auth/login?redirect=/${lang}/qa/${id}`)
+  const data = await caQuery<{ customer: { id: string } }>(token, `{ customer { id } }`)
+  if (data?.customer?.id !== question.customer_id) notFound()
 
   const answer = question.answers?.[0]
   const dateStr = new Date(question.created_at).toLocaleDateString(

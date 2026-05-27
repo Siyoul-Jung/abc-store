@@ -4,7 +4,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import LanguageSwitcher from './LanguageSwitcher'
 import MobileMenu from './MobileMenu'
 import SearchBar from './SearchBar'
 import { getCartCount } from '@/lib/actions/cart'
@@ -59,11 +58,10 @@ export default function Header({ lang, dict }: Props) {
     { label: dict.nav.adult, href: `/${lang}/collections/adult` },
     { label: dict.nav.new,   href: `/${lang}/collections/new` },
     { label: dict.nav.sale,  href: `/${lang}/collections/sale` },
-    { label: dict.nav.qa,    href: `/${lang}/qa` },
   ]
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-30 bg-white transition-transform duration-300 ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
+    <header className={`fixed top-0 left-0 right-0 z-30 bg-white transition-transform duration-300 ${hidden ? '-translate-y-full' : ''}`}>
       <div className="relative max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
         {/* 왼쪽: 데스크톱 nav / 모바일 햄버거+검색 */}
@@ -85,7 +83,7 @@ export default function Header({ lang, dict }: Props) {
             <MobileMenu
               lang={lang}
               navItems={navItems}
-              labels={{ menu: dict.nav.menu, close: dict.nav.close, cart: dict.nav.cart, account: dict.nav.account, login: dict.nav.login }}
+              labels={{ menu: dict.nav.menu, close: dict.nav.close, account: dict.nav.account, login: dict.nav.login }}
               loggedIn={loggedIn}
             />
           </div>
@@ -107,7 +105,6 @@ export default function Header({ lang, dict }: Props) {
           <div className="hidden md:flex">
             <SearchBar lang={lang as 'ko' | 'ja' | 'en'} />
           </div>
-          <div className="hidden md:flex"><LanguageSwitcher lang={lang} /></div>
           <a
             href={loggedIn ? `/${lang}/account` : `/api/auth/login?redirect=/${lang}/account`}
             aria-label={loggedIn ? '내 계정' : '로그인'}

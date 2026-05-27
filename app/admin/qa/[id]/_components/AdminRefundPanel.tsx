@@ -58,9 +58,7 @@ export default function AdminRefundPanel({
               className="w-full border border-border rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-ink resize-none"
             />
             <button
-              onClick={() => startTransition(async () => {
-                await updateRefundStatus(refundRequest.id, 'processing', adminNote)
-              })}
+              onClick={() => startTransition(async () => { await updateRefundStatus(refundRequest.id, 'processing', adminNote) })}
               disabled={pending}
               className="w-full py-2 bg-yellow-500 text-white rounded-lg text-xs font-medium hover:opacity-80 disabled:opacity-40">
               이체 처리 시작
@@ -70,9 +68,7 @@ export default function AdminRefundPanel({
 
         {refundRequest.status === 'processing' && (
           <button
-            onClick={() => startTransition(async () => {
-              await updateRefundStatus(refundRequest.id, 'completed', adminNote)
-            })}
+            onClick={() => startTransition(async () => { await updateRefundStatus(refundRequest.id, 'completed', adminNote) })}
             disabled={pending}
             className="w-full py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:opacity-80 disabled:opacity-40">
             {pending ? '처리 중...' : '이체 완료 → 고객 알림 발송'}

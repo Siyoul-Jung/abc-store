@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import LanguageSwitcher from './LanguageSwitcher'
 
 type Dict = {
   footer: { about: string; cs: string; faq: string; privacy: string; terms: string; returns: string; qa: string; copyright: string }
@@ -89,7 +90,10 @@ export default function Footer({ lang, dict }: Props) {
               </Link>
             ))}
           </nav>
-          <p className="text-xs text-ink-muted">{dict.footer.copyright}</p>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher lang={lang} />
+            <p className="text-xs text-ink-muted">{dict.footer.copyright}</p>
+          </div>
         </div>
 
       </div>

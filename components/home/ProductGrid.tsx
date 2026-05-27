@@ -19,20 +19,12 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
       <div className="max-w-7xl mx-auto px-0 sm:px-6">
 
         {title && (
-          <div className="flex items-baseline justify-between mb-6 px-4 sm:px-0">
+          <div className="mb-6 px-4 sm:px-0">
             <h2 className="text-sm font-bold tracking-widest uppercase">{title}</h2>
-            {viewAllLabel && (
-              <Link
-                href={`/${lang}/collections/new`}
-                className="text-xs text-ink-muted hover:text-ink transition-colors"
-              >
-                {viewAllLabel} →
-              </Link>
-            )}
           </div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-0.5 gap-y-6 sm:gap-x-4 sm:gap-y-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-0.5 gap-y-6 sm:gap-x-4 sm:gap-y-8">
           {products.map((product) => {
             const id        = gidToNumericId(product.id)
             const minPrice  = product.priceRange.minVariantPrice
@@ -77,6 +69,17 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
             )
           })}
         </div>
+
+        {viewAllLabel && (
+          <div className="flex justify-center mt-10 px-4 sm:px-0">
+            <Link
+              href={`/${lang}/collections/new`}
+              className="text-xs px-6 py-2.5 border border-ink text-ink rounded-full hover:bg-ink hover:text-white transition-colors"
+            >
+              {viewAllLabel} →
+            </Link>
+          </div>
+        )}
 
       </div>
     </section>

@@ -29,10 +29,10 @@ const mockCustomer: Customer = {
   addresses: { edges: [1] },
 }
 
-const t: Record<Locale, { orders: string; addresses: string; logout: string; viewAll: string }> = {
-  ko: { orders: '주문 내역', addresses: '배송지', logout: '로그아웃', viewAll: '전체보기 →' },
-  ja: { orders: '注文履歴', addresses: '配送先', logout: 'ログアウト', viewAll: 'すべて見る →' },
-  en: { orders: 'Orders', addresses: 'Addresses', logout: 'Log out', viewAll: 'View all →' },
+const t: Record<Locale, { orders: string; addresses: string; logout: string; viewAll: string; contact: string; returns: string }> = {
+  ko: { orders: '주문 내역', addresses: '배송지', logout: '로그아웃', viewAll: '전체보기 →', contact: '1:1 문의', returns: '반품 신청' },
+  ja: { orders: '注文履歴', addresses: '配送先', logout: 'ログアウト', viewAll: 'すべて見る →', contact: '1:1 お問い合わせ', returns: '返品申請' },
+  en: { orders: 'Orders', addresses: 'Addresses', logout: 'Log out', viewAll: 'View all →', contact: 'Contact Us', returns: 'Return Request' },
 }
 
 export default async function AccountPage({
@@ -95,6 +95,19 @@ export default async function AccountPage({
         </Link>
       </div>
 
+      {/* 바로가기 */}
+      <div className="border border-border rounded-lg divide-y divide-border">
+        <Link href={`/${lang}/qa`}
+          className="flex items-center justify-between px-5 py-4 hover:bg-surface transition-colors">
+          <span className="text-sm">{labels.contact}</span>
+          <span className="text-ink-muted text-xs">→</span>
+        </Link>
+        <Link href={`/${lang}/returns`}
+          className="flex items-center justify-between px-5 py-4 hover:bg-surface transition-colors">
+          <span className="text-sm">{labels.returns}</span>
+          <span className="text-ink-muted text-xs">→</span>
+        </Link>
+      </div>
 
     </div>
   )

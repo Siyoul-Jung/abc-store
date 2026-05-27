@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { hasLocale, getDictionary } from '../../dictionaries'
 import { getCart } from '@/lib/actions/cart'
 import CheckoutForm from '@/components/checkout/CheckoutForm'
@@ -9,6 +10,10 @@ type Props = { params: Promise<{ lang: string }> }
 export default async function CheckoutPage({ params }: Props) {
   const { lang } = await params
   if (!hasLocale(lang)) notFound()
+
+  const cookieStore = await cookies()
+  const token = cookieStore.get('customer_token')?.value
+  if (!token) redirect(`/api/auth/login?redirect=/${lang}/checkout`)
 
   const [cart, dict] = await Promise.all([
     getCart(lang as Locale),

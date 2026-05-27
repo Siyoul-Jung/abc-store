@@ -6,10 +6,11 @@ import { formatPrice } from '@/lib/utils/format'
 import CartLineItem from '@/components/cart/CartLineItem'
 import type { Locale } from '@/lib/shopify/types'
 
-type Props = { params: Promise<{ lang: string }> }
+type Props = { params: Promise<{ lang: string }>; searchParams: Promise<{ notice?: string }> }
 
-export default async function CartPage({ params }: Props) {
+export default async function CartPage({ params, searchParams }: Props) {
   const { lang } = await params
+  const { notice } = await searchParams
   if (!hasLocale(lang)) notFound()
 
   const [cart, dict] = await Promise.all([
@@ -33,6 +34,13 @@ export default async function CartPage({ params }: Props) {
 
   return (
     <section className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+      {notice === 'checkout_paused' && (
+        <div className="mb-6 px-4 py-3 bg-citrus/30 border border-citrus rounded-lg text-sm text-ink">
+          {lang === 'ja'
+            ? '現在、決済機能は準備中です。もうしばらくお待ちください。'
+            : '현재 결제 기능을 준비 중입니다. 조금만 기다려 주세요.'}
+        </div>
+      )}
       <h1 className="text-lg font-semibold mb-8">{dict.cart.title}</h1>
 
       <div>

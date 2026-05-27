@@ -28,7 +28,7 @@ const CUSTOMER_ORDERS_QUERY = `
   }
 `
 
-type ShopifyOrder = {
+export type ShopifyOrder = {
   id: string; name: string; createdAt: string
   totalPriceSet: { shopMoney: { amount: string; currencyCode: string } }
   displayFinancialStatus: string; displayFulfillmentStatus: string

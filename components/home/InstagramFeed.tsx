@@ -22,7 +22,7 @@ export default async function InstagramFeed() {
         </div>
 
         <div
-          className="flex gap-1 overflow-x-auto snap-x snap-mandatory sm:grid sm:grid-cols-6 sm:overflow-visible px-4 sm:px-6"
+          className="flex gap-1 overflow-x-auto snap-x snap-mandatory sm:grid sm:grid-cols-3 sm:gap-1 sm:overflow-visible px-4 sm:px-6"
           style={{ scrollbarWidth: 'none' }}
         >
           {posts.map((post) => {
@@ -40,7 +40,7 @@ export default async function InstagramFeed() {
                   alt={post.caption?.slice(0, 80) ?? 'Instagram post'}
                   width={0}
                   height={0}
-                  sizes="(max-width: 640px) 38vw, 17vw"
+                  sizes="(max-width: 640px) 38vw, 33vw"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </Link>
