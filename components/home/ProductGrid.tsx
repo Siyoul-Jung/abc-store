@@ -15,7 +15,7 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
   if (products.length === 0) return null
 
   return (
-    <section className="py-8 sm:py-10 mt-10">
+    <section className="py-6 sm:py-8 mt-4">
       <div className="max-w-7xl mx-auto px-0 sm:px-6">
 
         {title && (
