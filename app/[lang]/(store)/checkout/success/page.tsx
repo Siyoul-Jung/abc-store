@@ -60,14 +60,18 @@ type Props = {
 const t: Record<Locale, {
   titleCard: string; titleVbank: string
   orderNum: string
+  items: string; total: string; shippingAddr: string
   depositGuide: string; depositBank: string; depositAccount: string; depositAmount: string; depositDue: string
   depositNote: string
-  continueShopping: string; returns: string
+  continueShopping: string
 }> = {
   ko: {
     titleCard: '주문이 완료되었습니다',
     titleVbank: '입금 계좌를 확인해 주세요',
     orderNum: '주문번호',
+    items: '주문 상품',
+    total: '결제 금액',
+    shippingAddr: '배송지',
     depositGuide: '아래 계좌로 입금하시면 주문이 확정됩니다.',
     depositBank: '은행',
     depositAccount: '계좌번호',
@@ -75,12 +79,14 @@ const t: Record<Locale, {
     depositDue: '입금 기한',
     depositNote: '입금자명은 주문자명과 동일하게 입력해 주세요.',
     continueShopping: '쇼핑 계속하기',
-    returns: '반품 신청하기 →',
   },
   ja: {
     titleCard: 'ご注文が完了しました',
     titleVbank: '振込先口座をご確認ください',
     orderNum: '注文番号',
+    items: 'ご注文商品',
+    total: 'お支払い金額',
+    shippingAddr: 'お届け先',
     depositGuide: '下記の口座へお振込みいただくとご注文が確定します。',
     depositBank: '銀行名',
     depositAccount: '口座番号',
@@ -88,12 +94,14 @@ const t: Record<Locale, {
     depositDue: '振込期限',
     depositNote: '振込名義はご注文者名と同じにしてください。',
     continueShopping: 'ショッピングを続ける',
-    returns: '返品の申請はこちら →',
   },
   en: {
     titleCard: 'Order Confirmed',
     titleVbank: 'Please complete your bank transfer',
     orderNum: 'Order',
+    items: 'Items',
+    total: 'Total',
+    shippingAddr: 'Ship to',
     depositGuide: 'Your order will be confirmed once we receive your payment.',
     depositBank: 'Bank',
     depositAccount: 'Account Number',
@@ -101,7 +109,6 @@ const t: Record<Locale, {
     depositDue: 'Due Date',
     depositNote: 'Please use your name as the transfer reference.',
     continueShopping: 'Continue Shopping',
-    returns: 'Request a Return →',
   },
 }
 
@@ -184,6 +191,44 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
         )}
       </div>
 
+      {/* 주문 요약 */}
+      {cart && (
+        <div className="w-full border border-border rounded-xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-border bg-surface">
+            <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-ink-muted">{d.items}</p>
+          </div>
+          <div className="divide-y divide-border">
+            {cart.lines.nodes.map((line) => (
+              <div key={line.id} className="flex justify-between items-start px-5 py-3 text-sm">
+                <div className="min-w-0 flex-1 pr-4">
+                  <p className="truncate">{line.merchandise.product.title}</p>
+                  {line.merchandise.title !== 'Default Title' && (
+                    <p className="text-xs text-ink-muted mt-0.5">{line.merchandise.title}</p>
+                  )}
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-ink-muted text-xs">×{line.quantity}</p>
+                  <p className="font-medium">{(Number(line.merchandise.price.amount) * line.quantity).toLocaleString()}원</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between px-5 py-3 border-t border-border bg-surface">
+            <span className="text-sm font-semibold">{d.total}</span>
+            <span className="text-sm font-semibold">{Number(amount).toLocaleString()}원</span>
+          </div>
+        </div>
+      )}
+
+      {/* 배송지 */}
+      {shipping && (
+        <div className="w-full border border-border rounded-xl px-5 py-4">
+          <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-ink-muted mb-2">{d.shippingAddr}</p>
+          <p className="text-sm">{shipping.name}</p>
+          <p className="text-sm text-ink-muted">{shipping.address} {shipping.addressDetail}</p>
+        </div>
+      )}
+
       {/* 가상계좌 입금 안내 */}
       {isVbank && va && (
         <div className="w-full border border-border p-5 flex flex-col gap-3">
@@ -205,20 +250,12 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
         </div>
       )}
 
-      <div className="flex flex-col items-center gap-3 mt-2">
-        <Link
-          href={`/${lang}/collections/new`}
-          className="text-sm underline underline-offset-4 text-ink-muted hover:text-ink transition-colors"
-        >
-          {d.continueShopping}
-        </Link>
-        <Link
-          href={`/${lang}/returns`}
-          className="text-xs text-ink-muted hover:text-ink transition-colors"
-        >
-          {d.returns}
-        </Link>
-      </div>
+      <Link
+        href={`/${lang}/collections/new`}
+        className="text-sm underline underline-offset-4 text-ink-muted hover:text-ink transition-colors mt-2"
+      >
+        {d.continueShopping}
+      </Link>
     </section>
   )
 }

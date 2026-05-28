@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { gidToNumericId, formatPrice } from '@/lib/utils/format'
@@ -14,6 +15,7 @@ type SearchProduct = {
 }
 
 export default function SearchBar({ lang }: { lang: Locale }) {
+  const router                = useRouter()
   const [open, setOpen]       = useState(false)
   const [query, setQuery]     = useState('')
   const [results, setResults] = useState<SearchProduct[]>([])
@@ -50,6 +52,13 @@ export default function SearchBar({ lang }: { lang: Locale }) {
     setResults([])
   }
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!query.trim()) return
+    close()
+    router.push(`/${lang}/search?q=${encodeURIComponent(query.trim())}`)
+  }
+
   return (
     <>
       {/* 검색 아이콘 */}
@@ -72,7 +81,7 @@ export default function SearchBar({ lang }: { lang: Locale }) {
             onClick={close}
           />
           <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border shadow-sm">
-            <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-4">
+            <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-4">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-ink-muted shrink-0">
                 <circle cx="11" cy="11" r="8" />
                 <path d="M21 21l-4.35-4.35" />
@@ -88,7 +97,7 @@ export default function SearchBar({ lang }: { lang: Locale }) {
               <button onClick={close} className="text-ink-muted hover:text-ink transition-colors text-lg leading-none">
                 ✕
               </button>
-            </div>
+            </form>
 
             {/* 검색 결과 */}
             {query.trim().length > 0 && (

@@ -8,6 +8,8 @@ import type { Cart, Locale } from '@/lib/shopify/types'
 
 const SHIPPING_THRESHOLD = 80000
 const SHIPPING_FEE = 3500
+const JEJU_SURCHARGE = 3000
+const ISLAND_SURCHARGE = 4000
 
 const KO_BANKS = [
   '국민은행', '신한은행', '우리은행', '하나은행', '농협은행',
@@ -57,11 +59,14 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
   const [isPaying, setIsPaying] = useState(false)
   const [tossReady, setTossReady] = useState(false)
   const [error, setError] = useState('')
+  const [isIsland, setIsIsland] = useState(false)
 
   const { checkout: d } = dict
   const subtotal = Number(cart.cost.subtotalAmount.amount)
+  const isJeju = form.zipcode.length === 5 && form.zipcode.startsWith('63')
+  const surcharge = isJeju ? JEJU_SURCHARGE : isIsland ? ISLAND_SURCHARGE : 0
   const shippingFee = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE
-  const total = subtotal + shippingFee
+  const total = subtotal + shippingFee + surcharge
 
   const orderName =
     cart.lines.nodes[0]?.merchandise.product.title +
@@ -160,7 +165,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
               onChange={update('phone')}
               inputMode="tel"
             />
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 className={`${inputCls} w-32`}
                 placeholder={d.zipcode}
@@ -168,7 +173,21 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
                 onChange={update('zipcode')}
                 inputMode="numeric"
               />
+              {isJeju && (
+                <span className="text-xs text-coral">제주 +{JEJU_SURCHARGE.toLocaleString()}원</span>
+              )}
             </div>
+            {!isJeju && (
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={isIsland}
+                  onChange={(e) => setIsIsland(e.target.checked)}
+                  className="rounded border-border"
+                />
+                <span className="text-sm text-ink-muted">도서·산간 지역 (+{ISLAND_SURCHARGE.toLocaleString()}원)</span>
+              </label>
+            )}
             <input
               className={inputCls}
               placeholder={d.address}
@@ -279,11 +298,15 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
             <div className="flex justify-between text-ink-muted">
               <span>{d.shippingFee}</span>
               <span>
-                {shippingFee === 0
-                  ? d.freeShipping
-                  : formatPrice(String(SHIPPING_FEE), 'KRW', locale)}
+                {shippingFee === 0 ? d.freeShipping : formatPrice(String(SHIPPING_FEE), 'KRW', locale)}
               </span>
             </div>
+            {surcharge > 0 && (
+              <div className="flex justify-between text-ink-muted">
+                <span>{isJeju ? '제주 추가배송비' : '도서·산간 추가배송비'}</span>
+                <span>+{formatPrice(String(surcharge), 'KRW', locale)}</span>
+              </div>
+            )}
             <div className="flex justify-between font-semibold">
               <span>{d.total}</span>
               <span>{formatPrice(String(total), 'KRW', locale)}</span>

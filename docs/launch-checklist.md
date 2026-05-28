@@ -35,7 +35,7 @@
 ### 기능
 | 상태 | 항목 | 파일 / 비고 |
 |---|---|---|
-| [ ] | CS 채널 플로팅 버튼 | 채널톡 또는 카카오 채널 스크립트 삽입 |
+| [x] | CS 채널 플로팅 버튼 | Q&A 게시판 1:1 문의로 대체 (채널톡 미사용) |
 | [ ] | 검색 결과 전용 페이지 | `app/[lang]/(store)/search/page.tsx` — 현재 드롭다운만 |
 | [ ] | 주문완료 페이지 상세 | 상품명·수량·금액·배송지 요약 표시 |
 | [ ] | 제주/도서산간 배송비 결제 반영 | `components/checkout/CheckoutForm.tsx` — 현재 안내만, 실제 계산 미반영 |
@@ -43,10 +43,10 @@
 ### SEO / 기술
 | 상태 | 항목 | 파일 |
 |---|---|---|
-| [ ] | robots.txt | `app/robots.ts` |
-| [ ] | sitemap.xml | `app/sitemap.ts` — 상품 URL 포함 |
+| [x] | robots.txt | `app/robots.ts` |
+| [x] | sitemap.xml | `app/sitemap.ts` — 상품 URL 포함 |
 | [ ] | 기본 OG 이미지 | 홈·법적 페이지용 `og-default.png` + `app/layout.tsx` 메타 |
-| [ ] | Product Structured Data (JSON-LD) | `app/[lang]/(store)/products/[id]/page.tsx` — 구글 쇼핑 노출 |
+| [x] | Product Structured Data (JSON-LD) | `app/[lang]/(store)/products/[id]/page.tsx` — 구글 쇼핑 노출 |
 | [ ] | Google Search Console 등록 | 도메인 인증 |
 
 ### 운영 준비
@@ -101,9 +101,9 @@
 |---|---|---|
 | [ ] | 포토 리뷰 시스템 | Judge.me / Yotpo 앱 연동 |
 | [ ] | 위시리스트 (찜) | localStorage 또는 Shopify Customer API |
-| [ ] | 회원 로그인 / 주문 내역 | Shopify Customer Account API |
+| [x] | 회원 로그인 / 주문 내역 | Shopify Customer Account API (OIDC 완료) |
 | [ ] | 포인트 / 쿠폰 | Shopify Discounts API |
-| [ ] | Meta CAPI 연동 | Purchase / AddToCart / ViewContent 이벤트 |
+| [x] | Meta CAPI 연동 | Purchase 이벤트 완료 (`checkout/success`) |
 | [ ] | Stripe 연동 (일본 결제) | Phase 4 |
 | [ ] | 일본어 특정상거래법 페이지 | Phase 4 |
 | [ ] | MakeShop → Shopify 상품 bulk 이전 | Phase 2 |
