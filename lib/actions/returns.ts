@@ -234,7 +234,7 @@ export async function updateReturnStatus(
         method: 'POST',
         headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'applebuttercollege CS <cs@applebuttercollege.com>',
+          from: 'applebuttercollege Support <support@applebuttercollege.com>',
           to: process.env.ADMIN_EMAIL!,
           subject: `[반품 처리 완료] ${r.order_number}`,
           html: `<p>${r.customer_name}님의 ${r.order_number} 반품 환불이 완료 처리되었습니다.</p>`,

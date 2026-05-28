@@ -84,6 +84,36 @@ export async function cancelOrder(orderId: string) {
   const store = await cookies()
   if (!store.get('customer_token')?.value) return { error: 'unauthorized' }
 
+  // Shopify Admin에서 결제 정보 조회 (Toss paymentKey, 환불 계좌 등)
+  const numericId = orderId.split('/').pop()
+  const orderRes = await fetch(
+    `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/${process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'}/orders/${numericId}.json?fields=total_price,note_attributes`,
+    { headers: { 'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_TOKEN! }, cache: 'no-store' }
+  )
+  if (orderRes.ok) {
+    const { order: o } = await orderRes.json()
+    const attrs: { name: string; value: string }[] = o?.note_attributes ?? []
+    const get = (k: string) => attrs.find((a) => a.name === k)?.value ?? null
+    const paymentKey = get('toss_payment_key')
+    const totalPrice = Math.round(Number(o?.total_price ?? 0))
+
+    if (paymentKey && totalPrice > 0) {
+      const tossRes = await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Basic ' + Buffer.from(process.env.TOSS_SECRET_KEY! + ':').toString('base64'),
+        },
+        body: JSON.stringify({ cancelReason: '고객 주문 취소', cancelAmount: totalPrice }),
+      })
+      if (!tossRes.ok) {
+        const err = await tossRes.json().catch(() => ({}))
+        return { error: (err as { message?: string }).message ?? 'Toss 결제 취소 실패' }
+      }
+    }
+  }
+
+  // Shopify 주문 취소
   const { data } = await adminGql(
     `mutation CancelOrder($orderId: ID!) {
       orderCancel(orderId: $orderId, reason: CUSTOMER, refund: true, restock: true, notifyCustomer: true) {

@@ -92,7 +92,13 @@ export default async function AdminReturnsPage({
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium text-sm">{r.order_number}</span>
+                    <a
+                      href={`https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/orders?query=${encodeURIComponent(r.order_number)}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="font-medium text-sm hover:underline"
+                    >
+                      {r.order_number} ↗
+                    </a>
                     <span className="text-xs text-ink-muted">·</span>
                     <span className="text-xs text-ink-muted">{r.customer_name}</span>
                     <span className={`text-[11px] px-2 py-0.5 rounded font-medium ${statusColors[r.status]}`}>

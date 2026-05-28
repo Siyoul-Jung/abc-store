@@ -19,7 +19,7 @@ const t: Record<Locale, {
     orderNumberHint: '관련 주문번호가 있으면 입력해주세요',
     orderNumberHintRequired: '주문번호를 입력해야 처리가 가능합니다',
     submit: '문의 등록',
-    categories: { shipping: '배송', return: '교환/반품', refund: '환불', product: '상품', other: '기타' },
+    categories: { shipping: '배송', return: '교환/반품', defective: '불량/오배송', refund: '환불', product: '상품', other: '기타' },
     returnIntercept: {
       heading: '반품 신청은 전용 폼을 이용해주세요',
       body: '계좌 정보 등 개인정보를 안전하게 처리하기 위해 전용 반품 신청 페이지를 운영하고 있습니다. 게시판 문의로는 반품 처리가 진행되지 않습니다.',
@@ -32,7 +32,7 @@ const t: Record<Locale, {
     orderNumberHint: '関連する注文番号がある場合はご入力ください',
     orderNumberHintRequired: '注文番号がないとご対応できない場合があります',
     submit: '送信する',
-    categories: { shipping: '配送', return: '交換・返品', refund: '返金', product: '商品', other: 'その他' },
+    categories: { shipping: '配送', return: '交換・返品', defective: '不良品・誤送', refund: '返金', product: '商品', other: 'その他' },
     returnIntercept: {
       heading: '交換・返品は専用フォームよりお申し込みください',
       body: '個人情報（口座情報など）を安全に処理するため、専用の返品申請ページをご利用いただいております。掲示板でのご連絡では返品処理は行われません。',
@@ -45,7 +45,7 @@ const t: Record<Locale, {
     orderNumberHint: 'Enter your order number if relevant',
     orderNumberHintRequired: 'Required so we can look up your order',
     submit: 'Submit',
-    categories: { shipping: 'Shipping', return: 'Exchange/Return', refund: 'Refund', product: 'Product', other: 'Other' },
+    categories: { shipping: 'Shipping', return: 'Exchange/Return', defective: 'Defective/Wrong item', refund: 'Refund', product: 'Product', other: 'Other' },
     returnIntercept: {
       heading: 'Please use the dedicated returns form',
       body: 'Return requests must be submitted via our dedicated form to securely handle your bank account details. Requests posted here cannot be processed.',
@@ -66,7 +66,7 @@ export default function NewQuestionForm({ lang, orders }: { lang: Locale; orders
   const [selectedOrderName, setSelectedOrderName] = useState('')
   const [pending, startTransition] = useTransition()
 
-  const isReturn = category === 'return'
+  const isReturn = category === 'return' || category === 'defective'
   const orderRequired = category === 'shipping' || category === 'refund'
 
   return (

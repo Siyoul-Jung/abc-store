@@ -197,7 +197,7 @@ async function notifyAdminNewQuestion({
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: `CS <cs@applebuttercollege.com>`,
+      from: `Support <support@applebuttercollege.com>`,
       to: adminEmail,
       subject: `[새 문의] ${title}`,
       html: `<p><b>${customerName}</b>님이 새 문의를 남겼습니다.</p><p>분류: ${category}</p><p>제목: ${title}</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/qa">어드민에서 확인하기 →</a></p>`,
@@ -229,7 +229,7 @@ async function notifyCustomerAnswered({
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: `applebuttercollege CS <cs@applebuttercollege.com>`,
+      from: `applebuttercollege Support <support@applebuttercollege.com>`,
       to: email,
       subject,
       html: body,
@@ -255,7 +255,7 @@ async function notifyCustomerRefundComplete({
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: `applebuttercollege CS <cs@applebuttercollege.com>`,
+      from: `applebuttercollege Support <support@applebuttercollege.com>`,
       to: email,
       subject: `[applebuttercollege] 환불이 완료되었습니다`,
       html: `<p>주문번호 <b>${orderNumber}</b>의 환불 처리가 완료되었습니다.</p><p>환불 금액: <b>${amount.toLocaleString()}원</b></p><p>영업일 기준 1~2일 내 입금됩니다.</p>`,

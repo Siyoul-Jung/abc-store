@@ -4,11 +4,14 @@ import Link from 'next/link'
 import { hasLocale } from '../../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
 import { caQuery } from '@/lib/shopify/customer-account'
+import CancelButton from './_components/CancelButton'
 
 type OrderDetail = {
   id: string
   number: number
   processedAt: string
+  displayFulfillmentStatus: string
+  tags: string[]
   totalPrice: { amount: string; currencyCode: string }
   subtotalPrice: { amount: string; currencyCode: string }
   totalShippingPrice: { amount: string; currencyCode: string }
@@ -30,7 +33,7 @@ type OrderDetail = {
 const QUERY = `
   query GetOrder($id: ID!) {
     order(id: $id) {
-      id number processedAt
+      id number processedAt displayFulfillmentStatus tags
       totalPrice { amount currencyCode }
       subtotalPrice { amount currencyCode }
       totalShippingPrice { amount currencyCode }
@@ -53,6 +56,8 @@ const mockOrder: OrderDetail = {
   id: 'gid://shopify/Order/1',
   number: 1001,
   processedAt: '2026-04-10T00:00:00Z',
+  displayFulfillmentStatus: 'UNFULFILLED',
+  tags: [],
   totalPrice: { amount: '49000', currencyCode: 'KRW' },
   subtotalPrice: { amount: '45500', currencyCode: 'KRW' },
   totalShippingPrice: { amount: '3500', currencyCode: 'KRW' },
@@ -61,10 +66,10 @@ const mockOrder: OrderDetail = {
 }
 
 const dateLocale: Record<Locale, string> = { ko: 'ko-KR', ja: 'ja-JP', en: 'en-US' }
-const t: Record<Locale, { back: string; items: string; shipping: string; subtotal: string; shippingFee: string; total: string; address: string; returns: string; contact: string }> = {
-  ko: { back: '← 주문 목록', items: '주문 상품', shipping: '배송지', subtotal: '상품 합계', shippingFee: '배송비', total: '결제 금액', address: '배송 주소', returns: '반품 신청', contact: '1:1 문의' },
-  ja: { back: '← 注文一覧', items: 'ご注文商品', shipping: 'お届け先', subtotal: '小計', shippingFee: '送料', total: 'お支払い金額', address: 'お届け先住所', returns: '返品申請', contact: '1:1 お問い合わせ' },
-  en: { back: '← Orders', items: 'Items', shipping: 'Shipping', subtotal: 'Subtotal', shippingFee: 'Shipping fee', total: 'Total', address: 'Shipping address', returns: 'Request return', contact: 'Contact Us' },
+const t: Record<Locale, { back: string; items: string; shipping: string; subtotal: string; shippingFee: string; total: string; address: string; returns: string; contact: string; cancel: string; cancelConfirm: string }> = {
+  ko: { back: '← 주문 목록', items: '주문 상품', shipping: '배송지', subtotal: '상품 합계', shippingFee: '배송비', total: '결제 금액', address: '배송 주소', returns: '반품 신청', contact: '1:1 문의', cancel: '주문 취소', cancelConfirm: '주문을 취소하시겠어요? 결제 금액이 자동 환불됩니다.' },
+  ja: { back: '← 注文一覧', items: 'ご注文商品', shipping: 'お届け先', subtotal: '小計', shippingFee: '送料', total: 'お支払い金額', address: 'お届け先住所', returns: '返品申請', contact: '1:1 お問い合わせ', cancel: '注文キャンセル', cancelConfirm: 'ご注文をキャンセルしますか？ご決済金額は自動的に返金されます。' },
+  en: { back: '← Orders', items: 'Items', shipping: 'Shipping', subtotal: 'Subtotal', shippingFee: 'Shipping fee', total: 'Total', address: 'Shipping address', returns: 'Request return', contact: 'Contact Us', cancel: 'Cancel order', cancelConfirm: 'Cancel this order? Your payment will be refunded automatically.' },
 }
 
 function formatPrice(amount: string, currency: string) {
@@ -96,6 +101,7 @@ export default async function OrderDetailPage({
   if (!order) notFound()
 
   const labels = t[locale]
+  const canCancel = order.displayFulfillmentStatus === 'UNFULFILLED' && !order.tags.includes('packing')
 
   return (
     <div className="flex flex-col gap-8">
@@ -167,6 +173,14 @@ export default async function OrderDetailPage({
           {labels.contact}
         </Link>
       </div>
+
+      {canCancel && (
+        <CancelButton
+          orderId={order.id}
+          label={labels.cancel}
+          confirmMessage={labels.cancelConfirm}
+        />
+      )}
 
     </div>
   )
