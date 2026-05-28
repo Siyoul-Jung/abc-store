@@ -18,7 +18,7 @@ const QUERY = `{
     firstName lastName
     emailAddress { emailAddress }
     orders(first: 1) { edges { node { id } } }
-    addresses(first: 1) { edges { node { id } } }
+    addresses(first: 20) { edges { node { id } } }
   }
 }`
 
@@ -26,7 +26,7 @@ const mockCustomer: Customer = {
   firstName: '길동', lastName: '홍',
   emailAddress: { emailAddress: 'test@example.com' },
   orders: { edges: [1, 2, 3] },
-  addresses: { edges: [1] },
+  addresses: { edges: [] },
 }
 
 const t: Record<Locale, { orders: string; addresses: string; logout: string; viewAll: string; contact: string; returns: string }> = {
