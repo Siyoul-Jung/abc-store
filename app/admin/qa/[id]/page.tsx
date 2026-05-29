@@ -114,7 +114,7 @@ export default async function AdminQaDetailPage({
               <p className="text-xs text-ink-muted mt-3">{new Date(answer.created_at).toLocaleString('ko-KR')}</p>
             </div>
           ) : (
-            <AdminAnswerForm questionId={id} templates={templates} />
+            <AdminAnswerForm questionId={id} templates={templates} questionCategory={question.category} />
           )}
         </div>
 
