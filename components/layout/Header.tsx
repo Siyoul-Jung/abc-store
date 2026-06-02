@@ -11,7 +11,7 @@ import { getCartCount } from '@/lib/actions/cart'
 type NavItem = { label: string; href: string }
 
 type Dict = {
-  nav: { kids: string; adult: string; new: string; sale: string; about: string; cart: string; menu: string; close: string; account: string; login: string; qa: string }
+  nav: { kids: string; adult: string; new: string; best: string; sale: string; about: string; cart: string; menu: string; close: string; account: string; login: string; qa: string }
 }
 
 type Props = { lang: string; dict: Dict }
@@ -54,10 +54,8 @@ export default function Header({ lang, dict }: Props) {
 
 
   const navItems: NavItem[] = [
-    { label: dict.nav.kids,  href: `/${lang}/collections/kids` },
-    { label: dict.nav.adult, href: `/${lang}/collections/adult` },
-    { label: dict.nav.new,   href: `/${lang}/collections/new` },
-    { label: dict.nav.sale,  href: `/${lang}/collections/sale` },
+    { label: dict.nav.new,  href: `/${lang}/collections/new` },
+    { label: dict.nav.best, href: `/${lang}/collections/best` },
   ]
 
   return (
