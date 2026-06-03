@@ -1,7 +1,11 @@
 # Harness Engineering 검토 (abc-store)
 
-> AI 코딩 에이전트가 안정적으로 작업하도록 프로젝트를 점검.
-> 기준: 「하네스 엔지니어링 입문」 (WikiDocs) — https://wikidocs.net/340857
+> **Agent = Model + Harness** — 모델의 지능을 실제 작업으로 바꾸는 주변 시스템이 harness.
+> 모델을 더 똑똑하게 만드는 게 아니라, 에이전트가 올바르게 일할 수밖에 없는 환경을 설계하는 것.
+>
+> 참고:
+> - 「하네스 엔지니어링 입문」 (WikiDocs) — https://wikidocs.net/340857 (4요소 구조 기준)
+> - OpenAI, "Harness engineering: leveraging Codex" — https://openai.com/index/harness-engineering/
 
 ## 4요소 진단
 
