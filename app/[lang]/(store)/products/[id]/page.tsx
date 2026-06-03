@@ -71,7 +71,7 @@ export default async function ProductPage({ params }: Props) {
   const recommended = allProducts
     .filter((p) => p.id !== product.id && p.variants.nodes.some((v) => v.availableForSale))
     .sort(() => Math.random() - 0.5)
-    .slice(0, 4)
+    .slice(0, 6)
 
   const jsonLd = buildProductJsonLd(product, lang as Locale, id)
 

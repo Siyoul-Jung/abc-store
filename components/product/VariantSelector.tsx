@@ -88,6 +88,7 @@ export default function VariantSelector({ variants, locale, addToCartLabel, sold
     if (!selected?.availableForSale || isPending) return
     startTransition(async () => {
       await addToCart(selected.id, locale)
+      window.dispatchEvent(new Event('cart:updated'))
       setAdded(true)
       setTimeout(() => setAdded(false), 2000)
     })
