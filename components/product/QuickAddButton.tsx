@@ -103,6 +103,7 @@ export default function QuickAddButton({ product, lang, soldOut }: Props) {
 
   function openModal(e: React.MouseEvent) {
     e.preventDefault()
+    e.stopPropagation()
     if (isSingleVariant) {
       handleAddDirect(variants[0].id)
     } else {
