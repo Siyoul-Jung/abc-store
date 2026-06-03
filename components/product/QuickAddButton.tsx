@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { addToCart } from '@/lib/actions/cart'
 import { stripTitlePrefix, formatPrice } from '@/lib/utils/format'
@@ -132,7 +133,7 @@ export default function QuickAddButton({ product, lang, soldOut }: Props) {
         )}
       </button>
 
-      {modalOpen && (
+      {modalOpen && createPortal((
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           onClick={() => { setModalOpen(false); setSelectedId(null) }}
@@ -239,7 +240,7 @@ export default function QuickAddButton({ product, lang, soldOut }: Props) {
             </div>
           </div>
         </div>
-      )}
+      ), document.body)}
     </>
   )
 }
