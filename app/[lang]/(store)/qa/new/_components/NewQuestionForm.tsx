@@ -9,6 +9,7 @@ const t: Record<Locale, {
   category: string; titleLabel: string; content: string
   orderNumber: string; orderNumberRequired: string
   orderNumberHint: string; orderNumberHintRequired: string
+  orderSelectHint: string
   submit: string
   categories: Record<string, string>
   returnIntercept: { heading: string; body: string; cta: string }
@@ -18,6 +19,7 @@ const t: Record<Locale, {
     orderNumber: '주문번호 (선택)', orderNumberRequired: '주문번호 (필수)',
     orderNumberHint: '관련 주문번호가 있으면 입력해주세요',
     orderNumberHintRequired: '주문번호를 입력해야 처리가 가능합니다',
+    orderSelectHint: '주문번호를 선택해주세요',
     submit: '문의 등록',
     categories: { shipping: '배송', return: '교환/반품', defective: '불량/오배송', refund: '환불', product: '상품', other: '기타' },
     returnIntercept: {
@@ -31,6 +33,7 @@ const t: Record<Locale, {
     orderNumber: '注文番号 (任意)', orderNumberRequired: '注文番号 (必須)',
     orderNumberHint: '関連する注文番号がある場合はご入力ください',
     orderNumberHintRequired: '注文番号がないとご対応できない場合があります',
+    orderSelectHint: '注文番号を選択してください',
     submit: '送信する',
     categories: { shipping: '配送', return: '交換・返品', defective: '不良品・誤送', refund: '返金', product: '商品', other: 'その他' },
     returnIntercept: {
@@ -44,6 +47,7 @@ const t: Record<Locale, {
     orderNumber: 'Order number (optional)', orderNumberRequired: 'Order number (required)',
     orderNumberHint: 'Enter your order number if relevant',
     orderNumberHintRequired: 'Required so we can look up your order',
+    orderSelectHint: 'Select your order',
     submit: 'Submit',
     categories: { shipping: 'Shipping', return: 'Exchange/Return', defective: 'Defective/Wrong item', refund: 'Refund', product: 'Product', other: 'Other' },
     returnIntercept: {
@@ -147,7 +151,7 @@ export default function NewQuestionForm({ lang, orders }: { lang: Locale; orders
                   required={orderRequired}
                   className="w-full border border-border rounded-lg px-4 py-3 text-sm bg-white focus:outline-none focus:border-ink transition-colors"
                 >
-                  <option value="">{orderRequired ? labels.orderNumberHintRequired : labels.orderNumberHint}</option>
+                  <option value="">{labels.orderSelectHint}</option>
                   {orders.map((order) => (
                     <option key={order.id} value={order.name}>{formatOrderLabel(order)}</option>
                   ))}
