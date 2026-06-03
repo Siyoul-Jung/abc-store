@@ -1,8 +1,7 @@
 # Harness Engineering 검토 (abc-store)
 
-> AI 코딩 에이전트가 안정적으로 작업하도록 프로젝트를 4가지 요소로 점검.
-> 기준: Martin Fowler, "Harness engineering for coding agent users"
-> https://martinfowler.com/articles/harness-engineering.html
+> AI 코딩 에이전트가 안정적으로 작업하도록 프로젝트를 점검.
+> 기준: 「하네스 엔지니어링 입문」 (WikiDocs) — https://wikidocs.net/340857
 
 ## 4요소 진단
 
