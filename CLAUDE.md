@@ -135,7 +135,7 @@ SUPABASE_SERVICE_ROLE_KEY=          # 등록 완료
 ADMIN_SECRET=                       # 관리자 페이지 접근용
 ADMIN_EMAIL=                        # 등록 완료
 NEXT_PUBLIC_SITE_URL=               # 등록 완료
-RESEND_API_KEY=                     # 나중에 Resend 가입 후 추가
+RESEND_API_KEY=                     # 등록 완료 (.env.local) — Q&A 답변/환불 알림 메일. 운영은 Vercel 등록 + 도메인(applebuttercollege.com) DKIM/SPF 인증 필요
 ```
 
 ---
