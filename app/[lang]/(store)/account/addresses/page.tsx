@@ -92,13 +92,13 @@ export default async function AddressesPage({
                     className="text-xs text-ink-muted hover:text-ink transition-colors">
                     {labels.edit}
                   </Link>
-                  <form action={async () => { 'use server'; await deleteAddress(addr.id) }}>
+                  <form action={async () => { 'use server'; await deleteAddress(addr.id) }} className="contents">
                     <button type="submit" className="text-xs text-ink-muted hover:text-ink transition-colors">
                       {labels.delete}
                     </button>
                   </form>
                   {!isDefault && (
-                    <form action={async () => { 'use server'; await setDefaultAddress(addr.id) }}>
+                    <form action={async () => { 'use server'; await setDefaultAddress(addr.id) }} className="contents">
                       <button type="submit" className="text-xs text-ink-muted hover:text-ink transition-colors">
                         {labels.setDefault}
                       </button>

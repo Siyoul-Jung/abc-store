@@ -16,14 +16,14 @@ export default function AccountNav({ lang }: Props) {
   const locale = lang as 'ko' | 'ja' | 'en'
 
   return (
-    <nav className="flex gap-1 border-b border-border mb-10">
+    <nav className="flex border-b border-border mb-10">
       {navItems(lang).map((item) => {
         const active = pathname === item.href
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`px-4 py-2.5 text-[13px] border-b-2 transition-colors ${
+            className={`flex-1 text-center px-4 py-2.5 text-[13px] border-b-2 transition-colors ${
               active
                 ? 'border-ink text-ink font-medium'
                 : 'border-transparent text-ink-muted hover:text-ink'

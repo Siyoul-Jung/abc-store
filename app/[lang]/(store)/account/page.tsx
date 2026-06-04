@@ -4,8 +4,10 @@ import Link from 'next/link'
 import { hasLocale } from '../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
 import { caQuery } from '@/lib/shopify/customer-account'
+import { getMyQuestions } from '@/lib/actions/qa'
 
 type Customer = {
+  id: string
   firstName: string
   lastName: string
   emailAddress: { emailAddress: string } | null
@@ -15,7 +17,7 @@ type Customer = {
 
 const QUERY = `{
   customer {
-    firstName lastName
+    id firstName lastName
     emailAddress { emailAddress }
     orders(first: 1) { edges { node { id } } }
     addresses(first: 20) { edges { node { id } } }
@@ -23,16 +25,17 @@ const QUERY = `{
 }`
 
 const mockCustomer: Customer = {
+  id: 'gid://shopify/Customer/0',
   firstName: '길동', lastName: '홍',
   emailAddress: { emailAddress: 'test@example.com' },
   orders: { edges: [1, 2, 3] },
   addresses: { edges: [] },
 }
 
-const t: Record<Locale, { orders: string; addresses: string; logout: string; viewAll: string; contact: string; returns: string }> = {
-  ko: { orders: '주문 내역', addresses: '배송지', logout: '로그아웃', viewAll: '전체보기 →', contact: '1:1 문의', returns: '반품 신청' },
-  ja: { orders: '注文履歴', addresses: '配送先', logout: 'ログアウト', viewAll: 'すべて見る →', contact: '1:1 お問い合わせ', returns: '返品申請' },
-  en: { orders: 'Orders', addresses: 'Addresses', logout: 'Log out', viewAll: 'View all →', contact: 'Contact Us', returns: 'Return Request' },
+const t: Record<Locale, { orders: string; addresses: string; logout: string; viewAll: string; contact: string; returns: string; loggedInAs: string; answered: string }> = {
+  ko: { orders: '주문 내역', addresses: '배송지', logout: '로그아웃', viewAll: '전체보기 →', contact: '1:1 문의', returns: '반품 신청', loggedInAs: '로그인 계정', answered: '답변완료' },
+  ja: { orders: '注文履歴', addresses: '配送先', logout: 'ログアウト', viewAll: 'すべて見る →', contact: '1:1 お問い合わせ', returns: '返品申請', loggedInAs: 'ログイン中', answered: '回答済み' },
+  en: { orders: 'Orders', addresses: 'Addresses', logout: 'Log out', viewAll: 'View all →', contact: 'Contact Us', returns: 'Return Request', loggedInAs: 'Signed in as', answered: 'Answered' },
 }
 
 export default async function AccountPage({
@@ -56,8 +59,19 @@ export default async function AccountPage({
   if (!customer) return null
 
   const labels = t[locale]
-  const displayName = [customer.firstName, customer.lastName].filter(Boolean).join(' ') || '—'
   const initial = (customer.firstName || customer.lastName || '?')[0].toUpperCase()
+
+  // 내 문의 답변 현황 (계정 홈에서 답변 도착 여부를 바로 알 수 있게)
+  let qTotal = 0
+  let qAnswered = 0
+  if (isDev) {
+    qTotal = 2
+    qAnswered = 1
+  } else if (customer.id) {
+    const myQs = await getMyQuestions(customer.id)
+    qTotal = myQs.length
+    qAnswered = myQs.filter((q: { status: string }) => q.status === 'answered').length
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -68,10 +82,8 @@ export default async function AccountPage({
           <span className="font-display text-lg font-semibold text-ink">{initial}</span>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium truncate">{displayName}</p>
-          {customer.emailAddress && (
-            <p className="text-xs text-ink-muted mt-0.5 truncate">{customer.emailAddress.emailAddress}</p>
-          )}
+          <p className="text-[10px] font-semibold tracking-[0.15em] uppercase text-ink-muted mb-0.5">{labels.loggedInAs}</p>
+          <p className="text-sm font-medium truncate">{customer.emailAddress?.emailAddress ?? '—'}</p>
         </div>
         <a href={`/api/auth/logout?lang=${lang}`}
           className="text-xs text-ink-muted hover:text-ink transition-colors shrink-0">
@@ -100,7 +112,14 @@ export default async function AccountPage({
         <Link href={`/${lang}/qa`}
           className="flex items-center justify-between px-5 py-4 hover:bg-surface transition-colors">
           <span className="text-sm">{labels.contact}</span>
-          <span className="text-ink-muted text-xs">→</span>
+          <span className="flex items-center gap-2">
+            {qAnswered > 0 ? (
+              <span className="text-[11px] font-medium text-coral">{labels.answered} {qAnswered}</span>
+            ) : qTotal > 0 ? (
+              <span className="text-[11px] text-ink-muted">{qTotal}</span>
+            ) : null}
+            <span className="text-ink-muted text-xs">→</span>
+          </span>
         </Link>
         <Link href={`/${lang}/returns`}
           className="flex items-center justify-between px-5 py-4 hover:bg-surface transition-colors">
