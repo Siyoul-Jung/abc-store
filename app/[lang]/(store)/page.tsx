@@ -5,6 +5,7 @@ import type { Locale } from '@/lib/shopify/types'
 import Hero from '@/components/home/Hero'
 import ProductGrid from '@/components/home/ProductGrid'
 import InstagramFeed from '@/components/home/InstagramFeed'
+import Reveal from '@/components/ui/Reveal'
 
 type Props = { params: Promise<{ lang: string }> }
 
@@ -31,7 +32,9 @@ export default async function HomePage({ params }: Props) {
         title={dict.home.newArrivals}
         viewAllLabel={dict.common.viewAll}
       />
-      <InstagramFeed />
+      <Reveal>
+        <InstagramFeed />
+      </Reveal>
     </>
   )
 }

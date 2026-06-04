@@ -54,8 +54,10 @@ export default function Header({ lang, dict }: Props) {
 
 
   const navItems: NavItem[] = [
-    { label: dict.nav.new,  href: `/${lang}/collections/new` },
-    { label: dict.nav.best, href: `/${lang}/collections/best` },
+    { label: dict.nav.new,   href: `/${lang}/collections/new` },
+    { label: dict.nav.kids,  href: `/${lang}/collections/kids` },
+    { label: dict.nav.adult, href: `/${lang}/collections/adult` },
+    { label: dict.nav.sale,  href: `/${lang}/collections/sale` },
   ]
 
   return (
