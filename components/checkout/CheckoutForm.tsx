@@ -149,7 +149,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
       <form onSubmit={handlePay} className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-10">
         {/* Shipping form */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold">{locale === 'ja' ? '配送先' : '배송지'}</h2>
+          <h2 className="text-sm font-semibold break-keep">{locale === 'ja' ? '配送先' : '배송지'}</h2>
 
           <div className="flex flex-col gap-3">
             <input
@@ -210,7 +210,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
 
           {/* 결제 수단 */}
           <div className="flex flex-col gap-3 pt-2">
-            <h2 className="text-sm font-semibold">{d.paymentMethod}</h2>
+            <h2 className="text-sm font-semibold break-keep">{d.paymentMethod}</h2>
             <div className="flex gap-2">
               {(['card', 'bank_transfer'] as const).map((method) => (
                 <button
@@ -265,7 +265,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
 
         {/* Order summary + pay */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold">{d.orderSummary}</h2>
+          <h2 className="text-sm font-semibold break-keep">{d.orderSummary}</h2>
 
           <div className="flex flex-col gap-3">
             {cart.lines.nodes.map((line) => (

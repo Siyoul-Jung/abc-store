@@ -74,7 +74,7 @@ export default function SizeGuide({ locale, hideHeader }: Props) {
 
   return (
     <div id="size-guide" className={hideHeader ? '' : 'pt-10 border-t border-border'}>
-      {!hideHeader && <h2 className="text-sm font-bold tracking-widest uppercase mb-6">{l.title}</h2>}
+      {!hideHeader && <h2 className="text-sm font-bold tracking-widest uppercase mb-6 break-keep">{l.title}</h2>}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-center border-collapse min-w-[300px]">

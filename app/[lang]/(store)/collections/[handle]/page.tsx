@@ -47,7 +47,7 @@ export default async function CollectionPage({
   return (
     <section className="max-w-7xl mx-auto px-0 sm:px-6 py-10">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-sm font-bold tracking-widest uppercase">{title}</h1>
+        <h1 className="text-sm font-bold tracking-widest uppercase break-keep">{title}</h1>
         <SortSelector lang={lang} current={sort} />
       </div>
 

@@ -103,10 +103,10 @@ export default async function TermsPage({ params }: Props) {
 
   return (
     <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
-      <h1 className="text-lg font-semibold mb-8">{c.title}</h1>
+      <h1 className="text-lg font-semibold mb-8 break-keep">{c.title}</h1>
       <div className="prose prose-sm text-ink-muted max-w-none [&_h2]:text-ink [&_h2]:font-medium [&_h2]:text-sm [&_h2]:mt-8 [&_h2]:mb-2">
         {c.body.trim().split('\n').map((line, i) => {
-          if (line.startsWith('## ')) return <h2 key={i}>{line.replace('## ', '')}</h2>
+          if (line.startsWith('## ')) return <h2 key={i} className="break-keep">{line.replace('## ', '')}</h2>
           if (line.startsWith('- ')) return <p key={i} className="ml-4">· {line.slice(2)}</p>
           if (line === '') return <br key={i} />
           return <p key={i}>{line}</p>

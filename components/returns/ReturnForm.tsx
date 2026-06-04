@@ -262,7 +262,7 @@ export default function ReturnForm({ locale, orders, customerName }: Props) {
     return (
       <div className="flex flex-col items-center gap-4 py-16 text-center">
         <span className="text-3xl text-ink">✓</span>
-        <h2 className="text-sm font-bold tracking-widest uppercase">{l.successTitle}</h2>
+        <h2 className="text-sm font-bold tracking-widest uppercase break-keep">{l.successTitle}</h2>
         <p className="text-sm text-ink-muted">{l.successBody}</p>
         <Link
           href={`/${locale}`}
@@ -279,7 +279,7 @@ export default function ReturnForm({ locale, orders, customerName }: Props) {
     return (
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="text-sm font-bold tracking-widest uppercase">{l.title}</h1>
+          <h1 className="text-sm font-bold tracking-widest uppercase break-keep">{l.title}</h1>
           <p className="text-xs text-ink-muted mt-1">{l.selectOrderHint}</p>
         </div>
 
@@ -332,7 +332,7 @@ export default function ReturnForm({ locale, orders, customerName }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-sm font-bold tracking-widest uppercase">{l.title}</h1>
+        <h1 className="text-sm font-bold tracking-widest uppercase break-keep">{l.title}</h1>
         <button
           onClick={() => { setStep('select'); setOrderData(null); setErrorKey(null) }}
           className="text-xs text-ink-muted underline underline-offset-2 hover:text-ink transition-colors"

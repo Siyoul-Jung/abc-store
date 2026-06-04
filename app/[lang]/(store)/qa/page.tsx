@@ -84,7 +84,7 @@ export default async function QaPage({
 
       {/* 헤더 */}
       <div className="mb-10">
-        <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight mb-2">{labels.title}</h1>
+        <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight mb-2 break-keep">{labels.title}</h1>
         <p className="text-sm text-ink-muted">{labels.subtitle}</p>
       </div>
 

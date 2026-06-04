@@ -185,7 +185,7 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
       </div>
 
       <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-base font-semibold">{isVbank ? d.titleVbank : d.titleCard}</h1>
+        <h1 className="text-base font-semibold break-keep">{isVbank ? d.titleVbank : d.titleCard}</h1>
         {shopifyOrderName && (
           <p className="text-sm text-ink-muted">{d.orderNum}: {shopifyOrderName}</p>
         )}

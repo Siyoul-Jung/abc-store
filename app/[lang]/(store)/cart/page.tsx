@@ -41,7 +41,7 @@ export default async function CartPage({ params, searchParams }: Props) {
             : '현재 결제 기능을 준비 중입니다. 조금만 기다려 주세요.'}
         </div>
       )}
-      <h1 className="text-lg font-semibold mb-8">{dict.cart.title}</h1>
+      <h1 className="text-lg font-semibold mb-8 break-keep">{dict.cart.title}</h1>
 
       <div>
         {cart.lines.nodes.map((line) => (

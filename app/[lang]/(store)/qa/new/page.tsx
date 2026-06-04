@@ -68,7 +68,7 @@ export default async function NewQuestionPage({
       <div className="mb-8">
         <a href={`/${lang}/qa`} className="text-sm text-ink-muted hover:text-ink transition-colors">{labels.back}</a>
       </div>
-      <h1 className="font-display text-2xl font-semibold tracking-tight mb-8">{labels.title}</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight mb-8 break-keep">{labels.title}</h1>
       <NewQuestionForm lang={locale} orders={orders} />
     </div>
   )

@@ -123,11 +123,11 @@ export default async function RefundPage({ params }: Props) {
 
   return (
     <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
-      <h1 className="text-lg font-semibold mb-10">{c.title}</h1>
+      <h1 className="text-lg font-semibold mb-10 break-keep">{c.title}</h1>
       <div className="flex flex-col gap-8">
         {c.sections.map((section) => (
           <div key={section.title}>
-            <h2 className="text-sm font-medium text-ink mb-2">{section.title}</h2>
+            <h2 className="text-sm font-medium text-ink mb-2 break-keep">{section.title}</h2>
             <div className="flex flex-col gap-1">
               {section.items.map((item, i) => {
                 if (typeof item === 'string') {

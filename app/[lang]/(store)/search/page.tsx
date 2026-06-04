@@ -41,7 +41,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
       <div className="mb-10">
         {query ? (
           <>
-            <h1 className="text-lg font-semibold mb-1">&ldquo;{query}&rdquo;</h1>
+            <h1 className="text-lg font-semibold mb-1 break-keep">&ldquo;{query}&rdquo;</h1>
             <p className="text-sm text-ink-muted">{totalCount.toLocaleString()}{labels.results}</p>
           </>
         ) : (

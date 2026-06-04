@@ -16,7 +16,7 @@ export default async function ProductsPage({
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight mb-8">All Products</h1>
+      <h1 className="text-2xl font-semibold tracking-tight mb-8 break-keep">All Products</h1>
 
       {products.length === 0 ? (
         <p className="text-ink-muted text-sm">상품이 없어요.</p>

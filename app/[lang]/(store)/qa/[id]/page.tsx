@@ -73,7 +73,7 @@ export default async function QuestionDetailPage({
             {labels[question.status as 'pending' | 'answered']}
           </span>
         </div>
-        <h1 className="text-lg font-semibold mb-1">{question.title}</h1>
+        <h1 className="text-lg font-semibold mb-1 break-keep">{question.title}</h1>
         <p className="text-xs text-ink-muted">{question.customer_name} · {dateStr}</p>
       </div>
 

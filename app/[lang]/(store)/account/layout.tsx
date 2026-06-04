@@ -23,7 +23,7 @@ export default async function AccountLayout({
   return (
     <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24">
       <div className="mb-10 pb-8 border-b border-border">
-        <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">My Account</h1>
+        <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight break-keep">My Account</h1>
       </div>
       <AccountNav lang={lang} />
       {children}

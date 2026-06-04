@@ -322,7 +322,7 @@ export default async function FaqPage({
       {/* 페이지 헤더 */}
       <div className="mb-14 pb-8 border-b border-border">
         <p className="text-[11px] tracking-[0.2em] uppercase text-ink-muted mb-3">applebuttercollege</p>
-        <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight break-keep">{title}</h1>
       </div>
 
       <div className="flex flex-col gap-12">

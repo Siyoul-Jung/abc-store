@@ -24,7 +24,7 @@ export default async function CheckoutPage({ params }: Props) {
 
   return (
     <section className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-      <h1 className="text-lg font-semibold mb-8">{dict.checkout.title}</h1>
+      <h1 className="text-lg font-semibold mb-8 break-keep">{dict.checkout.title}</h1>
       <CheckoutForm cart={cart} locale={lang as Locale} dict={dict} />
     </section>
   )
