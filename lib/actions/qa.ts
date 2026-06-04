@@ -197,7 +197,7 @@ async function notifyAdminNewQuestion({
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: `Support <support@applebuttercollege.com>`,
+      from: `applebuttercollege <no-reply@applebuttercollege.com>`,
       to: adminEmail,
       subject: `[새 문의] ${title}`,
       html: `<p><b>${customerName}</b>님이 새 문의를 남겼습니다.</p><p>분류: ${category}</p><p>제목: ${title}</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/qa">어드민에서 확인하기 →</a></p>`,
@@ -221,15 +221,18 @@ async function notifyCustomerAnswered({
   const subject = isJa
     ? `【applebuttercollege】お問い合わせに回答しました`
     : `[applebuttercollege] 문의에 답변이 등록되었습니다`
+  const notice = isJa
+    ? `<p style="color:#9A8F88;font-size:12px;margin-top:16px">本メールは送信専用です。追加のお問い合わせはマイお問い合わせページよりお願いいたします。</p>`
+    : `<p style="color:#9A8F88;font-size:12px;margin-top:16px">본 메일은 발신전용입니다. 추가 문의는 내 문의 페이지에서 남겨주세요.</p>`
   const body = isJa
-    ? `<p>「<b>${title}</b>」へのご回答が届きました。</p><p>下記リンクよりご確認ください。</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/qa">マイお問い合わせを確認する →</a></p>`
-    : `<p>문의하신 "<b>${title}</b>"에 답변이 등록되었습니다.</p><p>아래 링크에서 확인해 주세요.</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/qa">내 문의 확인하기 →</a></p>`
+    ? `<p>「<b>${title}</b>」へのご回答が届きました。</p><p>下記リンクよりご確認ください。</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/qa">マイお問い合わせを確認する →</a></p>${notice}`
+    : `<p>문의하신 "<b>${title}</b>"에 답변이 등록되었습니다.</p><p>아래 링크에서 확인해 주세요.</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/qa">내 문의 확인하기 →</a></p>${notice}`
 
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: `applebuttercollege Support <support@applebuttercollege.com>`,
+      from: `applebuttercollege <no-reply@applebuttercollege.com>`,
       to: email,
       subject,
       html: body,
@@ -255,10 +258,10 @@ async function notifyCustomerRefundComplete({
     method: 'POST',
     headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: `applebuttercollege Support <support@applebuttercollege.com>`,
+      from: `applebuttercollege <no-reply@applebuttercollege.com>`,
       to: email,
       subject: `[applebuttercollege] 환불이 완료되었습니다`,
-      html: `<p>주문번호 <b>${orderNumber}</b>의 환불 처리가 완료되었습니다.</p><p>환불 금액: <b>${amount.toLocaleString()}원</b></p><p>영업일 기준 1~2일 내 입금됩니다.</p>`,
+      html: `<p>주문번호 <b>${orderNumber}</b>의 환불 처리가 완료되었습니다.</p><p>환불 금액: <b>${amount.toLocaleString()}원</b></p><p>영업일 기준 1~2일 내 입금됩니다.</p><p style="color:#9A8F88;font-size:12px;margin-top:16px">본 메일은 발신전용입니다. 추가 문의는 고객센터 게시판을 이용해 주세요.</p>`,
     }),
   })
 }
