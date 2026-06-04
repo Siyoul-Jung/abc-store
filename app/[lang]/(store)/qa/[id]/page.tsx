@@ -78,7 +78,7 @@ export default async function QuestionDetailPage({
       </div>
 
       {/* 질문 내용 */}
-      <div className="bg-surface rounded-lg p-5 text-sm leading-relaxed whitespace-pre-wrap mb-6">
+      <div className="bg-surface rounded-xl p-5 text-sm leading-relaxed whitespace-pre-wrap mb-6">
         {question.content}
       </div>
 
@@ -86,11 +86,11 @@ export default async function QuestionDetailPage({
       <div>
         <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-ink-muted mb-3">{labels.answerTitle}</p>
         {answer ? (
-          <div className="border border-border rounded-lg p-5 text-sm leading-relaxed whitespace-pre-wrap">
+          <div className="border border-border rounded-xl p-5 text-sm leading-relaxed whitespace-pre-wrap">
             {answer.content}
           </div>
         ) : (
-          <p className="text-sm text-ink-muted py-6 text-center border border-dashed border-border rounded-lg">
+          <p className="text-sm text-ink-muted py-6 text-center border border-dashed border-border rounded-xl">
             {labels.noAnswer}
           </p>
         )}

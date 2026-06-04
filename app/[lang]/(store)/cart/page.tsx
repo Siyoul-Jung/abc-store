@@ -35,7 +35,7 @@ export default async function CartPage({ params, searchParams }: Props) {
   return (
     <section className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
       {notice === 'checkout_paused' && (
-        <div className="mb-6 px-4 py-3 bg-citrus/30 border border-citrus rounded-lg text-sm text-ink">
+        <div className="mb-6 px-4 py-3 bg-citrus/30 border border-citrus rounded-xl text-sm text-ink">
           {lang === 'ja'
             ? '現在、決済機能は準備中です。もうしばらくお待ちください。'
             : '현재 결제 기능을 준비 중입니다. 조금만 기다려 주세요.'}

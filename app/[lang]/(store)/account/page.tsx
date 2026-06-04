@@ -63,7 +63,7 @@ export default async function AccountPage({
     <div className="flex flex-col gap-8">
 
       {/* 프로필 카드 */}
-      <div className="flex items-center gap-4 p-5 bg-surface rounded-lg border border-border">
+      <div className="flex items-center gap-4 p-5 bg-surface rounded-xl border border-border">
         <div className="w-12 h-12 rounded-full bg-white border border-border flex items-center justify-center shrink-0">
           <span className="font-display text-lg font-semibold text-ink">{initial}</span>
         </div>
@@ -82,13 +82,13 @@ export default async function AccountPage({
       {/* 빠른 링크 카드 */}
       <div className="grid grid-cols-2 gap-3">
         <Link href={`/${lang}/account/orders`}
-          className="p-5 border border-border rounded-lg hover:bg-surface transition-colors group">
+          className="p-5 border border-border rounded-xl hover:bg-surface transition-colors group">
           <p className="text-2xl font-display font-semibold mb-1">{customer.orders.edges.length > 0 ? customer.orders.edges.length + '+' : '0'}</p>
           <p className="text-sm text-ink-muted">{labels.orders}</p>
           <p className="text-xs text-ink-muted/60 mt-2 group-hover:text-ink-muted transition-colors">{labels.viewAll}</p>
         </Link>
         <Link href={`/${lang}/account/addresses`}
-          className="p-5 border border-border rounded-lg hover:bg-surface transition-colors group">
+          className="p-5 border border-border rounded-xl hover:bg-surface transition-colors group">
           <p className="text-2xl font-display font-semibold mb-1">{customer.addresses.edges.length}</p>
           <p className="text-sm text-ink-muted">{labels.addresses}</p>
           <p className="text-xs text-ink-muted/60 mt-2 group-hover:text-ink-muted transition-colors">{labels.viewAll}</p>
@@ -96,7 +96,7 @@ export default async function AccountPage({
       </div>
 
       {/* 바로가기 */}
-      <div className="border border-border rounded-lg divide-y divide-border">
+      <div className="border border-border rounded-xl divide-y divide-border">
         <Link href={`/${lang}/qa`}
           className="flex items-center justify-between px-5 py-4 hover:bg-surface transition-colors">
           <span className="text-sm">{labels.contact}</span>

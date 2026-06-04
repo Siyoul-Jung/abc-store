@@ -73,7 +73,7 @@ export default async function AddressesPage({
           {data.addresses.edges.map(({ node: addr }) => {
             const isDefault = addr.id === defaultId
             return (
-              <div key={addr.id} className={`p-4 border rounded-lg ${isDefault ? 'border-ink' : 'border-border'}`}>
+              <div key={addr.id} className={`p-4 border rounded-xl ${isDefault ? 'border-ink' : 'border-border'}`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="text-sm leading-relaxed">
                     <p className="font-medium">{addr.firstName} {addr.lastName}</p>

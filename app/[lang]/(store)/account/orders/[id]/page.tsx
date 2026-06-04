@@ -135,7 +135,7 @@ export default async function OrderDetailPage({
       </div>
 
       {/* 금액 요약 */}
-      <div className="bg-surface rounded-lg p-5 flex flex-col gap-2">
+      <div className="bg-surface rounded-xl p-5 flex flex-col gap-2">
         <div className="flex justify-between text-sm">
           <span className="text-ink-muted">{labels.subtotal}</span>
           <span>{formatPrice(order.subtotalPrice.amount, order.subtotalPrice.currencyCode)}</span>
@@ -154,7 +154,7 @@ export default async function OrderDetailPage({
       {order.shippingAddress && (
         <div>
           <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-ink-muted mb-3">{labels.address}</p>
-          <div className="text-sm text-ink-muted leading-relaxed border border-border rounded-lg p-4">
+          <div className="text-sm text-ink-muted leading-relaxed border border-border rounded-xl p-4">
             <p className="font-medium text-ink">{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
             <p>{order.shippingAddress.address1}{order.shippingAddress.address2 ? ` ${order.shippingAddress.address2}` : ''}</p>
             <p>{order.shippingAddress.city}{order.shippingAddress.province ? `, ${order.shippingAddress.province}` : ''} {order.shippingAddress.zip}</p>

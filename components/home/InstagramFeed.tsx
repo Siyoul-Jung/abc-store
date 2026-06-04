@@ -33,7 +33,7 @@ export default async function InstagramFeed() {
                 href={post.permalink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group snap-start shrink-0 w-[38vw] sm:w-auto aspect-square overflow-hidden bg-surface block rounded-lg"
+                className="group snap-start shrink-0 w-[38vw] sm:w-auto aspect-square overflow-hidden bg-surface block rounded-xl"
               >
                 <Image
                   src={src}
