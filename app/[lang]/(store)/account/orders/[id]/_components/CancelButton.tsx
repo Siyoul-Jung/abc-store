@@ -24,7 +24,7 @@ export default function CancelButton({
         })
       }}
       disabled={pending}
-      className="w-full text-center text-sm py-3 border border-border rounded-lg text-ink-muted hover:border-coral hover:text-coral transition-colors disabled:opacity-40"
+      className="w-full text-center text-sm py-3 border border-border rounded-full text-ink-muted hover:border-coral hover:text-coral transition-colors disabled:opacity-40"
     >
       {pending ? '...' : label}
     </button>

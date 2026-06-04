@@ -112,7 +112,7 @@ export default async function AddressesPage({
       )}
 
       <Link href={`/${lang}/account/addresses/new`}
-        className="text-sm text-center py-3 border border-dashed border-border rounded-lg text-ink-muted hover:bg-surface hover:text-ink transition-colors">
+        className="text-sm text-center py-3 border border-dashed border-border rounded-full text-ink-muted hover:bg-surface hover:text-ink transition-colors">
         {labels.add}
       </Link>
 

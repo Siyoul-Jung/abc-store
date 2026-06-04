@@ -31,16 +31,19 @@
 
 | 역할 | 예시 | 클래스 |
 |---|---|---|
-| **1순위 (전환)** | 결제하기, 장바구니 담기, 컬렉션 보기 | `rounded-full bg-coral px-6 py-3 text-sm font-medium text-white hover:opacity-90` |
-| **2순위 (보조 행동)** | 문의하기, 주소 추가, Contact | `rounded-full bg-ink px-6 py-3 text-sm font-medium text-white hover:opacity-80` |
+| **메인 구매바 (전체폭 최종 전환)** | 장바구니 주문, 체크아웃 결제 | `w-full bg-coral py-4 text-white …` — **사각(라운드 없음)** |
+| **1순위 CTA** | 컬렉션 보기, 신상 보기 | `rounded-full bg-coral px-6 py-3 text-sm font-medium text-white hover:opacity-90` |
+| **2순위 (보조 행동)** | 문의하기, 주소 추가/저장, Contact | `rounded-full bg-ink px-6 py-3 text-sm font-medium text-white hover:opacity-80` |
 | **3순위 (텍스트 링크)** | 뒤로, 취소, 더보기 | `text-sm text-ink-muted hover:text-ink transition-colors` (배경 없음) |
 
-- **한 화면의 1순위 버튼은 하나** — coral은 "지금 할 가장 중요한 행동"에만.
-- 모든 버튼은 `rounded-full`(알약형). 탭 영역 최소 높이 확보(`py-3` ≈ 44px) — 모바일 우선.
+- **모양**: **메인 구매바만 전체폭 사각**(이커머스 관용구 — 묵직한 최종 확정). 그 외 **모든 버튼은 `rounded-full`(알약형)**.
+- **색**: 한 화면의 coral 버튼은 하나 — "지금 할 가장 중요한 행동"에만.
+- 탭 영역 최소 높이(`py-3` ≈ 44px) — 모바일 우선.
 
-### 고칠 곳 (현황)
-- `checkout/CheckoutForm.tsx` 결제 버튼 `bg-ink` → **`bg-coral`** (사이트 최종 전환 = 1순위)
-- `qa/page.tsx` 문의 버튼 → 2순위면 `bg-ink` 유지 OK (페이지 주행동이면 coral 고려)
+### 현황 (점검 완료)
+- ✅ 메인 구매바(장바구니·결제)는 이미 `bg-coral` 전체폭 사각 — 올바름.
+- ✅ `qa/page.tsx` 문의 버튼은 `bg-ink`(2순위 CS 행동) — 올바름 (전환 아님).
+- ✅ 폼/액션 버튼(주소 저장·취소, 문의 제출, 주문 취소 등)은 `rounded-full`로 통일 완료.
 
 ---
 
@@ -48,7 +51,7 @@
 
 | 요소 | 라운드 |
 |---|---|
-| 버튼 · 배지(pill) | `rounded-full` |
+| 버튼 · 배지(pill) | `rounded-full` (단, **메인 구매바는 사각**) |
 | 카드 · 박스 · 이미지 컨테이너 | `rounded-xl` |
 | 입력창 · textarea · select | `rounded-lg` |
 | 구분선/리스트 행 | 라운드 없음 |

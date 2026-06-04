@@ -165,11 +165,11 @@ export default async function OrderDetailPage({
       {/* 액션 버튼 */}
       <div className="grid grid-cols-2 gap-3">
         <Link href={`/${lang}/returns`}
-          className="text-center text-sm py-3 border border-border rounded-lg hover:bg-surface transition-colors">
+          className="text-center text-sm py-3 border border-border rounded-full hover:bg-surface transition-colors">
           {labels.returns}
         </Link>
         <Link href={`/${lang}/qa/new`}
-          className="text-center text-sm py-3 border border-border rounded-lg hover:bg-surface transition-colors">
+          className="text-center text-sm py-3 border border-border rounded-full hover:bg-surface transition-colors">
           {labels.contact}
         </Link>
       </div>

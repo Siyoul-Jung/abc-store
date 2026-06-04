@@ -107,7 +107,7 @@ export default function NewQuestionForm({ lang, orders }: { lang: Locale; orders
           </div>
           <a
             href={`/${lang}/returns`}
-            className="inline-flex items-center justify-center py-3 px-6 bg-ink text-white rounded-lg text-sm font-medium hover:opacity-80 transition-opacity"
+            className="inline-flex items-center justify-center py-3 px-6 bg-ink text-white rounded-full text-sm font-medium hover:opacity-80 transition-opacity"
           >
             {labels.returnIntercept.cta}
           </a>
@@ -173,7 +173,7 @@ export default function NewQuestionForm({ lang, orders }: { lang: Locale; orders
           <button
             type="submit"
             disabled={pending}
-            className="w-full py-3.5 bg-ink text-white rounded-lg text-sm font-medium hover:opacity-80 disabled:opacity-40 transition-opacity mt-2"
+            className="w-full py-3.5 bg-ink text-white rounded-full text-sm font-medium hover:opacity-80 disabled:opacity-40 transition-opacity mt-2"
           >
             {pending ? '...' : labels.submit}
           </button>

@@ -72,11 +72,11 @@ export default function AddressForm({ lang, defaultValues = {}, onSubmit }: Prop
 
       <div className="flex gap-3 pt-2">
         <button type="submit" disabled={pending}
-          className="flex-1 py-2.5 bg-ink text-white text-sm rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50">
+          className="flex-1 py-2.5 bg-ink text-white text-sm rounded-full hover:opacity-80 transition-opacity disabled:opacity-50">
           {pending ? t.saving : t.submit}
         </button>
         <button type="button" onClick={() => router.back()}
-          className="flex-1 py-2.5 border border-border text-sm rounded-lg hover:bg-surface transition-colors">
+          className="flex-1 py-2.5 border border-border text-sm rounded-full hover:bg-surface transition-colors">
           {t.cancel}
         </button>
       </div>
