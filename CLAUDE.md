@@ -75,6 +75,7 @@ app/
 
 > **전 페이지 일관성 규칙(버튼·라운드·여백·break-keep·Reveal 적용범위): `docs/design-rules.md`**
 > 홈/About 유니클로풍 리디자인 레퍼런스 분석: `docs/design-reference-uniqlo.md`
+> 아동복 Shopify 벤치마크(Mini Rodini) 분석 + 적용 가이드: `docs/design-reference-minirodini.md`
 
 Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파일 없음.
 
