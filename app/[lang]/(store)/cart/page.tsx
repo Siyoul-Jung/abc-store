@@ -20,13 +20,21 @@ export default async function CartPage({ params, searchParams }: Props) {
 
   if (!cart || cart.lines.nodes.length === 0) {
     return (
-      <section className="max-w-2xl mx-auto px-4 py-12 sm:py-16 text-center">
-        <p className="text-ink-muted text-sm mb-6">{dict.cart.empty}</p>
+      <section className="max-w-2xl mx-auto px-4 py-12 sm:py-16 text-center flex flex-col items-center">
+        <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center mb-5">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" className="text-ink-muted">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 01-8 0" />
+          </svg>
+        </div>
+        <p className="text-base font-medium text-ink mb-7 break-keep">{dict.cart.empty}</p>
         <Link
           href={`/${lang}/products`}
-          className="text-sm underline underline-offset-4 hover:text-accent transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-full bg-ink px-7 py-3 text-sm font-medium text-white hover:opacity-80 transition-opacity"
         >
           {dict.common.viewAll}
+          <span aria-hidden>→</span>
         </Link>
       </section>
     )
