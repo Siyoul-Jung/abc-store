@@ -2,7 +2,10 @@ import Link from 'next/link'
 import LanguageSwitcher from './LanguageSwitcher'
 
 type Dict = {
-  footer: { about: string; cs: string; faq: string; privacy: string; terms: string; returns: string; qa: string; copyright: string }
+  footer: {
+    about: string; cs: string; faq: string; privacy: string; terms: string
+    refund: string; returns: string; qa: string; company: string; copyright: string
+  }
 }
 
 type Props = { lang: string; dict: Dict }
@@ -18,47 +21,74 @@ const bizInfo = [
 ]
 
 export default function Footer({ lang, dict }: Props) {
-  const legalLinks = [
-    { label: dict.footer.about,   href: `/${lang}/about` },
+  // 고객지원: 문의·도움 동선
+  const csLinks = [
     { label: dict.footer.faq,     href: `/${lang}/faq` },
     { label: dict.footer.returns, href: `/${lang}/returns` },
     { label: dict.footer.qa,      href: `/${lang}/qa` },
+  ]
+  // 회사·정책
+  const companyLinks = [
+    { label: dict.footer.about,   href: `/${lang}/about` },
     { label: dict.footer.privacy, href: `/${lang}/privacy` },
     { label: dict.footer.terms,   href: `/${lang}/terms` },
+    { label: dict.footer.refund,  href: `/${lang}/refund` },
   ]
+
+  const colTitle = 'text-[11px] font-semibold tracking-widest uppercase text-ink mb-3'
+  const colLink = 'text-xs text-ink-muted hover:text-ink transition-colors w-fit'
 
   return (
     <footer className="bg-surface border-t border-border mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-10 flex flex-col gap-4 sm:gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 flex flex-col gap-8">
 
-        {/* 브랜드 + SNS */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold tracking-widest uppercase text-ink">
-            applebuttercollege
-          </span>
-          <a
-            href="https://www.instagram.com/applebuttercollege"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="text-ink-muted hover:text-ink transition-colors"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <circle cx="12" cy="12" r="4" />
-              <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
-            </svg>
-          </a>
-        </div>
+        {/* 상단: 3컬럼 (모바일 = 브랜드 전체폭 + 링크 2열) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
 
-        {/* 연락처 */}
-        <div className="flex flex-col gap-1">
-          <a href="mailto:applebuttercollege.official@gmail.com" className="text-xs text-ink-muted hover:text-ink transition-colors [overflow-wrap:anywhere]">
-            applebuttercollege.official@gmail.com
-          </a>
-          <a href="tel:01023398492" className="text-xs text-ink-muted hover:text-ink transition-colors w-fit">
-            010-2339-8492
-          </a>
+          {/* 브랜드 */}
+          <div className="col-span-2 sm:col-span-1 flex flex-col gap-3">
+            <span className="text-sm font-semibold tracking-widest uppercase text-ink">
+              applebuttercollege
+            </span>
+            <div className="flex flex-col gap-1">
+              <a href="mailto:applebuttercollege.official@gmail.com" className="text-xs text-ink-muted hover:text-ink transition-colors [overflow-wrap:anywhere]">
+                applebuttercollege.official@gmail.com
+              </a>
+              <a href="tel:01023398492" className="text-xs text-ink-muted hover:text-ink transition-colors w-fit">
+                010-2339-8492
+              </a>
+            </div>
+            <a
+              href="https://www.instagram.com/applebuttercollege"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="text-ink-muted hover:text-ink transition-colors w-fit mt-1"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
+              </svg>
+            </a>
+          </div>
+
+          {/* 고객지원 */}
+          <nav className="flex flex-col gap-2.5">
+            <p className={colTitle}>{dict.footer.cs}</p>
+            {csLinks.map((l) => (
+              <Link key={l.href} href={l.href} className={colLink}>{l.label}</Link>
+            ))}
+          </nav>
+
+          {/* 회사·정책 */}
+          <nav className="flex flex-col gap-2.5">
+            <p className={colTitle}>{dict.footer.company}</p>
+            {companyLinks.map((l) => (
+              <Link key={l.href} href={l.href} className={colLink}>{l.label}</Link>
+            ))}
+          </nav>
+
         </div>
 
         {/* 사업자 정보 (접기) */}
@@ -77,23 +107,10 @@ export default function Footer({ lang, dict }: Props) {
           </div>
         </details>
 
-        {/* 하단: 법적 링크 + 저작권 */}
-        <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-3 border-t border-border pt-4 sm:pt-5">
-          <nav className="flex flex-wrap gap-x-4 gap-y-1.5 sm:gap-x-5 sm:gap-y-2">
-            {legalLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-xs text-ink-muted hover:text-ink transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher lang={lang} />
-            <p className="text-xs text-ink-muted">{dict.footer.copyright}</p>
-          </div>
+        {/* 하단 바: 저작권 + 언어 */}
+        <div className="flex flex-col sm:flex-row justify-between gap-3 border-t border-border pt-5">
+          <p className="text-xs text-ink-muted">{dict.footer.copyright}</p>
+          <LanguageSwitcher lang={lang} />
         </div>
 
       </div>
