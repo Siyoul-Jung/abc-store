@@ -48,7 +48,7 @@ export default async function AccountLayout({
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24">
+    <div className="max-w-2xl mx-auto px-4 py-12 sm:py-16">
       <div className="mb-10 pb-8 border-b border-border">
         <p className="font-display text-xs tracking-[0.3em] uppercase font-semibold text-coral mb-2">
           My Account

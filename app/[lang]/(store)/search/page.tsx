@@ -37,7 +37,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div className="mb-10">
         {query ? (
           <>

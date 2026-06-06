@@ -23,7 +23,7 @@ export default async function CheckoutPage({ params }: Props) {
   if (!cart || cart.lines.nodes.length === 0) redirect(`/${lang}/cart`)
 
   return (
-    <section className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
       <h1 className="text-lg font-semibold mb-8 break-keep">{dict.checkout.title}</h1>
       <CheckoutForm cart={cart} locale={lang as Locale} dict={dict} />
     </section>

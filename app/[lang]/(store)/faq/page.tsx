@@ -317,7 +317,7 @@ export default async function FaqPage({
   const { title, sections } = content[locale]
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-16 sm:py-24">
+    <main className="max-w-2xl mx-auto px-4 py-12 sm:py-16">
 
       {/* 페이지 헤더 */}
       <div className="mb-14 pb-8 border-b border-border">

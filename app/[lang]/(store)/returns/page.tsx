@@ -63,7 +63,7 @@ export default async function ReturnsPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
       <div className="max-w-md mx-auto">
         <ReturnForm locale={lang as Locale} orders={orders} customerName={customerName} />
       </div>

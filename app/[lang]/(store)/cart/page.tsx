@@ -20,7 +20,7 @@ export default async function CartPage({ params, searchParams }: Props) {
 
   if (!cart || cart.lines.nodes.length === 0) {
     return (
-      <section className="max-w-2xl mx-auto px-4 py-20 text-center">
+      <section className="max-w-2xl mx-auto px-4 py-12 sm:py-16 text-center">
         <p className="text-ink-muted text-sm mb-6">{dict.cart.empty}</p>
         <Link
           href={`/${lang}/products`}
@@ -33,7 +33,7 @@ export default async function CartPage({ params, searchParams }: Props) {
   }
 
   return (
-    <section className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+    <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
       {notice === 'checkout_paused' && (
         <div className="mb-6 px-4 py-3 bg-citrus/30 border border-citrus rounded-xl text-sm text-ink">
           {lang === 'ja'

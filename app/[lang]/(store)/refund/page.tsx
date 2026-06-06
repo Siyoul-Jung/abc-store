@@ -122,7 +122,7 @@ export default async function RefundPage({ params }: Props) {
   const c = content[lang as 'ko' | 'ja']
 
   return (
-    <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+    <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
       <h1 className="text-lg font-semibold mb-10 break-keep">{c.title}</h1>
       <div className="flex flex-col gap-8">
         {c.sections.map((section) => (

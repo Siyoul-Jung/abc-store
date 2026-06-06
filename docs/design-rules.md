@@ -129,4 +129,5 @@ font-display text-xs tracking-[0.3em] uppercase font-semibold text-coral
 - [ ] faq — break-keep, 여백, 아코디언 스타일 점검
 - [ ] products / collections / search — 그리드 컨테이너 여백 통일 (Reveal 미적용 유지)
 
-> 우선순위: **#4 break-keep(위험0, 즉효) → #2 버튼색 → #5 여백 → #3 라운드 → #8 폼 공유화**
+> 진행 상태: ✅ #4 break-keep · ✅ #2 버튼색(점검 완료, 이미 준수) · ✅ #3 라운드(카드 xl·버튼 full) · ✅ #5 컨테이너 여백(일반 `py-12 sm:py-16`/그리드 `py-10`/좁은확인 `py-16 sm:py-24`)
+> **남은 작업: #8 입력폼 공유화, qa 배지 스타일 통일, faq 아코디언 점검**

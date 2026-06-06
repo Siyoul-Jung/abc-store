@@ -80,7 +80,7 @@ export default async function QaPage({
   const myQs = customerId ? await getMyQuestions(customerId) : []
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24">
+    <div className="max-w-2xl mx-auto px-4 py-12 sm:py-16">
 
       {/* 헤더 */}
       <div className="mb-10">

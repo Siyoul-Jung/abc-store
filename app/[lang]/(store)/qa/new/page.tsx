@@ -64,7 +64,7 @@ export default async function NewQuestionPage({
   const labels = pageLabels[locale]
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24">
+    <div className="max-w-2xl mx-auto px-4 py-12 sm:py-16">
       <div className="mb-8">
         <a href={`/${lang}/qa`} className="text-sm text-ink-muted hover:text-ink transition-colors">{labels.back}</a>
       </div>

@@ -179,7 +179,7 @@ export default async function CheckoutSuccessPage({ params, searchParams }: Prop
   const va = confirmed.virtualAccount
 
   return (
-    <section className="max-w-lg mx-auto px-4 py-24 flex flex-col items-center gap-6">
+    <section className="max-w-lg mx-auto px-4 py-16 sm:py-24 flex flex-col items-center gap-6">
       <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl ${isVbank ? 'bg-surface' : 'bg-citrus'}`}>
         {isVbank ? '💳' : '✓'}
       </div>

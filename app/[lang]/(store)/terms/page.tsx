@@ -102,7 +102,7 @@ export default async function TermsPage({ params }: Props) {
   const c = content[lang as 'ko' | 'ja']
 
   return (
-    <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+    <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
       <h1 className="text-lg font-semibold mb-8 break-keep">{c.title}</h1>
       <div className="prose prose-sm text-ink-muted max-w-none [&_h2]:text-ink [&_h2]:font-medium [&_h2]:text-sm [&_h2]:mt-8 [&_h2]:mb-2">
         {c.body.trim().split('\n').map((line, i) => {

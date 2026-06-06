@@ -58,7 +58,7 @@ export default async function QuestionDetailPage({
   )
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24">
+    <div className="max-w-2xl mx-auto px-4 py-12 sm:py-16">
       <a href={`/${lang}/qa`} className="text-sm text-ink-muted hover:text-ink transition-colors">{labels.back}</a>
 
       <div className="mt-8 mb-6">

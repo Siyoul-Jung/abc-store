@@ -22,7 +22,7 @@ export default async function CheckoutFailPage({ params, searchParams }: Props) 
   const d = t[lang as Locale]
 
   return (
-    <section className="max-w-lg mx-auto px-4 py-24 text-center flex flex-col items-center gap-6">
+    <section className="max-w-lg mx-auto px-4 py-16 sm:py-24 text-center flex flex-col items-center gap-6">
       <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center text-xl">✕</div>
       <div className="flex flex-col gap-2">
         <h1 className="text-base font-semibold break-keep">{d.title}</h1>
