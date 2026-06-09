@@ -97,6 +97,10 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
       const cookiePayload = {
         ...form,
         paymentMethod,
+        // 배송비 내역 — 주문 생성 시 shipping_lines로 분리 반영 (order.ts)
+        shippingFee,
+        surcharge,
+        surchargeLabel: isJeju ? '제주 추가배송비' : isIsland ? '도서·산간 추가배송비' : '',
         ...(paymentMethod === 'bank_transfer' && {
           refundBank,
           refundAccountNum,
@@ -114,7 +118,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
           amount: { currency: 'KRW', value: total },
           orderId,
           orderName,
-          successUrl: `${window.location.origin}/${locale}/checkout/success`,
+          successUrl: `${window.location.origin}/api/checkout/confirm?lang=${locale}`,
           failUrl: `${window.location.origin}/${locale}/checkout/fail`,
           customerName: form.name,
           customerMobilePhone: form.phone.replace(/-/g, ''),
@@ -125,7 +129,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
           amount: { currency: 'KRW', value: total },
           orderId,
           orderName,
-          successUrl: `${window.location.origin}/${locale}/checkout/success`,
+          successUrl: `${window.location.origin}/api/checkout/confirm?lang=${locale}`,
           failUrl: `${window.location.origin}/${locale}/checkout/fail`,
           customerName: form.name,
           customerMobilePhone: form.phone.replace(/-/g, ''),

@@ -16,6 +16,9 @@ export type ShippingData = {
   addressDetail: string
   memo: string
   paymentMethod?: 'card' | 'bank_transfer'
+  shippingFee?: number
+  surcharge?: number
+  surchargeLabel?: string
   refundBank?: string
   refundAccountNum?: string
   refundHolder?: string
@@ -41,14 +44,34 @@ export async function createShopifyOrder(params: {
     if (shipping.refundHolder)     noteAttributes.push({ name: 'refund_holder',  value: shipping.refundHolder })
   }
 
+  // 배송비를 line_items가 아닌 shipping_lines로 분리.
+  // → 주문총액 = 결제액 일치, 반품 시 환불 계산(배송비 별도 처리)이 정확해짐.
+  const shippingLines: { title: string; price: string }[] = []
+  if (typeof shipping.shippingFee === 'number') {
+    shippingLines.push({
+      title: shipping.shippingFee === 0 ? '무료배송' : '기본 배송비',
+      price: String(shipping.shippingFee),
+    })
+  }
+  if (shipping.surcharge && shipping.surcharge > 0) {
+    shippingLines.push({
+      title: shipping.surchargeLabel || '추가 배송비',
+      price: String(shipping.surcharge),
+    })
+  }
+
   const body = {
     order: {
       line_items: lineItems.map((item) => ({
         variant_id: extractVariantId(item.variantGid),
         quantity: item.quantity,
       })),
+      ...(shippingLines.length > 0 && { shipping_lines: shippingLines }),
       financial_status: isBankTransfer ? 'pending' : 'paid',
       fulfillment_status: null,
+      // 재고 차감: REST orders.json 기본값은 'bypass'(차감 안 함)이므로 명시 필요.
+      // 'decrement_obeying_policy' = 재고 차감하되, "품절 시에도 판매 계속" 설정은 존중.
+      inventory_behaviour: 'decrement_obeying_policy',
       shipping_address: {
         first_name: shipping.name,
         phone: shipping.phone,
