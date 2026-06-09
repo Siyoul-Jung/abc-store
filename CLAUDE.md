@@ -40,8 +40,10 @@ app/
       cart/page.tsx     ← 장바구니
       checkout/
         page.tsx        ← 체크아웃 (배송지 + 토스 결제)
-        success/        ← 결제 성공 → Toss confirm → Shopify 주문 생성 → Meta CAPI
+        complete/       ← 결제 완료 표시 (순수 렌더, 새로고침 안전 — 부수효과 없음)
         fail/           ← 결제 실패
+      (결제 성공 successUrl = /api/checkout/confirm 라우트 핸들러:
+       Toss confirm → Shopify 주문 생성 → Meta CAPI → 쿠키정리 → complete로 redirect)
       account/          ← 마이페이지 (OIDC 로그인 필요)
         page.tsx        ← 계정 홈
         orders/         ← 주문내역 목록 + 상세, 주문 취소
@@ -57,6 +59,7 @@ app/
   api/
     auth/               ← OIDC 로그인 (login, callback, logout)
     toss/webhook/       ← 가상계좌 입금 웹훅
+    checkout/confirm/   ← 결제 성공 진입점: confirm·주문생성·CAPI·쿠키정리 → complete로 redirect
 ```
 
 ---
@@ -184,6 +187,7 @@ app/
   api/
     auth/               ← OIDC 로그인 (login, callback, logout)
     toss/webhook/       ← 가상계좌 입금 웹훅 → markShopifyOrderPaid()
+    checkout/confirm/   ← 결제 성공 진입점 → createShopifyOrder() → complete redirect
   [lang]/(store)/
     account/            ← 마이페이지 (주문내역, 주소관리) — 로그인 필요
     qa/                 ← Q&A 게시판 (목록, 상세, 새 질문)
@@ -216,7 +220,7 @@ app/
 - 헤더 카트 수량 배지 (coral, 99+ 처리)
 - 404 / 500 에러 페이지
 - SEO — sitemap.xml, robots.txt, Product JSON-LD (`app/[lang]/(store)/products/[id]/page.tsx`)
-- Meta Conversions API — `lib/meta-capi.ts`, Purchase 이벤트 (`checkout/success`)
+- Meta Conversions API — `lib/meta-capi.ts`, Purchase 이벤트 (`app/api/checkout/confirm`)
 - OIDC 로그인 (`app/api/auth/`) — Shopify Customer Account API, JWT id_token 디코딩
 - 마이페이지 — 주문내역 (`/account/orders`), 주문 취소, 배송지 관리 (`/account/addresses`)
 - Q&A 게시판 (`/qa`) — Supabase 기반, 목록/상세/새 질문, 관리자 답변 (`/admin/qa`)
