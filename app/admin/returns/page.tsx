@@ -70,16 +70,23 @@ export default async function AdminReturnsPage({
         )}
       </div>
 
-      {/* 필터 */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {['pending', 'approved', 'received', 'completed', 'all'].map((s) => (
-          <a key={s} href={`/admin/returns?status=${s}`}
-            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-              status === s ? 'border-ink bg-ink text-white' : 'border-border text-ink-muted hover:border-ink-muted'
-            }`}>
-            {s === 'all' ? '전체' : statusLabels[s]}
-          </a>
-        ))}
+      {/* 필터 + CSV 내보내기 */}
+      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+        <div className="flex gap-2 flex-wrap">
+          {['pending', 'approved', 'received', 'completed', 'all'].map((s) => (
+            <a key={s} href={`/admin/returns?status=${s}`}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                status === s ? 'border-ink bg-ink text-white' : 'border-border text-ink-muted hover:border-ink-muted'
+              }`}>
+              {s === 'all' ? '전체' : statusLabels[s]}
+            </a>
+          ))}
+        </div>
+        {/* 현재 필터 그대로 CSV 다운로드 (배송팀/환불 담당 전달용) */}
+        <a href={`/admin/returns/export?status=${status}`}
+          className="text-xs px-3 py-1.5 rounded-full border border-border text-ink-muted hover:border-ink hover:text-ink transition-colors whitespace-nowrap">
+          CSV 다운로드 ↓
+        </a>
       </div>
 
       {/* 목록 */}

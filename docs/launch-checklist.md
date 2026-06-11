@@ -15,6 +15,8 @@
 | [ ] | `TOSS_SECRET_KEY` 등록 | Vercel 환경변수 |
 | [x] | Shopify Admin API 토큰 확보 (`shpat_`) | 결제 성공 → 주문 생성에 필수 |
 | [ ] | `SHOPIFY_ADMIN_API_TOKEN` Vercel 등록 | |
+| [x] | 토스 웹훅 서명검증 구현 | `app/api/toss/webhook/route.ts` — fail-closed, 테스트 통과 |
+| [ ] | `TOSS_WEBHOOK_SECRET` 등록 (`.env.local` + Vercel) | 토스 지급대행 설정의 **보안 키** (API 시크릿과 별개). 미등록 시 모든 웹훅 401 거부 |
 | [ ] | Vercel 환경변수 전체 점검 | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `INSTAGRAM_ACCESS_TOKEN` 포함 |
 | [ ] | 도메인 연결 (applebuttercollege.com → Vercel) | DNS 변경 + SSL 확인 |
 
@@ -55,6 +57,7 @@
 | [ ] | Shopify 주문 확인 이메일 한국어 템플릿 | Shopify Admin > 알림 |
 | [ ] | 재고 부족 알림 임계값 설정 | Shopify Admin > 재고 |
 | [ ] | 품절 상품 처리 정책 결정 | 숨김 vs 품절 표시 유지 |
+| [x] | 반품 목록 CSV 다운로드 | `/admin/returns` → 배송팀 전달용. 현재 필터 그대로 내보내기 (UTF-8 BOM) |
 
 ---
 

@@ -74,6 +74,7 @@
 **상태머신** (`/admin/returns`): `처리대기(pending) → 수거승인(approved) → 수령완료(received) → 환불완료(completed)`
 - `수령완료` 단계에서 `getRefundPreview`로 Shopify 환불 미리보기 표시.
 - `환불완료` 처리 시 알림 메일 발송 로직 있음(아래 §8).
+- **CSV 내보내기**: `/admin/returns`의 "CSV 다운로드" 버튼 → 현재 필터(상태)에 해당하는 반품 목록을 CSV로 받음(주문번호·고객·사유·환불계좌·금액 포함, Excel 한글 호환). 배송팀/환불 담당에게 일괄 전달하거나 회수 신청 작업 시 사용.
 
 ---
 

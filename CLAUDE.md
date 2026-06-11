@@ -130,6 +130,7 @@ SHOPIFY_CLIENT_ID=                  # OIDC 로그인용, 등록 완료
 SHOPIFY_CLIENT_SECRET=              # OIDC 로그인용, 등록 완료
 NEXT_PUBLIC_TOSS_CLIENT_KEY=        # 테스트 키 등록됨 — 실 계약 후 교체
 TOSS_SECRET_KEY=                    # 테스트 키 등록됨 — 실 계약 후 교체
+TOSS_WEBHOOK_SECRET=                # 웹훅 서명검증용 보안키(지급대행 설정 발급, API 시크릿과 별개) — 미등록 시 웹훅 401 거부. 운영 전 등록 필수
 INSTAGRAM_ACCESS_TOKEN=             # 등록 완료
 INSTAGRAM_USER_ID=17841436592849949
 META_PIXEL_ID=                      # 등록 완료
@@ -187,7 +188,7 @@ lib/
 app/
   api/
     auth/               ← OIDC 로그인 (login, callback, logout)
-    toss/webhook/       ← 가상계좌 입금 웹훅 → markShopifyOrderPaid()
+    toss/webhook/       ← 가상계좌 입금 웹훅 (서명검증 후) → markShopifyOrderPaid()
     checkout/confirm/   ← 결제 성공 진입점 → createShopifyOrder() → complete redirect
   [lang]/(store)/
     account/            ← 마이페이지 (주문내역, 주소관리) — 로그인 필요
