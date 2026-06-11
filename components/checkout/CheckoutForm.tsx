@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Script from 'next/script'
 import Image from 'next/image'
 import { formatPrice } from '@/lib/utils/format'
+import AddressSearchModal from './AddressSearchModal'
 import type { Cart, Locale } from '@/lib/shopify/types'
 
 const SHIPPING_THRESHOLD = 80000
@@ -60,6 +61,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
   const [tossReady, setTossReady] = useState(false)
   const [error, setError] = useState('')
   const [isIsland, setIsIsland] = useState(false)
+  const [addressSearchOpen, setAddressSearchOpen] = useState(false)
 
   const { checkout: d } = dict
   const subtotal = Number(cart.cost.subtotalAmount.amount)
@@ -151,6 +153,18 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
         src="https://js.tosspayments.com/v2/standard"
         onLoad={() => setTossReady(true)}
       />
+      {/* 다음(카카오) 우편번호 검색 — 무료, 키 불필요 */}
+      <Script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="afterInteractive" />
+
+      {addressSearchOpen && (
+        <AddressSearchModal
+          onSelect={(zipcode, address) => {
+            setForm((prev) => ({ ...prev, zipcode, address }))
+            setAddressSearchOpen(false)
+          }}
+          onClose={() => setAddressSearchOpen(false)}
+        />
+      )}
 
       <form onSubmit={handlePay} className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-10">
         {/* Shipping form */}
@@ -187,6 +201,13 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
                 onChange={update('zipcode')}
                 inputMode="numeric"
               />
+              <button
+                type="button"
+                onClick={() => window.daum && setAddressSearchOpen(true)}
+                className="shrink-0 border border-ink text-ink text-sm px-4 py-2.5 hover:bg-ink hover:text-white transition-colors"
+              >
+                {locale === 'ja' ? '住所検索' : '주소 검색'}
+              </button>
               {isJeju && (
                 <span className="text-xs text-coral">제주 +{JEJU_SURCHARGE.toLocaleString()}원</span>
               )}
