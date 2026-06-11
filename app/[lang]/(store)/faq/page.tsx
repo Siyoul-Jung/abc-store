@@ -13,11 +13,12 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
         title: '주문 · 결제',
         items: [
           {
-            q: '무통장 입금 후 미입금 시 어떻게 되나요?',
+            q: '무통장 입금(가상계좌)은 어떻게 진행되나요?',
             a: [
-              '주문 후 1시간 이내 미입금 시 자동 취소됩니다.',
-              '입금자명과 주문자명이 동일해야 하며, 주문금액과 입금금액이 일치해야 결제가 완료됩니다.',
-              '입금 후 취소를 원하시면 이메일로 문의해 주세요.',
+              '결제 시 주문 전용 가상계좌가 발급되며, 입금 기한은 결제 완료 화면에서 안내됩니다.',
+              '주문 금액과 동일한 금액을 입금해 주세요. 입금이 확인되면 자동으로 주문이 진행됩니다.',
+              '기한 내 미입금 시 결제가 만료되어 주문이 진행되지 않습니다.',
+              '입금 후 취소를 원하시면 Q&A 게시판으로 문의해 주세요.',
             ],
           },
           {
@@ -26,15 +27,7 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
           },
           {
             q: '현금영수증 발급이 가능한가요?',
-            a: '구매 후 1주일 이내에 발급받으실 번호를 이메일로 보내주시면 처리해 드립니다.',
-          },
-          {
-            q: '적립금은 어떻게 사용하나요?',
-            a: [
-              '적립금은 10,000원 이상 적립되어야 사용 가능합니다.',
-              '배송비를 제외한 상품 합계 금액이 80,000원 이상이어야 사용 가능합니다.',
-              '구매 금액의 1%가 적립됩니다.',
-            ],
+            a: '구매 후 1주일 이내에 Q&A 게시판으로 주문번호와 발급받으실 번호를 남겨주시면 처리해 드립니다.',
           },
         ],
       },
@@ -55,7 +48,7 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
           },
           {
             q: '배송 주소 변경이 가능한가요?',
-            a: '배송 준비 전까지 이메일 또는 채팅으로 문의해 주시면 변경을 도와드립니다.',
+            a: '배송 준비 전까지 Q&A 게시판으로 문의해 주시면 변경을 도와드립니다.',
           },
         ],
       },
@@ -98,6 +91,8 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
               'M — 90cm / 약 13kg',
               'L — 100cm / 약 16kg',
               'XL — 110cm / 약 20kg',
+              '2XL — 120cm / 약 22kg',
+              '3XL — 130cm / 약 25kg',
               '상품 페이지의 사이즈 가이드도 함께 참고해 주세요.',
             ],
           },
@@ -111,7 +106,7 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
           },
           {
             q: '품절된 상품은 재입고 되나요?',
-            a: '원단 소진 시 재입고가 어려울 수 있습니다. 재입고 문의는 이메일 또는 채팅으로 남겨주세요.',
+            a: '원단 소진 시 재입고가 어려울 수 있습니다. 재입고 문의는 Q&A 게시판으로 남겨주세요.',
           },
         ],
       },
@@ -123,7 +118,7 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
             a: [
               '운영 시간: 월–금 12:00 – 16:00',
               '주말 · 공휴일 휴무',
-              '전화 상담은 운영하지 않습니다. 이메일 또는 채팅으로 문의해 주세요.',
+              '전화·이메일 상담은 운영하지 않습니다. 모든 문의는 Q&A 게시판을 이용해 주세요.',
             ],
           },
         ],
@@ -137,11 +132,12 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
         title: 'ご注文・お支払い',
         items: [
           {
-            q: '銀行振込で未入金の場合はどうなりますか？',
+            q: '銀行振込（バーチャル口座）はどのように進みますか？',
             a: [
-              'ご注文後1時間以内にご入金がない場合、自動キャンセルとなります。',
-              '振込名義はご注文者名と同一である必要があります。',
-              'ご入金後のキャンセルはメールにてお問い合わせください。',
+              'お支払い時にご注文専用の口座が発行され、入金期限は決済完了画面でご案内します。',
+              'ご注文金額と同額をお振込みください。入金確認後、自動的にご注文が進行します。',
+              '期限内にご入金がない場合、決済は失効しご注文は進行しません。',
+              'ご入金後のキャンセルはQ&A掲示板にてお問い合わせください。',
             ],
           },
           {
@@ -202,6 +198,8 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
               'M — 90cm / 約13kg',
               'L — 100cm / 約16kg',
               'XL — 110cm / 約20kg',
+              '2XL — 120cm / 約22kg',
+              '3XL — 130cm / 約25kg',
             ],
           },
           {
@@ -218,7 +216,7 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
             a: [
               '受付時間：月〜金 12:00〜16:00',
               '土日・祝日休み',
-              'お電話でのご対応はしておりません。メールまたはチャットにてお問い合わせください。',
+              'お電話・メールでのご対応はしておりません。すべてのお問い合わせはQ&A掲示板をご利用ください。',
             ],
           },
         ],
@@ -232,8 +230,12 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
         title: 'Orders & Payment',
         items: [
           {
-            q: 'What happens if I don\'t complete a bank transfer?',
-            a: 'Orders paid by bank transfer will be automatically cancelled if payment is not received within 1 hour.',
+            q: 'How does bank transfer (virtual account) work?',
+            a: [
+              'A dedicated virtual account is issued for your order, with the payment deadline shown on the confirmation screen.',
+              'Please transfer the exact order amount. Your order proceeds automatically once payment is confirmed.',
+              'If payment is not received by the deadline, the payment expires and the order will not proceed.',
+            ],
           },
           {
             q: 'Can I change my size after ordering?',
@@ -281,6 +283,8 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
               'M — 90cm / ~13kg',
               'L — 100cm / ~16kg',
               'XL — 110cm / ~20kg',
+              '2XL — 120cm / ~22kg',
+              '3XL — 130cm / ~25kg',
             ],
           },
           {
@@ -297,7 +301,7 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
             a: [
               'Mon–Fri 12:00–16:00 KST',
               'Closed on weekends and public holidays',
-              'We do not offer phone support. Please contact us via email or chat.',
+              'We do not offer phone or email support. Please use the Q&A board for all inquiries.',
             ],
           },
         ],
