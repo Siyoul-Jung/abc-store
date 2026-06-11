@@ -47,6 +47,7 @@
     "title": "주문/결제",
     "name": "받는 분 이름",
     "phone": "연락처",
+    "email": "이메일 (주문·환불 안내 수신용)",
     "zipcode": "우편번호",
     "address": "주소",
     "addressDetail": "상세 주소",

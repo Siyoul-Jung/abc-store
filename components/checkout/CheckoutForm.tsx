@@ -19,7 +19,7 @@ const KO_BANKS = [
 
 type Dict = {
   checkout: {
-    name: string; phone: string; zipcode: string; address: string
+    name: string; phone: string; email: string; zipcode: string; address: string
     addressDetail: string; memo: string; memoPlaceholder: string
     orderSummary: string; shippingFee: string; freeShipping: string
     total: string; pay: string; required: string
@@ -50,7 +50,7 @@ declare global {
 
 export default function CheckoutForm({ cart, locale, dict }: Props) {
   const [form, setForm] = useState({
-    name: '', phone: '', zipcode: '', address: '', addressDetail: '', memo: '',
+    name: '', phone: '', email: '', zipcode: '', address: '', addressDetail: '', memo: '',
   })
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer'>('card')
   const [refundBank, setRefundBank] = useState('')
@@ -80,7 +80,8 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
   async function handlePay(e: React.FormEvent) {
     e.preventDefault()
     // 우편번호 필수 + 5자리 숫자 — 제주/도서산간 추가배송비 감지와 택배 발송 모두 우편번호에 의존
-    if (!form.name || !form.phone || !form.address || !/^\d{5}$/.test(form.zipcode)) {
+    // 이메일 필수 — 주문확인·환불완료 알림의 유일한 발송 채널 (Shopify 주문에 저장됨)
+    if (!form.name || !form.phone || !form.address || !/^\d{5}$/.test(form.zipcode) || !/^\S+@\S+\.\S+$/.test(form.email)) {
       setError(d.required)
       return
     }
@@ -169,6 +170,14 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
               value={form.phone}
               onChange={update('phone')}
               inputMode="tel"
+            />
+            <input
+              className={inputCls}
+              placeholder={d.email}
+              value={form.email}
+              onChange={update('email')}
+              type="email"
+              inputMode="email"
             />
             <div className="flex gap-2 items-center">
               <input

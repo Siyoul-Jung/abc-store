@@ -47,6 +47,7 @@
     "title": "ご注文・お支払い",
     "name": "お名前",
     "phone": "電話番号",
+    "email": "メールアドレス（ご注文・返金のご案内用）",
     "zipcode": "郵便番号",
     "address": "住所",
     "addressDetail": "番地・建物名",

@@ -224,20 +224,51 @@ export async function updateReturnStatus(
   if (status === 'completed') {
     const { data: r } = await supabaseAdmin
       .from('return_requests')
-      .select('customer_name, order_number, bank_name, account_number, refund_amount')
+      .select('customer_name, order_number, refund_amount, lang')
       .eq('id', returnId)
       .single()
 
     const resendKey = process.env.RESEND_API_KEY
     if (resendKey && r) {
+      // 환불완료 알림은 고객에게 발송한다. 수신 주소는 Shopify 주문의 email
+      // (체크아웃에서 수집·저장됨). 이메일이 없는 과거 주문은 관리자 수신으로 폴백.
+      let customerEmail: string | null = null
+      try {
+        const num = String(r.order_number).replace(/^#/, '')
+        const { data } = await adminGql(
+          `query($q: String!) { orders(first: 1, query: $q) { edges { node { email } } } }`,
+          { q: `name:#${num}` },
+        )
+        customerEmail = data?.orders?.edges?.[0]?.node?.email ?? null
+      } catch {
+        // 조회 실패 시 관리자 폴백으로 진행
+      }
+
+      const isJa = r.lang === 'ja'
+      const mail = customerEmail
+        ? {
+            to: customerEmail,
+            bcc: process.env.ADMIN_EMAIL, // 관리자도 발송 기록 보관
+            subject: isJa
+              ? `【applebuttercollege】返品・返金完了のお知らせ（${r.order_number}）`
+              : `[applebuttercollege] 반품 환불 완료 안내 (${r.order_number})`,
+            html: isJa
+              ? `<p>${r.customer_name} 様</p><p>ご注文 ${r.order_number} の返品・返金処理が完了いたしました。</p><p>返金の反映には決済手段により数日かかる場合がございます。</p><p>ご利用ありがとうございました。<br/>applebuttercollege</p>`
+              : `<p>${r.customer_name}님, 안녕하세요.</p><p>주문 ${r.order_number}의 반품 환불 처리가 완료되었습니다.</p><p>결제수단에 따라 환불 반영까지 며칠 소요될 수 있습니다.</p><p>이용해 주셔서 감사합니다.<br/>applebuttercollege</p>`,
+          }
+        : {
+            // 폴백: 고객 이메일이 없는 주문 → 관리자에게 알려 별도 안내(Q&A 답변 등) 유도
+            to: process.env.ADMIN_EMAIL!,
+            subject: `[반품 처리 완료 — 고객 이메일 없음] ${r.order_number}`,
+            html: `<p>${r.customer_name}님의 ${r.order_number} 반품 환불이 완료 처리되었습니다.</p><p>⚠️ 주문에 고객 이메일이 없어 고객 알림이 발송되지 않았습니다. Q&A 답변 등으로 별도 안내가 필요합니다.</p>`,
+          }
+
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from: 'applebuttercollege Support <support@applebuttercollege.com>',
-          to: process.env.ADMIN_EMAIL!,
-          subject: `[반품 처리 완료] ${r.order_number}`,
-          html: `<p>${r.customer_name}님의 ${r.order_number} 반품 환불이 완료 처리되었습니다.</p>`,
+          ...mail,
         }),
       })
     }

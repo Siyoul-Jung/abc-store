@@ -47,6 +47,7 @@
     "title": "Order / Payment",
     "name": "Full Name",
     "phone": "Phone Number",
+    "email": "Email (for order & refund updates)",
     "zipcode": "ZIP Code",
     "address": "Address",
     "addressDetail": "Apartment, suite, etc.",
