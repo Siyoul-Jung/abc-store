@@ -20,9 +20,19 @@
 | [ ] | Vercel 환경변수 전체 점검 | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `INSTAGRAM_ACCESS_TOKEN` 포함 |
 | [ ] | 도메인 연결 (applebuttercollege.com → Vercel) | DNS 변경 + SSL 확인 |
 
+### 법적 표시 (아동복 이커머스 의무사항)
+| 상태 | 항목 | 비고 |
+|---|---|---|
+| [ ] | **KC 인증 표시** (어린이제품 안전특별법) | 만 13세 이하 제품은 KC 마크·인증번호를 판매 페이지에 표시 의무. 인증번호 데이터 확보(팀) → 상품 상세 표시(개발). `docs/team-decisions.md` §3 |
+| [ ] | 현금영수증 발급 체계 | 토스 가상계좌 자동발급(cashReceipt) 계약 범위 확인. 임시: Q&A 접수 → 토스 대시보드 수동 발급 (FAQ에 안내됨) |
+| [ ] | 에스크로(구매안전서비스) 표시 | 가상계좌 수취 시 의무. 토스 계약에 포함 여부 확인 → 푸터/체크아웃 표시 |
+| [x] | FAQ 콘텐츠 전수 검수 | 기존 자사몰 기준 거짓 정보(적립금·1시간취소·이메일채널) 교정 완료 |
+| [x] | 통신판매업신고번호 표시 | 푸터 사업자 정보 (2022-다산-1147) |
+
 ### 코드
 | 상태 | 항목 | 파일 |
 |---|---|---|
+| [x] | 다음 우편번호 검색 연동 | `components/checkout/AddressSearchModal.tsx` — 모바일 주소 입력 마찰 제거 |
 | [x] | 404 에러 페이지 | `app/[lang]/not-found.tsx` |
 | [x] | 500 에러 페이지 | `app/[lang]/error.tsx` (Client Component) |
 | [x] | ABOUT 페이지 | `app/[lang]/(store)/about/page.tsx` |
@@ -109,7 +119,7 @@
 | [x] | Meta CAPI 연동 | Purchase 이벤트 완료 (`checkout/success`) |
 | [ ] | Stripe 연동 (일본 결제) | Phase 4 |
 | [ ] | 일본어 특정상거래법 페이지 | Phase 4 |
-| [ ] | MakeShop → Shopify 상품 bulk 이전 | Phase 2 |
+| [ ] | MakeShop → Shopify 상품 bulk 이전 | Phase 2. ⚠️ 이전 시 **상품정보제공고시 필수 항목**(소재·치수·제조국·세탁법·품질보증기준·AS책임자) + **KC 인증번호**를 상품 데이터에 포함할 것 (전자상거래법·어린이제품법) |
 | [ ] | MakeShop → Shopify 회원 이전 | 구매이력 보유 회원 우선 (~15,600명) |
 | [ ] | Meta 픽셀 도메인 변경 | 전환 직후 |
 | [ ] | 기존 URL 301 리다이렉트 | 메이크샵 URL → Shopify URL |
