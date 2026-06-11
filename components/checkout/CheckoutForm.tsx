@@ -79,7 +79,8 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
 
   async function handlePay(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.name || !form.phone || !form.address) {
+    // 우편번호 필수 + 5자리 숫자 — 제주/도서산간 추가배송비 감지와 택배 발송 모두 우편번호에 의존
+    if (!form.name || !form.phone || !form.address || !/^\d{5}$/.test(form.zipcode)) {
       setError(d.required)
       return
     }

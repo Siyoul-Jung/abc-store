@@ -99,7 +99,7 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 ## 비즈니스 룰
 
 - **배송비**: 3,500원 / 80,000원 이상 무료 (`CheckoutForm.tsx`의 상수로 관리)
-- **제주 추가**: +3,000원 / 도서산간 +4,000원 (PolicyModal 안내 전용, 결제 로직 미반영)
+- **제주 추가**: +3,000원 (우편번호 63xxx 자동 감지) / 도서산간 +4,000원 (체크박스) — 결제금액·Shopify shipping_lines 모두 반영
 - **가격 표시**: 숫자 + 접미사 방식 — 한국: `원`, 일본: `엔` (`lib/utils/format.ts`)
 - **PolicyModal**: 배송·교환·결제 안내 통합 모달. 상품 상세 VariantSelector 내 "안내 →" 버튼으로 트리거. 한국 locale에서만 렌더링.
 - **PolicyAccordion**: 파일은 존재하나 상품 상세 페이지에서 더 이상 사용하지 않음 (PolicyModal로 대체)
