@@ -104,6 +104,7 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 - **PolicyModal**: 배송·교환·결제 안내 통합 모달. 상품 상세 VariantSelector 내 "안내 →" 버튼으로 트리거. 한국 locale에서만 렌더링.
 - **PolicyAccordion**: 파일은 존재하나 상품 상세 페이지에서 더 이상 사용하지 않음 (PolicyModal로 대체)
 - **사이즈 가이드**: `SizeGuide.tsx`에 하드코딩 (XS~3XL, 7개 사이즈). 모바일 overflow-x-auto 적용.
+- **환불 운영**: 결제수단 × 요청유형별 환불 처리 절차·체크리스트는 `docs/refund-operations.md` 참조.
 
 ---
 
