@@ -6,6 +6,7 @@
 한국(ko) + 일본(ja) 이중 언어 지원. 실제 도메인: **applebuttercollege.com**
 
 > 런칭 전 체크리스트: `docs/launch-checklist.md`  
+> 런칭 통합 점검 시나리오(실 키 전환 날 대본): `docs/launch-verification.md`  
 > 팀 논의·운영 결정사항: `docs/team-decisions.md`
 
 ---
