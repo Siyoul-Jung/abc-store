@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# marketing — 생성된 카드뉴스 산출물(코드로 재생성 가능). 엔진 코드만 버전관리.
+marketing/output/
