@@ -6,6 +6,7 @@ import { getProductById, getProductMetafields, numericIdToGid, getProducts } fro
 import { stripHtml, stripTitlePrefix, gidToNumericId } from '@/lib/utils/format'
 import ProductImageGallery from '@/components/product/ProductImageGallery'
 import VariantSelector from '@/components/product/VariantSelector'
+import ProductDisclosure from '@/components/product/ProductDisclosure'
 import ProductGrid from '@/components/home/ProductGrid'
 import type { Locale, Product } from '@/lib/shopify/types'
 
@@ -105,6 +106,9 @@ export default async function ProductPage({ params }: Props) {
             initialPrice={firstVariant.price}
             initialCompareAtPrice={firstVariant.compareAtPrice}
           />
+
+          {/* 상품정보제공고시 + KC 표시 — 한국 판매분 법적 고지 (ko 전용) */}
+          {lang === 'ko' && <ProductDisclosure />}
         </div>
 
       </div>
