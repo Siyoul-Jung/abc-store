@@ -5,9 +5,10 @@ export type RefundStatus = 'pending' | 'processing' | 'completed'
 export type Question = {
   id: string
   lang: string
-  customer_id: string
+  customer_id: string | null   // 로그인 고객만. 비회원은 null
   customer_name: string
   customer_email: string
+  password_hash: string | null // 비회원 글 비밀번호(scrypt). 로그인 고객은 null
   category: QuestionCategory
   title: string
   content: string

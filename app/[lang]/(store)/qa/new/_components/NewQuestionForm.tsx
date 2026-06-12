@@ -11,6 +11,8 @@ const t: Record<Locale, {
   orderNumberHint: string; orderNumberHintRequired: string
   orderSelectHint: string
   submit: string
+  guestName: string; guestEmail: string; guestPassword: string
+  guestPasswordHint: string; guestNote: string
   categories: Record<string, string>
   returnIntercept: { heading: string; body: string; cta: string }
 }> = {
@@ -21,6 +23,9 @@ const t: Record<Locale, {
     orderNumberHintRequired: '주문번호를 입력해야 처리가 가능합니다',
     orderSelectHint: '주문번호를 선택해주세요',
     submit: '문의 등록',
+    guestName: '이름', guestEmail: '이메일', guestPassword: '글 비밀번호',
+    guestPasswordHint: '답변 확인 시 필요합니다 (4자 이상)',
+    guestNote: '답변은 이메일로 알려드리며, 위 비밀번호로 확인하실 수 있습니다.',
     categories: { shipping: '배송', return: '교환/반품', defective: '불량/오배송', refund: '환불', product: '상품', other: '기타' },
     returnIntercept: {
       heading: '반품 신청은 전용 폼을 이용해주세요',
@@ -35,6 +40,9 @@ const t: Record<Locale, {
     orderNumberHintRequired: '注文番号がないとご対応できない場合があります',
     orderSelectHint: '注文番号を選択してください',
     submit: '送信する',
+    guestName: 'お名前', guestEmail: 'メールアドレス', guestPassword: '閲覧パスワード',
+    guestPasswordHint: '回答確認時に必要です（4文字以上）',
+    guestNote: '回答はメールでお知らせし、上記パスワードでご確認いただけます。',
     categories: { shipping: '配送', return: '交換・返品', defective: '不良品・誤送', refund: '返金', product: '商品', other: 'その他' },
     returnIntercept: {
       heading: '交換・返品は専用フォームよりお申し込みください',
@@ -49,6 +57,9 @@ const t: Record<Locale, {
     orderNumberHintRequired: 'Required so we can look up your order',
     orderSelectHint: 'Select your order',
     submit: 'Submit',
+    guestName: 'Name', guestEmail: 'Email', guestPassword: 'Post password',
+    guestPasswordHint: 'Needed to view the reply (min 4 chars)',
+    guestNote: 'We will notify you by email; view the reply using the password above.',
     categories: { shipping: 'Shipping', return: 'Exchange/Return', defective: 'Defective/Wrong item', refund: 'Refund', product: 'Product', other: 'Other' },
     returnIntercept: {
       heading: 'Please use the dedicated returns form',
@@ -64,7 +75,7 @@ function formatOrderLabel(order: CustomerOrder): string {
   return `${order.name} · ${date} · ${items}`
 }
 
-export default function NewQuestionForm({ lang, orders }: { lang: Locale; orders: CustomerOrder[] }) {
+export default function NewQuestionForm({ lang, orders, isGuest }: { lang: Locale; orders: CustomerOrder[]; isGuest: boolean }) {
   const labels = t[lang]
   const [category, setCategory] = useState('shipping')
   const [selectedOrderName, setSelectedOrderName] = useState('')
@@ -117,6 +128,34 @@ export default function NewQuestionForm({ lang, orders }: { lang: Locale; orders
       {/* 나머지 폼 필드 — 교환/반품 선택 시 숨김 */}
       {!isReturn && (
         <>
+          {/* 비회원: 이름·이메일·글비밀번호 */}
+          {isGuest && (
+            <div className="flex flex-col gap-4 border border-border rounded-xl p-4 bg-surface">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input
+                  type="text" name="customer_name" required maxLength={40}
+                  className="w-full border border-border rounded-lg px-4 py-3 text-sm bg-white focus:outline-none focus:border-ink transition-colors"
+                  placeholder={labels.guestName}
+                />
+                <input
+                  type="email" name="customer_email" required inputMode="email"
+                  className="w-full border border-border rounded-lg px-4 py-3 text-sm bg-white focus:outline-none focus:border-ink transition-colors"
+                  placeholder={labels.guestEmail}
+                />
+              </div>
+              <div>
+                <input
+                  type="password" name="password" required minLength={4} maxLength={50}
+                  className="w-full border border-border rounded-lg px-4 py-3 text-sm bg-white focus:outline-none focus:border-ink transition-colors"
+                  placeholder={labels.guestPassword}
+                  autoComplete="new-password"
+                />
+                <p className="text-[11px] text-ink-muted mt-1.5">{labels.guestPasswordHint}</p>
+              </div>
+              <p className="text-[11px] text-ink-muted leading-relaxed">{labels.guestNote}</p>
+            </div>
+          )}
+
           <div>
             <label className="text-[11px] font-semibold tracking-[0.15em] uppercase text-ink-muted block mb-2">
               {labels.titleLabel}

@@ -1,5 +1,4 @@
 import { notFound, redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
 import { hasLocale, getDictionary } from '../../dictionaries'
 import { getCart } from '@/lib/actions/cart'
 import CheckoutForm from '@/components/checkout/CheckoutForm'
@@ -7,13 +6,12 @@ import type { Locale } from '@/lib/shopify/types'
 
 type Props = { params: Promise<{ lang: string }> }
 
+// 비회원 결제 허용 — 로그인 강제 시 모바일 충동구매(인스타 유입) 이탈이 커서.
+// 주문은 cart + 배송지 쿠키로 생성되며 로그인 토큰에 의존하지 않는다.
+// 로그인 고객의 주문은 체크아웃 이메일이 계정 이메일과 같으면 마이페이지에 연결됨.
 export default async function CheckoutPage({ params }: Props) {
   const { lang } = await params
   if (!hasLocale(lang)) notFound()
-
-  const cookieStore = await cookies()
-  const token = cookieStore.get('customer_token')?.value
-  if (!token) redirect(`/api/auth/login?redirect=/${lang}/checkout`)
 
   const [cart, dict] = await Promise.all([
     getCart(lang as Locale),
