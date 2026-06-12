@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { hasLocale } from '../../dictionaries'
@@ -67,9 +67,9 @@ export default async function QaPage({
   const locale = lang as Locale
   const labels = t[locale]
 
+  // 비회원도 접근 가능 — 로그인 고객은 "내 문의" 목록을 함께 본다.
   const cookieStore = await cookies()
   const token = cookieStore.get('customer_token')?.value
-  if (!token) redirect(`/api/auth/login?redirect=/${lang}/qa`)
 
   let customerId: string | null = null
   if (token) {
