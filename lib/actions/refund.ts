@@ -7,7 +7,16 @@ const SHOPIFY_STORE = process.env.SHOPIFY_STORE_DOMAIN!
 const SHOPIFY_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN!
 const API_VERSION   = process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'
 
-// 불량/오배송: 전액, 단순반품: 출고비 3500 + 회수비 3500 = 7000 차감
+// 불량/오배송: 전액 환불. 단순반품: 항상 7,000원 차감 (출고비 3,500 + 회수비 3,500).
+//
+// ⚠️ "무료배송이면 회수비만 차감" 같은 분기를 넣지 말 것 — 항상 -7,000이 양쪽 다 정답이다.
+//   · 유료배송(8만 미만): 고객이 낸 출고비 3,500을 안 돌려줌 + 회수비 3,500 → 7,000
+//   · 무료배송(8만 이상): 출고비 3,500을 새로 청구 + 회수비 3,500 → 7,000
+//   부담 방식만 다를 뿐 금액은 동일하므로, 무료배송 분기 자체가 불필요하다.
+//
+// ⚠️ 혹시라도 분기가 필요해지면 무료배송 판단은 반드시 '상품합계(subtotal)' 기준으로 할 것.
+//   여기 totalPaid는 배송비가 포함된 총결제대금이라, 79,000 상품이 82,500으로 잡혀
+//   "8만 이상=무료배송"으로 오판한다.
 const DEFECTIVE_REASONS = ['DEFECTIVE', 'WRONG_ITEM']
 const SIMPLE_RETURN_DEDUCTION = 7000
 
