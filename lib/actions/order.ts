@@ -8,6 +8,23 @@ function extractVariantId(gid: string): number {
   return Number(gid.split('/').pop())
 }
 
+// 같은 토스 주문ID로 이미 생성된 주문이 있는지 조회 (이중 호출 방어 — 멱등성).
+// 주문은 `toss-{orderId}` 태그로 식별된다 (createShopifyOrder가 부여).
+async function findOrderByTossId(tossOrderId: string): Promise<{ id: string; name: string } | null> {
+  try {
+    const res = await fetch(
+      `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?tag=toss-${tossOrderId}&status=any&fields=id,name`,
+      { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' },
+    )
+    if (!res.ok) return null
+    const data = await res.json()
+    const o = data.orders?.[0]
+    return o ? { id: String(o.id), name: o.name as string } : null
+  } catch {
+    return null
+  }
+}
+
 export type ShippingData = {
   name: string
   phone: string
@@ -34,6 +51,13 @@ export async function createShopifyOrder(params: {
 }): Promise<{ ok: boolean; shopifyOrderId?: string; shopifyOrderName?: string }> {
   const { orderId, amount, paymentKey, shipping, lineItems } = params
   const isBankTransfer = shipping.paymentMethod === 'bank_transfer'
+
+  // 이중 호출 방어: 같은 토스 주문ID의 주문이 이미 있으면 재생성하지 않고 그대로 반환.
+  // (confirm 라우트가 어쩌다 두 번 실행돼도 중복 주문이 생기지 않게.)
+  const existing = await findOrderByTossId(orderId)
+  if (existing) {
+    return { ok: true, shopifyOrderId: existing.id, shopifyOrderName: existing.name }
+  }
 
   const noteAttributes: { name: string; value: string }[] = [
     { name: 'toss_order_id',   value: orderId },

@@ -10,6 +10,8 @@ import type { Locale } from '@/lib/shopify/types'
 
 type ConfirmationPayload = {
   orderName: string
+  orderFailed?: boolean
+  orderRef?: string
   isVbank: boolean
   amount: number
   vbank: { bankName: string; accountNumber: string; dueDate: string } | null
@@ -26,6 +28,7 @@ const t: Record<Locale, {
   depositGuide: string; depositBank: string; depositAccount: string; depositAmount: string; depositDue: string
   depositNote: string
   continueShopping: string
+  failTitle: string; failGuide: string; failRef: string; contactCs: string
 }> = {
   ko: {
     titleCard: '주문이 완료되었습니다',
@@ -41,6 +44,10 @@ const t: Record<Locale, {
     depositDue: '입금 기한',
     depositNote: '입금자명은 주문자명과 동일하게 입력해 주세요.',
     continueShopping: '쇼핑 계속하기',
+    failTitle: '결제는 완료되었으나 주문 처리가 지연되고 있습니다',
+    failGuide: '결제는 정상적으로 완료되었습니다. 다만 주문 생성에 일시적인 문제가 발생했습니다. 중복 결제되지 않으니 다시 결제하지 마시고, 아래 결제 참조번호와 함께 문의해 주시면 즉시 처리해 드리겠습니다.',
+    failRef: '결제 참조번호',
+    contactCs: '문의하기',
   },
   ja: {
     titleCard: 'ご注文が完了しました',
@@ -56,6 +63,10 @@ const t: Record<Locale, {
     depositDue: '振込期限',
     depositNote: '振込名義はご注文者名と同じにしてください。',
     continueShopping: 'ショッピングを続ける',
+    failTitle: 'お支払いは完了しましたが、注文処理が遅延しています',
+    failGuide: 'お支払いは正常に完了しました。ただし注文の作成に一時的な問題が発生しました。二重決済はされませんので再度お支払いせず、下記の決済参照番号を添えてお問い合わせください。すぐに対応いたします。',
+    failRef: '決済参照番号',
+    contactCs: 'お問い合わせ',
   },
   en: {
     titleCard: 'Order Confirmed',
@@ -71,6 +82,10 @@ const t: Record<Locale, {
     depositDue: 'Due Date',
     depositNote: 'Please use your name as the transfer reference.',
     continueShopping: 'Continue Shopping',
+    failTitle: 'Payment received, but order processing is delayed',
+    failGuide: 'Your payment was completed successfully, but we had a temporary issue creating your order. You have not been charged twice — please do not pay again. Contact us with the reference number below and we will resolve it right away.',
+    failRef: 'Payment Reference',
+    contactCs: 'Contact Us',
   },
 }
 
@@ -92,7 +107,30 @@ export default async function CheckoutCompletePage({ params }: Props) {
   }
 
   const d = t[locale]
-  const { isVbank, vbank, shipping, items, amount, orderName } = order!
+  const { isVbank, vbank, shipping, items, amount, orderName, orderFailed, orderRef } = order!
+
+  // 결제는 됐으나 주문 생성이 실패한 경우 — 깨끗한 성공 화면 대신 지연 안내를 표시한다.
+  // (관리자에겐 이미 알림 메일이 발송되어 수동 처리로 이어진다.)
+  if (orderFailed) {
+    return (
+      <section className="max-w-lg mx-auto px-4 py-16 sm:py-24 flex flex-col items-center gap-6">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl bg-surface">⚠️</div>
+        <div className="flex flex-col gap-3 text-center">
+          <h1 className="text-base font-semibold break-keep">{d.failTitle}</h1>
+          <p className="text-sm text-ink-muted break-keep leading-relaxed">{d.failGuide}</p>
+          {orderRef && (
+            <p className="text-sm">{d.failRef}: <span className="font-medium break-all">{orderRef}</span></p>
+          )}
+        </div>
+        <Link
+          href={`/${lang}/qa/new`}
+          className="text-sm border border-ink px-5 py-2.5 hover:bg-ink hover:text-white transition-colors"
+        >
+          {d.contactCs}
+        </Link>
+      </section>
+    )
+  }
 
   return (
     <section className="max-w-lg mx-auto px-4 py-16 sm:py-24 flex flex-col items-center gap-6">

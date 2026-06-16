@@ -16,6 +16,40 @@ type TossVirtualAccount = {
   dueDate: string
 }
 
+// 결제는 성공했는데 Shopify 주문이 생성되지 않은 경우(카트 누락·생성 실패) 관리자에게 즉시 알림.
+// 돈은 빠져나갔으나 주문 기록이 없는 "무음 실패"를 운영자가 곧바로 인지·수동처리하도록.
+async function alertAdminOrderCreationFailed(info: {
+  orderId: string; paymentKey: string; amount: number; method: string
+  email?: string; phone?: string; name?: string
+}) {
+  const resendKey = process.env.RESEND_API_KEY
+  const adminEmail = process.env.ADMIN_EMAIL
+  if (!resendKey || !adminEmail) return
+  const rows = [
+    ['토스 주문ID', info.orderId],
+    ['paymentKey', info.paymentKey],
+    ['결제수단', info.method || '-'],
+    ['결제금액', `${info.amount.toLocaleString()}원`],
+    ['고객명', info.name ?? '-'],
+    ['이메일', info.email ?? '-'],
+    ['전화', info.phone ?? '-'],
+  ]
+    .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#9A8F88">${k}</td><td style="padding:4px 0"><b>${v}</b></td></tr>`)
+    .join('')
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: 'applebuttercollege Support <support@applebuttercollege.com>',
+      to: adminEmail,
+      subject: `[⚠️ 결제완료·주문생성 실패] toss-${info.orderId}`,
+      html: `<p><b>결제는 완료되었으나 Shopify 주문이 생성되지 않았습니다.</b> 수동 처리가 필요합니다.</p>`
+        + `<table style="font-size:14px;border-collapse:collapse">${rows}</table>`
+        + `<p style="margin-top:16px">조치: ① Shopify Admin에서 주문 수동 생성, 또는 ② 토스 대시보드에서 결제 취소(환불). 고객 화면에는 "주문 처리 지연" 안내가 표시되었습니다.</p>`,
+    }),
+  })
+}
+
 async function confirmTossPayment(
   paymentKey: string,
   orderId: string,
@@ -72,6 +106,7 @@ export async function GET(request: NextRequest) {
   const shippingRaw = request.cookies.get('checkout_shipping')?.value
 
   let orderName: string | undefined
+  let orderOk = false
   let shipping: ReturnType<typeof JSON.parse> | undefined
   let items: { title: string; variantTitle: string; quantity: number; lineTotal: number }[] = []
 
@@ -83,7 +118,10 @@ export async function GET(request: NextRequest) {
         quantity: line.quantity,
       }))
       const result = await createShopifyOrder({ orderId, amount, paymentKey, shipping, lineItems })
-      if (result.ok) orderName = result.shopifyOrderName
+      if (result.ok) {
+        orderName = result.shopifyOrderName
+        orderOk = true
+      }
 
       items = cart.lines.nodes.map((line) => ({
         title: line.merchandise.product.title,
@@ -96,8 +134,23 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Meta CAPI Purchase (가상계좌는 입금 후 웹훅에서 별도 전송)
-  if (!confirmed.virtualAccount && cart && shipping) {
+  // 결제는 성공(confirmed.ok)했는데 주문이 생성되지 않은 경우 — 무음 실패 방지.
+  // 고객에겐 지연 안내를 띄우고(payload.orderFailed), 관리자에겐 즉시 알린다.
+  if (!orderOk) {
+    console.error('[checkout/confirm] paid but order NOT created', { orderId, paymentKey, amount })
+    alertAdminOrderCreationFailed({
+      orderId,
+      paymentKey,
+      amount,
+      method: confirmed.method,
+      email: shipping?.email,
+      phone: shipping?.phone,
+      name: shipping?.name,
+    }).catch(() => {})
+  }
+
+  // Meta CAPI Purchase (가상계좌는 입금 후 웹훅에서 별도 전송, 주문 생성 실패 시 미전송)
+  if (!confirmed.virtualAccount && orderOk && cart && shipping) {
     const contents = cart.lines.nodes.map((line) => ({
       id: line.merchandise.product.id.split('/').pop() ?? '',
       quantity: line.quantity,
@@ -128,6 +181,8 @@ export async function GET(request: NextRequest) {
   // 표시 페이지가 읽을 확정 정보 — 부수효과 없는 순수 렌더용. httpOnly + 10분 만료.
   const payload = {
     orderName: orderName ?? '',
+    orderFailed: !orderOk,
+    orderRef: orderId,
     isVbank,
     amount,
     vbank: confirmed.virtualAccount ?? null,
