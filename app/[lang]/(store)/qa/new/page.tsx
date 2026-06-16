@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { hasLocale } from '../../../dictionaries'
 import { caQuery } from '@/lib/shopify/customer-account'
@@ -52,11 +52,9 @@ export default async function NewQuestionPage({
   if (!hasLocale(lang)) notFound()
   const locale = lang as Locale
 
+  // 비회원 글쓰기 허용 — 로그인 강제 없음. 로그인 고객은 계정 신원·주문목록을 함께 사용.
   const cookieStore = await cookies()
   const token = cookieStore.get('customer_token')?.value
-  const isDev = process.env.NODE_ENV === 'development'
-
-  if (!isDev && !token) redirect(`/api/auth/login?redirect=/${lang}/qa/new`)
 
   const ordersData = token ? await caQuery<OrdersData>(token, ORDERS_QUERY) : null
   const orders = ordersData?.customer?.orders?.nodes ?? []
@@ -69,7 +67,7 @@ export default async function NewQuestionPage({
         <a href={`/${lang}/qa`} className="text-sm text-ink-muted hover:text-ink transition-colors">{labels.back}</a>
       </div>
       <h1 className="font-display text-2xl font-semibold tracking-tight mb-8 break-keep">{labels.title}</h1>
-      <NewQuestionForm lang={locale} orders={orders} />
+      <NewQuestionForm lang={locale} orders={orders} isGuest={!token} />
     </div>
   )
 }

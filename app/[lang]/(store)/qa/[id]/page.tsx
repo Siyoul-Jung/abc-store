@@ -4,6 +4,8 @@ import { hasLocale } from '../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
 import { caQuery } from '@/lib/shopify/customer-account'
 import { getQuestion } from '@/lib/actions/qa'
+import { verifyAccessToken } from '@/lib/utils/qa-auth'
+import GuestAccessGate from './_components/GuestAccessGate'
 
 const t: Record<Locale, {
   back: string; pending: string; answered: string
@@ -35,10 +37,13 @@ const t: Record<Locale, {
 
 export default async function QuestionDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ lang: string; id: string }>
+  searchParams: Promise<{ token?: string }>
 }) {
   const { lang, id } = await params
+  const { token: emailToken } = await searchParams
   if (!hasLocale(lang)) notFound()
   const locale = lang as Locale
   const labels = t[locale]
@@ -46,11 +51,35 @@ export default async function QuestionDetailPage({
   const question = await getQuestion(id)
   if (!question) notFound()
 
+  // 접근 권한 — 3가지 경우
   const cookieStore = await cookies()
   const token = cookieStore.get('customer_token')?.value
-  if (!token) redirect(`/api/auth/login?redirect=/${lang}/qa/${id}`)
-  const data = await caQuery<{ customer: { id: string } }>(token, `{ customer { id } }`)
-  if (data?.customer?.id !== question.customer_id) notFound()
+  let canView = false
+
+  if (!question.is_private) {
+    canView = true // 공개 답변글은 누구나 열람
+  } else if (question.customer_id) {
+    // 로그인 고객 글 — 본인 로그인 필요
+    if (!token) redirect(`/api/auth/login?redirect=/${lang}/qa/${id}`)
+    const data = await caQuery<{ customer: { id: string } }>(token, `{ customer { id } }`)
+    canView = data?.customer?.id === question.customer_id
+    if (!canView) notFound()
+  } else if (question.password_hash) {
+    // 비회원 글 — 이메일 열람토큰(?token=) 또는 unlock 쿠키
+    const unlockCookie = cookieStore.get(`qa_unlock_${id}`)?.value
+    canView = verifyAccessToken(id, emailToken) || verifyAccessToken(id, unlockCookie)
+    if (!canView) {
+      // 비밀번호 게이트 표시
+      return (
+        <div className="max-w-2xl mx-auto px-4 py-12 sm:py-16">
+          <a href={`/${lang}/qa`} className="text-sm text-ink-muted hover:text-ink transition-colors">{labels.back}</a>
+          <GuestAccessGate questionId={id} lang={locale} title={question.title} />
+        </div>
+      )
+    }
+  } else {
+    notFound()
+  }
 
   const answer = question.answers?.[0]
   const dateStr = new Date(question.created_at).toLocaleDateString(
