@@ -62,6 +62,9 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
   const [error, setError] = useState('')
   const [isIsland, setIsIsland] = useState(false)
   const [addressSearchOpen, setAddressSearchOpen] = useState(false)
+  // 다음 우편번호 스크립트 로드 상태 — 실패 시 주소 직접 입력으로 폴백 (결제 차단 방지)
+  const [daumReady, setDaumReady] = useState(false)
+  const [daumFailed, setDaumFailed] = useState(false)
 
   const { checkout: d } = dict
   const subtotal = Number(cart.cost.subtotalAmount.amount)
@@ -154,7 +157,12 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
         onLoad={() => setTossReady(true)}
       />
       {/* 다음(카카오) 우편번호 검색 — 무료, 키 불필요 */}
-      <Script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="afterInteractive" />
+      <Script
+        src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+        strategy="afterInteractive"
+        onReady={() => setDaumReady(true)}
+        onError={() => setDaumFailed(true)}
+      />
 
       {addressSearchOpen && (
         <AddressSearchModal
@@ -195,16 +203,18 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
             />
             <div className="flex gap-2 items-center">
               <input
-                className={`${inputCls} w-32`}
+                className={daumFailed ? `${inputCls} w-32` : `${inputCls} w-32 cursor-pointer bg-surface`}
                 placeholder={d.zipcode}
                 value={form.zipcode}
-                onChange={update('zipcode')}
-                inputMode="numeric"
+                {...(daumFailed
+                  ? { onChange: update('zipcode'), inputMode: 'numeric' as const }
+                  : { readOnly: true, onClick: () => daumReady && setAddressSearchOpen(true) })}
               />
               <button
                 type="button"
-                onClick={() => window.daum && setAddressSearchOpen(true)}
-                className="shrink-0 border border-ink text-ink text-sm px-4 py-2.5 hover:bg-ink hover:text-white transition-colors"
+                onClick={() => daumReady && setAddressSearchOpen(true)}
+                disabled={daumFailed}
+                className="shrink-0 border border-ink text-ink text-sm px-4 py-2.5 hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink"
               >
                 {locale === 'ja' ? '住所検索' : '주소 검색'}
               </button>
@@ -223,12 +233,23 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
                 <span className="text-sm text-ink-muted">도서·산간 지역 (+{ISLAND_SURCHARGE.toLocaleString()}원)</span>
               </label>
             )}
+            {daumFailed && (
+              <p className="text-xs text-coral break-keep">
+                {locale === 'ja'
+                  ? '住所検索を読み込めませんでした。郵便番号と住所を直接入力してください。'
+                  : '주소 검색을 불러오지 못했습니다. 우편번호와 주소를 직접 입력해 주세요.'}
+              </p>
+            )}
+            {/* 도로명주소 — 정상 시 주소 검색으로만 채워짐. 스크립트 실패 시 직접 입력 폴백 */}
             <input
-              className={inputCls}
+              className={daumFailed ? inputCls : `${inputCls} cursor-pointer bg-surface`}
               placeholder={d.address}
               value={form.address}
-              onChange={update('address')}
+              {...(daumFailed
+                ? { onChange: update('address') }
+                : { readOnly: true, onClick: () => daumReady && setAddressSearchOpen(true) })}
             />
+            {/* 상세주소 — 동·호수 등 직접 입력 */}
             <input
               className={inputCls}
               placeholder={d.addressDetail}
