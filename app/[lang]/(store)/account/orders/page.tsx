@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { hasLocale } from '../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
 import { caQuery, gidToId } from '@/lib/shopify/customer-account'
-import CancelOrderButton from './_components/CancelOrderButton'
+import CancelOrderModal from '@/components/account/CancelOrderModal'
 
 const SHOPIFY_STORE   = process.env.SHOPIFY_STORE_DOMAIN!
 const SHOPIFY_TOKEN   = process.env.SHOPIFY_ADMIN_API_TOKEN!
@@ -145,15 +145,11 @@ export default async function OrdersPage({
                 <p className="text-sm font-medium">{formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode)}</p>
                 <div className="flex items-center gap-2">
                   {order.displayFulfillmentStatus === 'UNFULFILLED' && (
-                    <CancelOrderButton
+                    <CancelOrderModal
                       orderId={order.id}
-                      labels={{
-                        cancel: labels.cancel,
-                        confirm: labels.cancelConfirm,
-                        no: labels.cancelNo,
-                        cancelled: labels.cancelled,
-                        error: labels.cancelError,
-                      }}
+                      locale={locale}
+                      triggerLabel={labels.cancel}
+                      triggerClassName="text-[11px] text-ink-muted hover:text-coral border border-border rounded-full px-3 py-1 transition-colors"
                     />
                   )}
                   {order.displayFulfillmentStatus === 'FULFILLED' && (
