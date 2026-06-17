@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { hasLocale } from '../../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
 import { caQuery } from '@/lib/shopify/customer-account'
-import CancelButton from './_components/CancelButton'
+import CancelOrderModal from '@/components/account/CancelOrderModal'
 
 type OrderDetail = {
   id: string
@@ -175,10 +175,11 @@ export default async function OrderDetailPage({
       </div>
 
       {canCancel && (
-        <CancelButton
+        <CancelOrderModal
           orderId={order.id}
-          label={labels.cancel}
-          confirmMessage={labels.cancelConfirm}
+          locale={locale}
+          triggerLabel={labels.cancel}
+          triggerClassName="w-full text-center text-sm py-3 border border-border rounded-full text-ink-muted hover:border-coral hover:text-coral transition-colors"
         />
       )}
 
