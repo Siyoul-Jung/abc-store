@@ -64,6 +64,15 @@ declare global {
   }
 }
 
+// 전화번호를 국내형식 숫자(10~11자리)로 정규화.
+// 저장 배송지는 Shopify에 E.164(+8210...)로 저장돼 자동채움되므로 국가코드(82)를 0으로 치환.
+// 토스/카드 PG(LGD_FIXED_BUYERPHONE)는 특수문자 없는 국내 10~11자리만 허용.
+function normalizeKRMobile(raw: string): string {
+  let d = raw.replace(/\D/g, '')
+  if (d.startsWith('82')) d = '0' + d.slice(2)
+  return d
+}
+
 export default function CheckoutForm({ cart, locale, dict, account }: Props) {
   const savedAddresses = account?.addresses ?? []
   const initialAddr = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0]
@@ -179,7 +188,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           successUrl: `${window.location.origin}/api/checkout/confirm?lang=${locale}`,
           failUrl: `${window.location.origin}/${locale}/checkout/fail`,
           customerName: form.name,
-          customerMobilePhone: form.phone.replace(/\D/g, ''),
+          customerMobilePhone: normalizeKRMobile(form.phone),
         })
       } else {
         await payment.requestPayment({
@@ -190,7 +199,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           successUrl: `${window.location.origin}/api/checkout/confirm?lang=${locale}`,
           failUrl: `${window.location.origin}/${locale}/checkout/fail`,
           customerName: form.name,
-          customerMobilePhone: form.phone.replace(/\D/g, ''),
+          customerMobilePhone: normalizeKRMobile(form.phone),
         })
       }
     } catch {
