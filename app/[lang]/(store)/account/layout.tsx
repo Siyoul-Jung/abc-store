@@ -2,21 +2,11 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { hasLocale } from '../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
-import { caQuery } from '@/lib/shopify/customer-account'
 import AccountNav from '@/components/account/AccountNav'
 
-const NAME_QUERY = `{ customer { firstName lastName } }`
-
-// locale별 인사 — 한/일은 성+이름 순서, 이름이 없으면 폴백
-function greeting(locale: Locale, firstName: string, lastName: string): string {
-  const hasName = Boolean(firstName || lastName)
-  if (locale === 'en') {
-    return hasName ? `Hi, ${[firstName, lastName].filter(Boolean).join(' ')}` : 'Welcome'
-  }
-  const full = `${lastName}${firstName}`.trim() || firstName || lastName
-  if (locale === 'ja') return hasName ? `${full}様、こんにちは` : 'こんにちは'
-  return hasName ? `안녕하세요, ${full}님` : '안녕하세요'
-}
+// 고정 타이틀 — 이름 personalization 제거(대부분 신원 이름이 비어 "안녕하세요" 폴백뿐이라
+// 일관성·미니멀을 택함). 덕분에 매 페이지 고객 이름 조회(CA API)도 불필요해짐.
+const title: Record<Locale, string> = { ko: '마이페이지', ja: 'マイページ', en: 'My Page' }
 
 export default async function AccountLayout({
   children,
@@ -29,22 +19,11 @@ export default async function AccountLayout({
   if (!hasLocale(lang)) redirect('/')
   const locale = lang as Locale
 
-  const isDev = process.env.NODE_ENV === 'development'
-  let firstName = ''
-  let lastName = ''
-  if (isDev) {
-    firstName = '길동'
-    lastName = '홍'
-  } else {
+  // 로그인 게이트 — 미로그인 시 OIDC 로그인으로. (dev는 로컬 OIDC 불가라 통과)
+  if (process.env.NODE_ENV !== 'development') {
     const cookieStore = await cookies()
     const token = cookieStore.get('customer_token')?.value
     if (!token) redirect(`/api/auth/login?redirect=/${lang}/account`)
-    const data = await caQuery<{ customer: { firstName: string; lastName: string } | null }>(
-      token,
-      NAME_QUERY,
-    )
-    firstName = data?.customer?.firstName ?? ''
-    lastName = data?.customer?.lastName ?? ''
   }
 
   return (
@@ -54,7 +33,7 @@ export default async function AccountLayout({
           My Account
         </p>
         <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight break-keep">
-          {greeting(locale, firstName, lastName)}
+          {title[locale]}
         </h1>
       </div>
       <AccountNav lang={lang} />
