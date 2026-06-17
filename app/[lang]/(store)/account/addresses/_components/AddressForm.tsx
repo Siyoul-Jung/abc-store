@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import type { AddressInput } from '@/lib/actions/account'
 import AddressSearchModal from '@/components/checkout/AddressSearchModal'
+import { sidoToZoneCode } from '@/lib/utils/korea-zone'
 
 // 주소록 폼 — 체크아웃과 동일하게 다음(카카오) 우편번호 검색 방식.
 // 한국 주소는 도로명주소 한 줄 + 우편번호 + 상세주소가 표준이라 시/도 분할 입력을 쓰지 않는다.
@@ -15,30 +16,7 @@ type FormValues = {
   zipcode: string
   address: string
   addressDetail: string
-  zoneCode: string // 다음 검색의 시·도에서 매핑 (CA API 필수) — 화면엔 노출 안 함
-}
-
-// 다음 검색이 주는 시·도 이름 → ISO 3166-2 지역 코드 (CA API zoneCode)
-function sidoToZoneCode(sido: string): string {
-  const s = sido ?? ''
-  if (s.includes('서울')) return 'KR-11'
-  if (s.includes('부산')) return 'KR-26'
-  if (s.includes('대구')) return 'KR-27'
-  if (s.includes('인천')) return 'KR-28'
-  if (s.includes('광주')) return 'KR-29'
-  if (s.includes('대전')) return 'KR-30'
-  if (s.includes('울산')) return 'KR-31'
-  if (s.includes('세종')) return 'KR-50'
-  if (s.includes('경기')) return 'KR-41'
-  if (s.includes('강원')) return 'KR-42'
-  if (s.includes('충북') || s.includes('충청북')) return 'KR-43'
-  if (s.includes('충남') || s.includes('충청남')) return 'KR-44'
-  if (s.includes('전북') || s.includes('전라북')) return 'KR-45'
-  if (s.includes('전남') || s.includes('전라남')) return 'KR-46'
-  if (s.includes('경북') || s.includes('경상북')) return 'KR-47'
-  if (s.includes('경남') || s.includes('경상남')) return 'KR-48'
-  if (s.includes('제주')) return 'KR-49'
-  return ''
+  zoneCode: string // 시·도에서 매핑 (CA API 필수) — 화면엔 노출 안 함
 }
 
 type Props = {
@@ -48,9 +26,9 @@ type Props = {
 }
 
 const labels = {
-  ko: { name: '받는 분', phone: '전화번호', zipcode: '우편번호', search: '주소 검색', address: '주소', addressDetail: '상세주소 (선택)', submit: '저장', cancel: '취소', saving: '저장 중...', searchFail: '주소 검색을 불러오지 못했습니다. 직접 입력해 주세요.', required: '받는 분·전화·주소·우편번호(5자리)를 입력해 주세요.' },
-  ja: { name: 'お届け先', phone: '電話番号', zipcode: '郵便番号', search: '住所検索', address: '住所', addressDetail: '建物名・部屋番号（任意）', submit: '保存', cancel: 'キャンセル', saving: '保存中...', searchFail: '住所検索を読み込めませんでした。直接入力してください。', required: 'お届け先・電話・住所・郵便番号（5桁）を入力してください。' },
-  en: { name: 'Recipient', phone: 'Phone', zipcode: 'ZIP', search: 'Search', address: 'Address', addressDetail: 'Detail (optional)', submit: 'Save', cancel: 'Cancel', saving: 'Saving...', searchFail: 'Address search failed to load. Please enter manually.', required: 'Please enter recipient, phone, address, and a 5-digit ZIP.' },
+  ko: { name: '받는 분', phone: '전화번호', zipcode: '우편번호', search: '주소 검색', address: '주소', addressDetail: '상세주소 (선택)', submit: '저장', cancel: '취소', saving: '저장 중...', searchFail: '주소 검색을 불러오지 못했습니다. 직접 입력해 주세요.', required: '받는 분·전화·주소·우편번호(5자리)를 입력해 주세요.', zoneFail: '주소 검색으로 주소를 다시 선택해 주세요.' },
+  ja: { name: 'お届け先', phone: '電話番号', zipcode: '郵便番号', search: '住所検索', address: '住所', addressDetail: '建物名・部屋番号（任意）', submit: '保存', cancel: 'キャンセル', saving: '保存中...', searchFail: '住所検索を読み込めませんでした。直接入力してください。', required: 'お届け先・電話・住所・郵便番号（5桁）を入力してください。', zoneFail: '住所検索で住所を選び直してください。' },
+  en: { name: 'Recipient', phone: 'Phone', zipcode: 'ZIP', search: 'Search', address: 'Address', addressDetail: 'Detail (optional)', submit: 'Save', cancel: 'Cancel', saving: 'Saving...', searchFail: 'Address search failed to load. Please enter manually.', required: 'Please enter recipient, phone, address, and a 5-digit ZIP.', zoneFail: 'Please re-select your address via address search.' },
 }
 
 export default function AddressForm({ lang, defaultValues = {}, onSubmit }: Props) {
@@ -82,6 +60,13 @@ export default function AddressForm({ lang, defaultValues = {}, onSubmit }: Prop
       setError(t.required)
       return
     }
+    // 검색으로 받은 zoneCode 우선, 없으면(수정·직접입력) 주소 문자열에서 역산.
+    // 그래도 못 구하면 CA API가 거부하므로, 암호 같은 에러 대신 재검색을 안내한다.
+    const zoneCode = form.zoneCode || sidoToZoneCode(form.address)
+    if (!zoneCode) {
+      setError(t.zoneFail)
+      return
+    }
     setError('')
     // 단일 이름 필드를 firstName에 담는다(한국 표기). territoryCode는 KR 스토어 고정.
     const input: AddressInput = {
@@ -91,8 +76,7 @@ export default function AddressForm({ lang, defaultValues = {}, onSubmit }: Prop
       zip: form.zipcode,
       phoneNumber: form.phone || undefined,
       territoryCode: 'KR',
-      // 검색으로 받은 zoneCode 우선, 없으면(수정·직접입력) 주소 문자열에서 역산
-      zoneCode: form.zoneCode || sidoToZoneCode(form.address),
+      zoneCode,
     }
     startTransition(async () => {
       const res = await onSubmit(input)

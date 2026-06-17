@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { hasLocale } from '../../../../../dictionaries'
 import { caQuery, gidToId } from '@/lib/shopify/customer-account'
 import { updateAddress } from '@/lib/actions/account'
+import { sidoToZoneCode } from '@/lib/utils/korea-zone'
 import AddressForm from '../../_components/AddressForm'
 
 // 폼이 다루는 표시값 (저장 시 AddressForm이 CustomerAddressInput으로 변환)
@@ -59,6 +60,14 @@ export default async function EditAddressPage({
         address: found.address1 ?? '',
         addressDetail: found.address2 ?? '',
       }
+      // 저장에 필요한 zoneCode 확보: province(지역 이름)를 격리 쿼리로 읽어 코드로 매핑.
+      // province가 유효하지 않아도 본 읽기엔 영향 없음(별도 쿼리). 실패 시 AddressForm이 주소에서 역산.
+      const pv = await caQuery<{ customer: { addresses: { edges: { node: { id: string; province?: string } }[] } } }>(
+        token,
+        `{ customer { addresses(first: 20) { edges { node { id province } } } } }`,
+      )
+      const pnode = pv?.customer?.addresses?.edges?.find((e) => gidToId(e.node.id) === id)?.node
+      if (pnode?.province) defaultValues = { ...defaultValues, zoneCode: sidoToZoneCode(pnode.province) }
     }
   }
 
