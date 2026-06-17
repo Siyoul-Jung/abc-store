@@ -17,6 +17,15 @@ type CheckoutInitial = {
 // 이메일과 주소는 별도 쿼리 — CA API 주소 필드명이 미검증이라, 주소 쿼리가 실패해도
 // 이메일 prefill은 살리기 위함(리스크 분리). 둘 다 best-effort, 실패 시 빈 폼(게스트와 동일).
 async function getInitial(): Promise<CheckoutInitial | undefined> {
+  // 개발 모드: 로컬은 OIDC 로그인이 안 되므로(콜백 미등록) mock으로 prefill UX 확인.
+  // account 페이지들과 동일한 관례. 운영에는 영향 없음.
+  if (process.env.NODE_ENV === 'development') {
+    return {
+      name: '홍길동', phone: '010-1234-5678', email: 'test@example.com',
+      zipcode: '12265', address: '경기도 남양주시 다산순환로 20', addressDetail: '10층',
+    }
+  }
+
   const token = (await cookies()).get('customer_token')?.value
   if (!token) return undefined
 
