@@ -37,7 +37,7 @@ export default async function InstagramFeed() {
               >
                 <Image
                   src={src}
-                  alt={post.caption?.slice(0, 80) ?? 'Instagram post'}
+                  alt={post.caption ? Array.from(post.caption).slice(0, 80).join('') : 'Instagram post'}
                   width={0}
                   height={0}
                   sizes="(max-width: 640px) 38vw, 33vw"
