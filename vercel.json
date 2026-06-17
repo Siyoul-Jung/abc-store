@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/vbank-sweep",
+      "schedule": "10 15 * * *"
+    }
+  ]
+}
