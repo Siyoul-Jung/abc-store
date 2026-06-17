@@ -13,13 +13,15 @@ type FormValues = {
 
 type AddressNode = {
   id: string; firstName?: string; lastName?: string
-  address1?: string; address2?: string; zip?: string; phoneNumber?: string; zoneCode?: string
+  address1?: string; address2?: string; zip?: string; phoneNumber?: string
 }
 
+// zoneCode는 읽기 쿼리에 넣지 않는다(유효하지 않으면 쿼리 전체가 실패 → 폼이 빈칸).
+// 저장 시 주소 문자열에서 역산한다(AddressForm).
 const QUERY = `{
   customer {
     addresses(first: 20) {
-      edges { node { id firstName lastName address1 address2 zip phoneNumber zoneCode } }
+      edges { node { id firstName lastName address1 address2 zip phoneNumber } }
     }
   }
 }`
@@ -56,7 +58,6 @@ export default async function EditAddressPage({
         zipcode: found.zip ?? '',
         address: found.address1 ?? '',
         addressDetail: found.address2 ?? '',
-        zoneCode: found.zoneCode ?? '',
       }
     }
   }
