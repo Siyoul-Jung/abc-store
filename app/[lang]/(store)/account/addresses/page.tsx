@@ -10,8 +10,8 @@ type Address = {
   id: string
   firstName: string; lastName: string
   address1: string; address2: string | null
-  city: string; province: string | null; zip: string; country: string
-  phone: string | null
+  zip: string
+  phoneNumber: string | null
 }
 
 type CustomerAddresses = {
@@ -22,7 +22,7 @@ type CustomerAddresses = {
 const QUERY = `{
   customer {
     addresses(first: 10) {
-      edges { node { id firstName lastName address1 address2 city province zip country phone } }
+      edges { node { id firstName lastName address1 address2 zip phoneNumber } }
     }
     defaultAddress { id }
   }
@@ -30,7 +30,7 @@ const QUERY = `{
 
 const mockAddresses: CustomerAddresses = {
   addresses: {
-    edges: [{ node: { id: 'gid://shopify/MailingAddress/1', firstName: '길동', lastName: '홍', address1: '다산순환로 20', address2: '10층', city: '남양주시', province: '경기도', zip: '12265', country: 'KR', phone: '010-1234-5678' } }]
+    edges: [{ node: { id: 'gid://shopify/MailingAddress/1', firstName: '홍길동', lastName: '', address1: '경기도 남양주시 다산순환로 20', address2: '10층', zip: '12265', phoneNumber: '010-1234-5678' } }]
   },
   defaultAddress: { id: 'gid://shopify/MailingAddress/1' },
 }
@@ -76,10 +76,9 @@ export default async function AddressesPage({
               <div key={addr.id} className={`p-4 border rounded-xl ${isDefault ? 'border-ink' : 'border-border'}`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="text-sm leading-relaxed">
-                    <p className="font-medium">{addr.firstName} {addr.lastName}</p>
-                    <p className="text-ink-muted">{addr.address1}{addr.address2 ? ` ${addr.address2}` : ''}</p>
-                    <p className="text-ink-muted">{addr.city}{addr.province ? `, ${addr.province}` : ''} {addr.zip}</p>
-                    {addr.phone && <p className="text-ink-muted">{addr.phone}</p>}
+                    <p className="font-medium">{addr.firstName}{addr.lastName}</p>
+                    <p className="text-ink-muted break-keep">{addr.zip ? `(${addr.zip}) ` : ''}{addr.address1}{addr.address2 ? ` ${addr.address2}` : ''}</p>
+                    {addr.phoneNumber && <p className="text-ink-muted">{addr.phoneNumber}</p>}
                   </div>
                   {isDefault && (
                     <span className="shrink-0 text-[10px] font-semibold tracking-wider uppercase border border-ink rounded-full px-2 py-0.5">
