@@ -19,17 +19,17 @@ const T: Record<Locale, {
 }> = {
   ko: {
     title: '주문을 취소할까요?',
-    desc: '취소하면 결제하신 금액이 환불되며, 이 작업은 되돌릴 수 없습니다. 카드 환불은 카드사에 따라 영업일 기준 3~5일 걸릴 수 있어요.',
+    desc: '결제 금액은 전액 환불되며, 취소 후에는 되돌릴 수 없습니다.',
     confirm: '주문 취소하기', close: '닫기', cancelled: '취소 완료', error: '취소에 실패했어요. 잠시 후 다시 시도해 주세요.',
   },
   ja: {
     title: 'ご注文をキャンセルしますか？',
-    desc: 'キャンセルするとご決済金額が返金され、この操作は取り消せません。カード返金はカード会社により営業日基準で3~5日かかる場合があります。',
+    desc: 'ご決済金額は全額返金され、キャンセル後は元に戻せません。',
     confirm: 'キャンセルする', close: '閉じる', cancelled: 'キャンセル済み', error: 'キャンセルに失敗しました。しばらくしてから再度お試しください。',
   },
   en: {
     title: 'Cancel this order?',
-    desc: 'Your payment will be refunded and this action cannot be undone. Card refunds may take 3–5 business days depending on the issuer.',
+    desc: 'Your payment will be refunded in full. This action cannot be undone.',
     confirm: 'Cancel order', close: 'Close', cancelled: 'Cancelled', error: 'Cancellation failed. Please try again shortly.',
   },
 }
