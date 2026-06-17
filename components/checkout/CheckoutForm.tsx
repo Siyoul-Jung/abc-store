@@ -87,6 +87,8 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
   const [isPaying, setIsPaying] = useState(false)
   const [tossReady, setTossReady] = useState(false)
   const [error, setError] = useState('')
+  // [필수] 결제 동의 — 전자상거래법상 주문내용 확인·약관 동의를 명시적으로 받는다(정석).
+  const [agreed, setAgreed] = useState(false)
   const [isIsland, setIsIsland] = useState(false)
   const [addressSearchOpen, setAddressSearchOpen] = useState(false)
   // 다음 우편번호 스크립트 로드 상태 — 실패 시 주소 직접 입력으로 폴백 (결제 차단 방지)
@@ -139,6 +141,10 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
       setError(d.requiredBankInfo)
       return
     }
+    if (!agreed) {
+      setError('주문 내용 확인 및 약관 동의에 체크해 주세요.')
+      return
+    }
     if (!tossReady || isPaying) return
     setError('')
     setIsPaying(true)
@@ -173,7 +179,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           successUrl: `${window.location.origin}/api/checkout/confirm?lang=${locale}`,
           failUrl: `${window.location.origin}/${locale}/checkout/fail`,
           customerName: form.name,
-          customerMobilePhone: form.phone.replace(/-/g, ''),
+          customerMobilePhone: form.phone.replace(/\D/g, ''),
         })
       } else {
         await payment.requestPayment({
@@ -184,7 +190,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           successUrl: `${window.location.origin}/api/checkout/confirm?lang=${locale}`,
           failUrl: `${window.location.origin}/${locale}/checkout/fail`,
           customerName: form.name,
-          customerMobilePhone: form.phone.replace(/-/g, ''),
+          customerMobilePhone: form.phone.replace(/\D/g, ''),
         })
       }
     } catch {
@@ -502,6 +508,27 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
             </div>
           </div>
 
+          {/* [필수] 결제 동의 — 체크해야 결제 진행 (전자상거래법 주문내용 확인·약관 동의) */}
+          <label className="flex items-start gap-2 cursor-pointer select-none py-1">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-0.5 h-4 w-4 flex-none accent-coral"
+            />
+            <span className="text-[11px] text-ink-muted leading-relaxed">
+              <span className="text-coral font-medium">[필수]</span>{' '}
+              <a href={`/${locale}/terms`} target="_blank" className="underline underline-offset-2 hover:text-ink">
+                이용약관
+              </a>
+              ,{' '}
+              <a href={`/${locale}/privacy`} target="_blank" className="underline underline-offset-2 hover:text-ink">
+                개인정보처리방침
+              </a>
+              에 동의하며, 주문 내용을 확인하였습니다.
+            </span>
+          </label>
+
           {error && <p className="text-xs text-coral">{error}</p>}
 
           <button
@@ -511,18 +538,6 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           >
             {isPaying ? '···' : d.pay}
           </button>
-
-          <p className="text-[11px] text-ink-muted leading-relaxed">
-            결제 버튼 클릭 시{' '}
-            <a href={`/${locale}/terms`} target="_blank" className="underline underline-offset-2 hover:text-ink">
-              이용약관
-            </a>
-            ,{' '}
-            <a href={`/${locale}/privacy`} target="_blank" className="underline underline-offset-2 hover:text-ink">
-              개인정보처리방침
-            </a>
-            에 동의하며, 주문 내용을 확인하였습니다.
-          </p>
         </div>
       </form>
     </>
