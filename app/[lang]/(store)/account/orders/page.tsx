@@ -16,6 +16,7 @@ type Order = {
   number: number
   processedAt: string
   displayFulfillmentStatus: string
+  cancelledAt: string | null
   totalPrice: { amount: string; currencyCode: string }
   lineItems: { edges: { node: { title: string; quantity: number } }[] }
 }
@@ -26,6 +27,7 @@ type AdminOrderRaw = {
   order_number: number
   processed_at: string
   fulfillment_status: string | null
+  cancelled_at: string | null
   total_price: string
   currency: string
   line_items: { name: string; quantity: number }[]
@@ -38,6 +40,7 @@ function mapAdminOrder(o: AdminOrderRaw): Order {
     number: o.order_number,
     processedAt: o.processed_at,
     displayFulfillmentStatus: o.fulfillment_status?.toUpperCase() ?? 'UNFULFILLED',
+    cancelledAt: o.cancelled_at,
     totalPrice: { amount: o.total_price, currencyCode: o.currency },
     lineItems: {
       edges: o.line_items.slice(0, 2).map((item) => ({
@@ -144,20 +147,21 @@ export default async function OrdersPage({
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium">{formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode)}</p>
                 <div className="flex items-center gap-2">
-                  {order.displayFulfillmentStatus === 'UNFULFILLED' && (
+                  {order.cancelledAt ? (
+                    <span className="text-[11px] text-ink-muted">{labels.cancelled}</span>
+                  ) : order.displayFulfillmentStatus === 'UNFULFILLED' ? (
                     <CancelOrderModal
                       orderId={order.id}
                       locale={locale}
                       triggerLabel={labels.cancel}
                       triggerClassName="text-[11px] text-ink-muted hover:text-coral border border-border rounded-full px-3 py-1 transition-colors"
                     />
-                  )}
-                  {order.displayFulfillmentStatus === 'FULFILLED' && (
+                  ) : order.displayFulfillmentStatus === 'FULFILLED' ? (
                     <Link href={`/${lang}/returns`}
                       className="text-[11px] text-ink-muted hover:text-ink border border-border rounded-full px-3 py-1 transition-colors">
                       {labels.returns}
                     </Link>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>
