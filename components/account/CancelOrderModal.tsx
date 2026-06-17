@@ -18,7 +18,7 @@ const T: Record<Locale, {
   title: string; desc: string; confirm: string; close: string; cancelled: string; error: string
 }> = {
   ko: {
-    title: '주문을 취소할까요?',
+    title: '주문을 취소하시겠습니까?',
     desc: '결제 금액이 전액 환불됩니다.',
     confirm: '주문 취소하기', close: '닫기', cancelled: '취소 완료', error: '취소에 실패했어요. 잠시 후 다시 시도해 주세요.',
   },
