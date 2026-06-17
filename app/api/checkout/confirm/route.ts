@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
         variantGid: line.merchandise.id,
         quantity: line.quantity,
       }))
-      const result = await createShopifyOrder({ orderId, amount, paymentKey, shipping, lineItems })
+      const result = await createShopifyOrder({ orderId, amount, paymentKey, shipping, lineItems, vbankDueDate: confirmed.virtualAccount?.dueDate })
       if (result.ok) {
         orderName = result.shopifyOrderName
         orderOk = true

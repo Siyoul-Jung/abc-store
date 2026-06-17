@@ -48,8 +48,9 @@ export async function createShopifyOrder(params: {
   paymentKey: string
   shipping: ShippingData
   lineItems: { variantGid: string; quantity: number }[]
+  vbankDueDate?: string // 가상계좌 입금 마감(ISO) — 만료 스윕이 미입금 주문 판정에 사용
 }): Promise<{ ok: boolean; shopifyOrderId?: string; shopifyOrderName?: string }> {
-  const { orderId, amount, paymentKey, shipping, lineItems } = params
+  const { orderId, amount, paymentKey, shipping, lineItems, vbankDueDate } = params
   const isBankTransfer = shipping.paymentMethod === 'bank_transfer'
 
   // 이중 호출 방어: 같은 토스 주문ID의 주문이 이미 있으면 재생성하지 않고 그대로 반환.
@@ -67,6 +68,7 @@ export async function createShopifyOrder(params: {
     if (shipping.refundBank)       noteAttributes.push({ name: 'refund_bank',    value: shipping.refundBank })
     if (shipping.refundAccountNum) noteAttributes.push({ name: 'refund_account', value: shipping.refundAccountNum })
     if (shipping.refundHolder)     noteAttributes.push({ name: 'refund_holder',  value: shipping.refundHolder })
+    if (vbankDueDate)              noteAttributes.push({ name: 'vbank_due_date', value: vbankDueDate })
   }
 
   // 배송비를 line_items가 아닌 shipping_lines로 분리.
