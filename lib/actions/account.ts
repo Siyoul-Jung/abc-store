@@ -10,16 +10,17 @@ async function getToken() {
   return store.get('customer_token')?.value ?? null
 }
 
+// CustomerAddressInput 스키마에 맞춘 쓰기 필드만 사용.
+// (province/country/phone 같은 이름은 입력 스키마에 없어 mutation이 거부됨)
+// 한국 스토어: 도로명주소=address1, 상세=address2, territoryCode='KR' 고정.
 export type AddressInput = {
   firstName: string
-  lastName: string
+  lastName?: string
   address1: string
   address2?: string
-  city: string
-  province?: string
   zip: string
-  country: string
-  phone?: string
+  phoneNumber?: string
+  territoryCode: string
 }
 
 export async function createAddress(input: AddressInput) {
