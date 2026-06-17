@@ -21,6 +21,7 @@ export type AddressInput = {
   zip: string
   phoneNumber?: string
   territoryCode: string
+  zoneCode: string // ISO 3166-2 지역 코드 (예: KR-41) — CA API 필수
 }
 
 export async function createAddress(input: AddressInput) {

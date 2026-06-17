@@ -15,6 +15,30 @@ type FormValues = {
   zipcode: string
   address: string
   addressDetail: string
+  zoneCode: string // 다음 검색의 시·도에서 매핑 (CA API 필수) — 화면엔 노출 안 함
+}
+
+// 다음 검색이 주는 시·도 이름 → ISO 3166-2 지역 코드 (CA API zoneCode)
+function sidoToZoneCode(sido: string): string {
+  const s = sido ?? ''
+  if (s.includes('서울')) return 'KR-11'
+  if (s.includes('부산')) return 'KR-26'
+  if (s.includes('대구')) return 'KR-27'
+  if (s.includes('인천')) return 'KR-28'
+  if (s.includes('광주')) return 'KR-29'
+  if (s.includes('대전')) return 'KR-30'
+  if (s.includes('울산')) return 'KR-31'
+  if (s.includes('세종')) return 'KR-50'
+  if (s.includes('경기')) return 'KR-41'
+  if (s.includes('강원')) return 'KR-42'
+  if (s.includes('충북') || s.includes('충청북')) return 'KR-43'
+  if (s.includes('충남') || s.includes('충청남')) return 'KR-44'
+  if (s.includes('전북') || s.includes('전라북')) return 'KR-45'
+  if (s.includes('전남') || s.includes('전라남')) return 'KR-46'
+  if (s.includes('경북') || s.includes('경상북')) return 'KR-47'
+  if (s.includes('경남') || s.includes('경상남')) return 'KR-48'
+  if (s.includes('제주')) return 'KR-49'
+  return ''
 }
 
 type Props = {
@@ -41,6 +65,7 @@ export default function AddressForm({ lang, defaultValues = {}, onSubmit }: Prop
     zipcode: defaultValues.zipcode ?? '',
     address: defaultValues.address ?? '',
     addressDetail: defaultValues.addressDetail ?? '',
+    zoneCode: defaultValues.zoneCode ?? '',
   })
   const [daumReady, setDaumReady] = useState(false)
   const [daumFailed, setDaumFailed] = useState(false)
@@ -66,6 +91,7 @@ export default function AddressForm({ lang, defaultValues = {}, onSubmit }: Prop
       zip: form.zipcode,
       phoneNumber: form.phone || undefined,
       territoryCode: 'KR',
+      zoneCode: form.zoneCode,
     }
     startTransition(async () => {
       const res = await onSubmit(input)
@@ -84,8 +110,8 @@ export default function AddressForm({ lang, defaultValues = {}, onSubmit }: Prop
       />
       {searchOpen && (
         <AddressSearchModal
-          onSelect={(zipcode, address) => {
-            setForm((p) => ({ ...p, zipcode, address }))
+          onSelect={(zipcode, address, sido) => {
+            setForm((p) => ({ ...p, zipcode, address, zoneCode: sidoToZoneCode(sido) || p.zoneCode }))
             setSearchOpen(false)
           }}
           onClose={() => setSearchOpen(false)}

@@ -11,6 +11,7 @@ type PostcodeData = {
   roadAddress: string
   jibunAddress: string
   buildingName?: string
+  sido: string // 시·도 이름 (예: '경기', '제주특별자치도') — zoneCode 매핑용
 }
 
 declare global {
@@ -26,7 +27,7 @@ declare global {
 }
 
 type Props = {
-  onSelect: (zipcode: string, address: string) => void
+  onSelect: (zipcode: string, address: string, sido: string) => void
   onClose: () => void
 }
 
@@ -39,7 +40,7 @@ export default function AddressSearchModal({ onSelect, onClose }: Props) {
       oncomplete: (data) => {
         const address =
           data.roadAddress + (data.buildingName ? ` (${data.buildingName})` : '')
-        onSelect(data.zonecode, address || data.jibunAddress)
+        onSelect(data.zonecode, address || data.jibunAddress, data.sido)
       },
       width: '100%',
       height: '100%',

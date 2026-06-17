@@ -8,25 +8,25 @@ import AddressForm from '../../_components/AddressForm'
 // 폼이 다루는 표시값 (저장 시 AddressForm이 CustomerAddressInput으로 변환)
 type FormValues = {
   name: string; phone: string
-  zipcode: string; address: string; addressDetail: string
+  zipcode: string; address: string; addressDetail: string; zoneCode: string
 }
 
 type AddressNode = {
   id: string; firstName?: string; lastName?: string
-  address1?: string; address2?: string; zip?: string; phoneNumber?: string
+  address1?: string; address2?: string; zip?: string; phoneNumber?: string; zoneCode?: string
 }
 
 const QUERY = `{
   customer {
     addresses(first: 20) {
-      edges { node { id firstName lastName address1 address2 zip phoneNumber } }
+      edges { node { id firstName lastName address1 address2 zip phoneNumber zoneCode } }
     }
   }
 }`
 
 const mockDefaults: FormValues = {
   name: '홍길동', phone: '010-1234-5678',
-  zipcode: '12265', address: '경기도 남양주시 다산순환로 20', addressDetail: '10층',
+  zipcode: '12265', address: '경기도 남양주시 다산순환로 20', addressDetail: '10층', zoneCode: 'KR-41',
 }
 
 export default async function EditAddressPage({
@@ -53,6 +53,7 @@ export default async function EditAddressPage({
         zipcode: found.zip ?? '',
         address: found.address1 ?? '',
         addressDetail: found.address2 ?? '',
+        zoneCode: found.zoneCode ?? '',
       }
     }
   }
