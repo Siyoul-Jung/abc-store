@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { hasLocale } from '../../../../../dictionaries'
-import { caQuery } from '@/lib/shopify/customer-account'
+import { caQuery, gidToId } from '@/lib/shopify/customer-account'
 import { updateAddress } from '@/lib/actions/account'
 import AddressForm from '../../_components/AddressForm'
 
@@ -42,11 +42,14 @@ export default async function EditAddressPage({
   const token = cookieStore.get('customer_token')?.value
 
   let defaultValues: Partial<FormValues> = isDev ? mockDefaults : {}
+  // gid 타입(CustomerAddress vs MailingAddress)을 가정하지 않고 숫자 id로 매칭하고,
+  // 저장에도 조립한 gid가 아닌 실제 gid를 사용한다.
+  let addressGid = `gid://shopify/CustomerAddress/${id}`
   if (!isDev && token) {
-    const gid = `gid://shopify/MailingAddress/${id}`
     const data = await caQuery<{ customer: { addresses: { edges: { node: AddressNode }[] } } }>(token, QUERY)
-    const found = data?.customer?.addresses?.edges?.find(e => e.node.id === gid)?.node
+    const found = data?.customer?.addresses?.edges?.find((e) => gidToId(e.node.id) === id)?.node
     if (found) {
+      addressGid = found.id
       defaultValues = {
         name: `${found.lastName ?? ''}${found.firstName ?? ''}`.trim(),
         phone: found.phoneNumber ?? '',
@@ -59,7 +62,6 @@ export default async function EditAddressPage({
   }
 
   const title = lang === 'ko' ? '배송지 수정' : lang === 'ja' ? '配送先を編集' : 'Edit address'
-  const gid = `gid://shopify/MailingAddress/${id}`
 
   return (
     <div>
@@ -67,7 +69,7 @@ export default async function EditAddressPage({
       <AddressForm
         lang={lang}
         defaultValues={defaultValues}
-        onSubmit={updateAddress.bind(null, gid)}
+        onSubmit={updateAddress.bind(null, addressGid)}
       />
     </div>
   )
