@@ -51,7 +51,7 @@ export default async function EditAddressPage({
       <AddressForm
         lang={lang}
         defaultValues={defaultValues}
-        onSubmit={(input) => updateAddress(gid, input)}
+        onSubmit={updateAddress.bind(null, gid)}
       />
     </div>
   )
