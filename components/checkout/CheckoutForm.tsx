@@ -33,14 +33,24 @@ type Dict = {
   }
 }
 
+type SavedAddress = {
+  id: string
+  name: string
+  phone: string
+  zipcode: string
+  address: string
+  addressDetail: string
+  isDefault: boolean
+}
+
 type Props = {
   cart: Cart
   locale: Locale
   dict: Dict
-  // 로그인 고객의 계정 이메일·기본 배송지로 폼을 미리 채우기 위한 초깃값 (게스트는 undefined).
-  initial?: {
-    name: string; phone: string; email: string
-    zipcode: string; address: string; addressDetail: string
+  // 로그인 고객의 계정 이메일 + 저장된 배송지 목록 (게스트는 undefined).
+  account?: {
+    email: string
+    addresses: SavedAddress[]
   }
 }
 
@@ -54,16 +64,22 @@ declare global {
   }
 }
 
-export default function CheckoutForm({ cart, locale, dict, initial }: Props) {
+export default function CheckoutForm({ cart, locale, dict, account }: Props) {
+  const savedAddresses = account?.addresses ?? []
+  const initialAddr = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0]
+
   const [form, setForm] = useState({
-    name: initial?.name ?? '',
-    phone: initial?.phone ?? '',
-    email: initial?.email ?? '',
-    zipcode: initial?.zipcode ?? '',
-    address: initial?.address ?? '',
-    addressDetail: initial?.addressDetail ?? '',
+    name: initialAddr?.name ?? '',
+    phone: initialAddr?.phone ?? '',
+    email: account?.email ?? '',
+    zipcode: initialAddr?.zipcode ?? '',
+    address: initialAddr?.address ?? '',
+    addressDetail: initialAddr?.addressDetail ?? '',
     memo: '',
   })
+  // 저장된 배송지가 있으면 카드(선택)로 시작, 없으면 직접 입력 폼
+  const [addrMode, setAddrMode] = useState<'card' | 'picker' | 'form'>(savedAddresses.length ? 'card' : 'form')
+  const [selectedId, setSelectedId] = useState<string | null>(initialAddr?.id ?? null)
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer'>('card')
   const [refundBank, setRefundBank] = useState('')
   const [refundAccountNum, setRefundAccountNum] = useState('')
@@ -91,6 +107,24 @@ export default function CheckoutForm({ cart, locale, dict, initial }: Props) {
   function update(key: keyof typeof form) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((prev) => ({ ...prev, [key]: e.target.value }))
+  }
+
+  // 저장된 배송지 선택 → 폼 채우고 카드 모드로
+  function selectAddress(a: SavedAddress) {
+    setForm((prev) => ({
+      ...prev,
+      name: a.name, phone: a.phone, zipcode: a.zipcode,
+      address: a.address, addressDetail: a.addressDetail,
+    }))
+    setSelectedId(a.id)
+    setAddrMode('card')
+  }
+
+  // "새 배송지 입력" → 배송지 필드 비우고 직접 입력 폼으로 (이메일·메모는 유지)
+  function enterNewAddress() {
+    setForm((prev) => ({ ...prev, name: '', phone: '', zipcode: '', address: '', addressDetail: '' }))
+    setSelectedId(null)
+    setAddrMode('form')
   }
 
   async function handlePay(e: React.FormEvent) {
@@ -191,21 +225,7 @@ export default function CheckoutForm({ cart, locale, dict, initial }: Props) {
           <h2 className="text-sm font-semibold break-keep">{locale === 'ja' ? '配送先' : '배송지'}</h2>
 
           <div className="flex flex-col gap-3">
-            <input
-              className={inputCls}
-              placeholder={d.name}
-              value={form.name}
-              onChange={update('name')}
-              autoComplete="name"
-            />
-            <input
-              className={inputCls}
-              placeholder={d.phone}
-              value={form.phone}
-              onChange={update('phone')}
-              inputMode="tel"
-              autoComplete="tel"
-            />
+            {/* 주문자 이메일 — 주문확인·환불완료 알림 발송 주소 */}
             <input
               className={inputCls}
               placeholder={d.email}
@@ -215,29 +235,145 @@ export default function CheckoutForm({ cart, locale, dict, initial }: Props) {
               inputMode="email"
               autoComplete="email"
             />
-            <div className="flex gap-2 items-center">
-              <input
-                className={daumFailed ? `${inputCls} w-32` : `${inputCls} w-32 cursor-pointer bg-surface`}
-                placeholder={d.zipcode}
-                value={form.zipcode}
-                autoComplete="postal-code"
-                {...(daumFailed
-                  ? { onChange: update('zipcode'), inputMode: 'numeric' as const }
-                  : { readOnly: true, onClick: () => daumReady && setAddressSearchOpen(true) })}
-              />
-              <button
-                type="button"
-                onClick={() => daumReady && setAddressSearchOpen(true)}
-                disabled={daumFailed}
-                className="shrink-0 border border-ink text-ink text-sm px-4 py-2.5 hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink"
-              >
-                {locale === 'ja' ? '住所検索' : '주소 검색'}
-              </button>
-              {isJeju && (
-                <span className="text-xs text-coral">제주 +{JEJU_SURCHARGE.toLocaleString()}원</span>
-              )}
-            </div>
-            {!isJeju && (
+
+            {/* 배송지: 저장된 배송지가 있으면 카드+선택, 없으면 직접 입력 */}
+            {addrMode === 'card' ? (
+              <div className="border border-ink rounded-xl p-4 flex items-start justify-between gap-3">
+                <div className="text-sm leading-relaxed min-w-0">
+                  <p className="font-medium">
+                    {form.name}
+                    {form.phone && <span className="text-ink-muted font-normal ml-2">{form.phone}</span>}
+                  </p>
+                  <p className="text-ink-muted break-keep">
+                    {form.zipcode && `(${form.zipcode}) `}{form.address}
+                  </p>
+                  {form.addressDetail && <p className="text-ink-muted break-keep">{form.addressDetail}</p>}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAddrMode('picker')}
+                  className="shrink-0 text-xs border border-border rounded-full px-3 py-1 hover:bg-surface transition-colors"
+                >
+                  {locale === 'ja' ? '変更' : '변경'}
+                </button>
+              </div>
+            ) : addrMode === 'picker' ? (
+              <div className="flex flex-col gap-2">
+                <p className="text-xs font-semibold tracking-wide text-ink-muted">
+                  {locale === 'ja' ? '配送先を選択' : '배송지 선택'}
+                </p>
+                <div className="border border-border rounded-xl divide-y divide-border overflow-hidden">
+                  {savedAddresses.map((a) => (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => selectAddress(a)}
+                      className={`w-full text-left px-4 py-3 flex items-start justify-between gap-3 hover:bg-surface transition-colors ${selectedId === a.id ? 'bg-surface' : ''}`}
+                    >
+                      <span className="text-sm leading-relaxed min-w-0">
+                        <span className="font-medium">{a.name}</span>
+                        {a.phone && <span className="text-ink-muted ml-2">{a.phone}</span>}
+                        <span className="block text-ink-muted break-keep">
+                          {a.zipcode && `(${a.zipcode}) `}{a.address}{a.addressDetail ? ` ${a.addressDetail}` : ''}
+                        </span>
+                      </span>
+                      {a.isDefault && (
+                        <span className="shrink-0 text-[10px] font-semibold tracking-wider uppercase border border-ink rounded-full px-2 py-0.5">
+                          {locale === 'ja' ? '基本' : '기본'}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={enterNewAddress}
+                    className="w-full text-left px-4 py-3 text-sm text-ink-muted hover:bg-surface hover:text-ink transition-colors"
+                  >
+                    + {locale === 'ja' ? '新しい住所を入力' : '새 배송지 입력'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <input
+                  className={inputCls}
+                  placeholder={d.name}
+                  value={form.name}
+                  onChange={update('name')}
+                  autoComplete="name"
+                />
+                <input
+                  className={inputCls}
+                  placeholder={d.phone}
+                  value={form.phone}
+                  onChange={update('phone')}
+                  inputMode="tel"
+                  autoComplete="tel"
+                />
+                <div className="flex gap-2 items-center">
+                  <input
+                    className={daumFailed ? `${inputCls} w-32` : `${inputCls} w-32 cursor-pointer bg-surface`}
+                    placeholder={d.zipcode}
+                    value={form.zipcode}
+                    autoComplete="postal-code"
+                    {...(daumFailed
+                      ? { onChange: update('zipcode'), inputMode: 'numeric' as const }
+                      : { readOnly: true, onClick: () => daumReady && setAddressSearchOpen(true) })}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => daumReady && setAddressSearchOpen(true)}
+                    disabled={daumFailed}
+                    className="shrink-0 border border-ink text-ink text-sm px-4 py-2.5 hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink"
+                  >
+                    {locale === 'ja' ? '住所検索' : '주소 검색'}
+                  </button>
+                  {savedAddresses.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setAddrMode('picker')}
+                      className="shrink-0 text-xs text-ink-muted underline underline-offset-2 hover:text-ink"
+                    >
+                      {locale === 'ja' ? '一覧' : '목록'}
+                    </button>
+                  )}
+                </div>
+                {daumFailed && (
+                  <p className="text-xs text-coral break-keep">
+                    {locale === 'ja'
+                      ? '住所検索を読み込めませんでした。郵便番号と住所を直接入力してください。'
+                      : '주소 검색을 불러오지 못했습니다. 우편번호와 주소를 직접 입력해 주세요.'}
+                  </p>
+                )}
+                {/* 도로명주소 — 정상 시 주소 검색으로만 채워짐. 스크립트 실패 시 직접 입력 폴백 */}
+                <input
+                  className={daumFailed ? inputCls : `${inputCls} cursor-pointer bg-surface`}
+                  placeholder={d.address}
+                  value={form.address}
+                  autoComplete="address-line1"
+                  {...(daumFailed
+                    ? { onChange: update('address') }
+                    : { readOnly: true, onClick: () => daumReady && setAddressSearchOpen(true) })}
+                />
+                {/* 상세주소 — 동·호수 등 직접 입력 */}
+                <input
+                  className={inputCls}
+                  placeholder={d.addressDetail}
+                  value={form.addressDetail}
+                  onChange={update('addressDetail')}
+                  autoComplete="address-line2"
+                />
+              </>
+            )}
+
+            {/* 추가배송비 — 목적지 기준 (카드·입력 모드 공통) */}
+            {isJeju ? (
+              <p className="text-xs text-coral">
+                {locale === 'ja'
+                  ? `済州 追加配送料 +${JEJU_SURCHARGE.toLocaleString()}円`
+                  : `제주 추가배송비 +${JEJU_SURCHARGE.toLocaleString()}원`}
+              </p>
+            ) : (
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -245,34 +381,14 @@ export default function CheckoutForm({ cart, locale, dict, initial }: Props) {
                   onChange={(e) => setIsIsland(e.target.checked)}
                   className="rounded border-border"
                 />
-                <span className="text-sm text-ink-muted">도서·산간 지역 (+{ISLAND_SURCHARGE.toLocaleString()}원)</span>
+                <span className="text-sm text-ink-muted">
+                  {locale === 'ja'
+                    ? `離島・山間部 (+${ISLAND_SURCHARGE.toLocaleString()}円)`
+                    : `도서·산간 지역 (+${ISLAND_SURCHARGE.toLocaleString()}원)`}
+                </span>
               </label>
             )}
-            {daumFailed && (
-              <p className="text-xs text-coral break-keep">
-                {locale === 'ja'
-                  ? '住所検索を読み込めませんでした。郵便番号と住所を直接入力してください。'
-                  : '주소 검색을 불러오지 못했습니다. 우편번호와 주소를 직접 입력해 주세요.'}
-              </p>
-            )}
-            {/* 도로명주소 — 정상 시 주소 검색으로만 채워짐. 스크립트 실패 시 직접 입력 폴백 */}
-            <input
-              className={daumFailed ? inputCls : `${inputCls} cursor-pointer bg-surface`}
-              placeholder={d.address}
-              value={form.address}
-              autoComplete="address-line1"
-              {...(daumFailed
-                ? { onChange: update('address') }
-                : { readOnly: true, onClick: () => daumReady && setAddressSearchOpen(true) })}
-            />
-            {/* 상세주소 — 동·호수 등 직접 입력 */}
-            <input
-              className={inputCls}
-              placeholder={d.addressDetail}
-              value={form.addressDetail}
-              onChange={update('addressDetail')}
-              autoComplete="address-line2"
-            />
+
             <textarea
               className={`${inputCls} resize-none h-20`}
               placeholder={d.memoPlaceholder}
