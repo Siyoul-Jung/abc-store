@@ -37,6 +37,11 @@ type Props = {
   cart: Cart
   locale: Locale
   dict: Dict
+  // 로그인 고객의 계정 이메일·기본 배송지로 폼을 미리 채우기 위한 초깃값 (게스트는 undefined).
+  initial?: {
+    name: string; phone: string; email: string
+    zipcode: string; address: string; addressDetail: string
+  }
 }
 
 declare global {
@@ -49,9 +54,15 @@ declare global {
   }
 }
 
-export default function CheckoutForm({ cart, locale, dict }: Props) {
+export default function CheckoutForm({ cart, locale, dict, initial }: Props) {
   const [form, setForm] = useState({
-    name: '', phone: '', email: '', zipcode: '', address: '', addressDetail: '', memo: '',
+    name: initial?.name ?? '',
+    phone: initial?.phone ?? '',
+    email: initial?.email ?? '',
+    zipcode: initial?.zipcode ?? '',
+    address: initial?.address ?? '',
+    addressDetail: initial?.addressDetail ?? '',
+    memo: '',
   })
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer'>('card')
   const [refundBank, setRefundBank] = useState('')
@@ -185,6 +196,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
               placeholder={d.name}
               value={form.name}
               onChange={update('name')}
+              autoComplete="name"
             />
             <input
               className={inputCls}
@@ -192,6 +204,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
               value={form.phone}
               onChange={update('phone')}
               inputMode="tel"
+              autoComplete="tel"
             />
             <input
               className={inputCls}
@@ -200,12 +213,14 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
               onChange={update('email')}
               type="email"
               inputMode="email"
+              autoComplete="email"
             />
             <div className="flex gap-2 items-center">
               <input
                 className={daumFailed ? `${inputCls} w-32` : `${inputCls} w-32 cursor-pointer bg-surface`}
                 placeholder={d.zipcode}
                 value={form.zipcode}
+                autoComplete="postal-code"
                 {...(daumFailed
                   ? { onChange: update('zipcode'), inputMode: 'numeric' as const }
                   : { readOnly: true, onClick: () => daumReady && setAddressSearchOpen(true) })}
@@ -245,6 +260,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
               className={daumFailed ? inputCls : `${inputCls} cursor-pointer bg-surface`}
               placeholder={d.address}
               value={form.address}
+              autoComplete="address-line1"
               {...(daumFailed
                 ? { onChange: update('address') }
                 : { readOnly: true, onClick: () => daumReady && setAddressSearchOpen(true) })}
@@ -255,6 +271,7 @@ export default function CheckoutForm({ cart, locale, dict }: Props) {
               placeholder={d.addressDetail}
               value={form.addressDetail}
               onChange={update('addressDetail')}
+              autoComplete="address-line2"
             />
             <textarea
               className={`${inputCls} resize-none h-20`}
