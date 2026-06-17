@@ -11,6 +11,7 @@ type OrderDetail = {
   number: number
   processedAt: string
   displayFulfillmentStatus: string
+  cancelledAt: string | null
   tags: string[]
   totalPrice: { amount: string; currencyCode: string }
   subtotalPrice: { amount: string; currencyCode: string }
@@ -33,7 +34,7 @@ type OrderDetail = {
 const QUERY = `
   query GetOrder($id: ID!) {
     order(id: $id) {
-      id number processedAt displayFulfillmentStatus tags
+      id number processedAt displayFulfillmentStatus cancelledAt tags
       totalPrice { amount currencyCode }
       subtotalPrice { amount currencyCode }
       totalShippingPrice { amount currencyCode }
@@ -57,6 +58,7 @@ const mockOrder: OrderDetail = {
   number: 1001,
   processedAt: '2026-04-10T00:00:00Z',
   displayFulfillmentStatus: 'UNFULFILLED',
+  cancelledAt: null,
   tags: [],
   totalPrice: { amount: '49000', currencyCode: 'KRW' },
   subtotalPrice: { amount: '45500', currencyCode: 'KRW' },
@@ -101,7 +103,7 @@ export default async function OrderDetailPage({
   if (!order) notFound()
 
   const labels = t[locale]
-  const canCancel = order.displayFulfillmentStatus === 'UNFULFILLED' && !order.tags.includes('packing')
+  const canCancel = !order.cancelledAt && order.displayFulfillmentStatus === 'UNFULFILLED' && !order.tags.includes('packing')
 
   return (
     <div className="flex flex-col gap-8">
