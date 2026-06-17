@@ -5,6 +5,7 @@ import { hasLocale } from '../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
 import { caQuery, gidToId } from '@/lib/shopify/customer-account'
 import { deleteAddress, setDefaultAddress } from '@/lib/actions/account'
+import DeleteAddressButton from './_components/DeleteAddressButton'
 
 type Address = {
   id: string
@@ -35,10 +36,10 @@ const mockAddresses: CustomerAddresses = {
   defaultAddress: { id: 'gid://shopify/MailingAddress/1' },
 }
 
-const t: Record<Locale, { add: string; edit: string; delete: string; setDefault: string; default: string; empty: string }> = {
-  ko: { add: '+ 배송지 추가', edit: '수정', delete: '삭제', setDefault: '기본 배송지로 설정', default: '기본', empty: '저장된 배송지가 없습니다.' },
-  ja: { add: '+ 配送先を追加', edit: '編集', delete: '削除', setDefault: 'デフォルトに設定', default: 'デフォルト', empty: '保存された配送先はありません。' },
-  en: { add: '+ Add address', edit: 'Edit', delete: 'Delete', setDefault: 'Set as default', default: 'Default', empty: 'No saved addresses.' },
+const t: Record<Locale, { add: string; edit: string; delete: string; deleteConfirm: string; cancel: string; setDefault: string; default: string; empty: string }> = {
+  ko: { add: '+ 배송지 추가', edit: '수정', delete: '삭제', deleteConfirm: '삭제', cancel: '취소', setDefault: '기본으로 설정', default: '기본', empty: '저장된 배송지가 없습니다.' },
+  ja: { add: '+ 配送先を追加', edit: '編集', delete: '削除', deleteConfirm: '削除する', cancel: 'キャンセル', setDefault: 'デフォルトに設定', default: 'デフォルト', empty: '保存された配送先はありません。' },
+  en: { add: '+ Add address', edit: 'Edit', delete: 'Delete', deleteConfirm: 'Delete', cancel: 'Cancel', setDefault: 'Set as default', default: 'Default', empty: 'No saved addresses.' },
 }
 
 export default async function AddressesPage({
@@ -86,23 +87,25 @@ export default async function AddressesPage({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border">
-                  <Link href={`/${lang}/account/addresses/${gidToId(addr.id)}/edit`}
-                    className="text-xs text-ink-muted hover:text-ink transition-colors">
-                    {labels.edit}
-                  </Link>
-                  <form action={async () => { 'use server'; await deleteAddress(addr.id) }} className="contents">
-                    <button type="submit" className="text-xs text-ink-muted hover:text-ink transition-colors">
-                      {labels.delete}
-                    </button>
-                  </form>
-                  {!isDefault && (
-                    <form action={async () => { 'use server'; await setDefaultAddress(addr.id) }} className="contents">
-                      <button type="submit" className="text-xs text-ink-muted hover:text-ink transition-colors">
-                        {labels.setDefault}
-                      </button>
-                    </form>
-                  )}
+                <div className="flex items-center justify-between gap-4 mt-4 pt-3 border-t border-border">
+                  {/* 좌: 수정·기본설정 (긍정 액션) / 우: 삭제 (파괴적 — 확인 후) */}
+                  <div className="flex items-center gap-4">
+                    <Link href={`/${lang}/account/addresses/${gidToId(addr.id)}/edit`}
+                      className="text-xs text-ink-muted hover:text-ink transition-colors">
+                      {labels.edit}
+                    </Link>
+                    {!isDefault && (
+                      <form action={async () => { 'use server'; await setDefaultAddress(addr.id) }} className="contents">
+                        <button type="submit" className="text-xs text-ink-muted hover:text-ink transition-colors">
+                          {labels.setDefault}
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                  <DeleteAddressButton
+                    onDelete={deleteAddress.bind(null, addr.id)}
+                    labels={{ delete: labels.delete, confirm: labels.deleteConfirm, cancel: labels.cancel }}
+                  />
                 </div>
               </div>
             )
