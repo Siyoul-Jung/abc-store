@@ -19,17 +19,17 @@ const T: Record<Locale, {
 }> = {
   ko: {
     title: '주문을 취소할까요?',
-    desc: '결제 금액은 전액 환불되며, 취소 후에는 되돌릴 수 없습니다.',
+    desc: '결제 금액이 전액 환불됩니다.',
     confirm: '주문 취소하기', close: '닫기', cancelled: '취소 완료', error: '취소에 실패했어요. 잠시 후 다시 시도해 주세요.',
   },
   ja: {
     title: 'ご注文をキャンセルしますか？',
-    desc: 'ご決済金額は全額返金され、キャンセル後は元に戻せません。',
+    desc: 'ご決済金額が全額返金されます。',
     confirm: 'キャンセルする', close: '閉じる', cancelled: 'キャンセル済み', error: 'キャンセルに失敗しました。しばらくしてから再度お試しください。',
   },
   en: {
     title: 'Cancel this order?',
-    desc: 'Your payment will be refunded in full. This action cannot be undone.',
+    desc: 'Your payment will be refunded in full.',
     confirm: 'Cancel order', close: 'Close', cancelled: 'Cancelled', error: 'Cancellation failed. Please try again shortly.',
   },
 }
