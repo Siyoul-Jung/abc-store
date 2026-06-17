@@ -91,7 +91,8 @@ export default function AddressForm({ lang, defaultValues = {}, onSubmit }: Prop
       zip: form.zipcode,
       phoneNumber: form.phone || undefined,
       territoryCode: 'KR',
-      zoneCode: form.zoneCode,
+      // 검색으로 받은 zoneCode 우선, 없으면(수정·직접입력) 주소 문자열에서 역산
+      zoneCode: form.zoneCode || sidoToZoneCode(form.address),
     }
     startTransition(async () => {
       const res = await onSubmit(input)
