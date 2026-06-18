@@ -5,7 +5,7 @@
 // 출력: marketing/output/png/<slug>-NN.png
 
 import { execFileSync } from 'node:child_process'
-import { readdirSync, mkdirSync, existsSync } from 'node:fs'
+import { readdirSync, mkdirSync, existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -48,14 +48,27 @@ function channelFor(fname) {
   if (fname.includes('-2x3-')) return 'pinterest'
   return 'etc'
 }
+// slug→type 매핑 (생성기가 남긴 manifest). 유형별 하위 폴더(ranking/product/info) 분류용.
+let manifest = {}
+const manifestPath = join(cardsDir, 'manifest.json')
+if (existsSync(manifestPath)) {
+  try { manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) } catch { /* 없으면 etc */ }
+}
+// 파일명에서 slug 추출 → manifest로 유형 결정
+function typeFor(fname) {
+  const slug = fname.replace(/-(2x3|4x5)-\d+\.html$/, '')
+  return manifest[slug] ?? 'etc'
+}
 
 console.log(`Chrome으로 ${files.length}장 PNG 추출 중...`)
 for (const f of files) {
   const channel = channelFor(f)
-  const channelDir = join(pngDir, channel)
-  mkdirSync(channelDir, { recursive: true })
+  const type = typeFor(f)
+  // 채널 > 유형 폴더로 분류: png/pinterest/ranking, png/pinterest/product ...
+  const destDir = join(pngDir, channel, type)
+  mkdirSync(destDir, { recursive: true })
   const htmlUrl = pathToFileURL(join(cardsDir, f)).href
-  const pngPath = join(channelDir, f.replace('.html', '.png'))
+  const pngPath = join(destDir, f.replace('.html', '.png'))
   execFileSync(chrome, [
     '--headless=new',
     '--disable-gpu',
@@ -66,6 +79,6 @@ for (const f of files) {
     `--screenshot=${pngPath}`,
     htmlUrl,
   ], { stdio: 'ignore' })
-  console.log(`  ✓ output/png/${channel}/${f.replace('.html', '.png')}`)
+  console.log(`  ✓ output/png/${channel}/${type}/${f.replace('.html', '.png')}`)
 }
-console.log(`완료: ${files.length}장 → marketing/output/png/{instagram,pinterest}/`)
+console.log(`완료: ${files.length}장 → marketing/output/png/<채널>/<유형>/`)

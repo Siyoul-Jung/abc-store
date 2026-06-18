@@ -1,10 +1,10 @@
-// 카드뉴스 생성기 (프로토타입)
-// 데이터(deck) → 브랜드 카드뉴스 HTML 자동 생성.
-// 소재(deck)만 갈아끼우면 재생성되는 "콘텐츠 엔진" 골격.
+// 카드뉴스 생성기 — 콘텐츠 엔진
+// decks/ 폴더의 소재 파일을 전부 읽어 브랜드 카드뉴스 HTML을 자동 생성.
+// 엔진(렌더러·CSS·색)과 소재(deck 데이터)를 분리 → 새 콘텐츠는 decks/에 파일만 추가.
 // 실행: node marketing/card-news-generator.mjs
-// 출력: marketing/output/<slug>.html  → 브라우저에서 열어 확인 (각 카드 1080×1080)
+// 출력: marketing/output/<slug>-<fmt>.html (미리보기) · output/cards/ (PNG용) · output/<slug>-captions.md
 
-import { writeFileSync, mkdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -36,75 +36,18 @@ function utmLink(path, source, campaign) {
 }
 
 // ─────────────────────────────────────────────
-// 2) 소재(deck) — 실제 판매 1위 데이터 기반
-//    (여기만 바꾸면 다른 카드뉴스 생성됨)
+// 2) 소재(deck) 로드 — decks/ 폴더의 *.mjs를 전부 읽어온다.
+//    새 콘텐츠는 decks/에 파일만 추가하면 자동 포함됨 (엔진 수정 불필요).
 // ─────────────────────────────────────────────
-const IMG = {
-  babypink: 'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000557.png?v=1778568130',
-  skyblue:  'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000556.png?v=1778568124',
-  nine:     'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000562.png?v=1778568163',
-  dino:     'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000558.png?v=1778568137',
-  honey:    'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000560.png?v=1778568150',
-}
-
-const deck = {
-  slug: 'summer-bestsellers',
-  link: '/shop/shopbrand.html?xcode=012&mcode=005&type=Y',   // 핀/캡션 목적지 — 메이크샵 KIDS (UTM 자동 부착)
-  // 캡션 자동 생성용 — 채널별 복붙 텍스트(output/<slug>-captions.md)로 출력됨
-  caption: {
-    title: '올여름 엄마들이 가장 많이 고른 세트 TOP 5',
-    keywords: '아기 여름 세트, 베이비 반팔 반바지, 신생아 돌아기 코디',
-    hashtags: ['아동복', '아기옷', '아기여름옷', '베이비룩', '아기코디', '돌아기', '신생아옷', '키즈패션', '남아옷', '여아옷', '세트룩', 'applebuttercollege', '애플버터칼리지'],
-  },
-  cards: [
-    {
-      type: 'cover',
-      eyebrow: 'SUMMER BEST',
-      title: '올여름, 엄마들이\n가장 많이 고른\n세트 TOP 5',
-      sub: '올여름 다들 입힌 그 세트',
-      image: IMG.babypink,
-    },
-    {
-      type: 'rank', rank: 1,
-      name: '피그 베이비핑크 세트',
-      desc: '전 사이즈 고르게 사랑받은\n올여름 부동의 1위',
-      tag: '반팔 + 반바지', size: 'XS–XL',
-      image: IMG.babypink,
-    },
-    {
-      type: 'rank', rank: 2,
-      name: '피그 스카이블루 세트',
-      desc: '시원한 컬러감으로\n남아맘들이 가장 많이 픽',
-      tag: '반팔 + 반바지', size: 'XS–XL',
-      image: IMG.skyblue,
-    },
-    {
-      type: 'rank', rank: 3,
-      name: '나인원원 세트',
-      desc: '매일 입히기 좋은\n데일리 스테디셀러',
-      tag: '반팔 + 반바지', size: 'XS–XL',
-      image: IMG.nine,
-    },
-    {
-      type: 'rank', rank: 4,
-      name: '핑크 공룡 세트',
-      desc: '공룡 좋아하는 우리 아이라면\n무조건 픽',
-      tag: '반팔 + 반바지', size: 'XS–XL',
-      image: IMG.dino,
-    },
-    {
-      type: 'rank', rank: 5,
-      name: '허니베어 세트',
-      desc: '포근한 곰돌이 프린트로\n남녀아 모두 인기',
-      tag: '반팔 + 반바지', size: 'XS–XL',
-      image: IMG.honey,
-    },
-    {
-      type: 'cta',
-      title: '우리 아이\n여름 세트 찾기',
-      sub: '지금 만나보기',
-    },
-  ],
+async function loadDecks() {
+  const decksDir = join(__dirname, 'decks')
+  const files = readdirSync(decksDir).filter((f) => f.endsWith('.mjs')).sort()
+  const decks = []
+  for (const f of files) {
+    const mod = await import(pathToFileURL(join(decksDir, f)).href)
+    if (mod.default) decks.push(mod.default)
+  }
+  return decks
 }
 
 // ─────────────────────────────────────────────
@@ -154,10 +97,48 @@ function renderCta(c) {
   </div>`
 }
 
+// 단일 상품핀 — 상품 1개 = 핀 1장. 검색 커버리지·클릭 직행용.
+function renderProduct(c) {
+  const photo = c.image
+    ? `<div class="prod-card"><img src="${c.image}" alt="${c.name}"/></div>`
+    : `<div class="prod-card"><span>상품 이미지</span></div>`
+  return `
+  <div class="card product">
+    <div class="head">
+      ${c.eyebrow ? `<div class="eyebrow">${c.eyebrow}</div>` : ''}
+      <h2 class="name">${c.name}</h2>
+      ${c.price ? `<div class="price">${c.price}</div>` : ''}
+    </div>
+    ${photo}
+    ${logoTag}
+  </div>`
+}
+
+// 정보형 — 표 기반(사이즈 가이드, 소재·세탁 가이드 등). 저장률 높은 콘텐츠.
+function renderInfo(c) {
+  const thead = `<tr>${c.columns.map((h) => `<th>${h}</th>`).join('')}</tr>`
+  const tbody = c.rows
+    .map((r) => `<tr>${r.map((cell, ci) => `<td class="${ci === 0 ? 'c-key' : ''}">${cell}</td>`).join('')}</tr>`)
+    .join('')
+  return `
+  <div class="card info">
+    <div class="head">
+      ${c.eyebrow ? `<div class="eyebrow">${c.eyebrow}</div>` : ''}
+      <h1 class="title">${nl(c.title)}</h1>
+      ${c.sub ? `<div class="sub">${c.sub}</div>` : ''}
+    </div>
+    <div class="table-card"><table><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>
+    ${c.tip ? `<div class="tip">${c.tip}</div>` : ''}
+    ${logoTag}
+  </div>`
+}
+
 function renderCard(c) {
   if (c.type === 'cover') return renderCover(c)
   if (c.type === 'rank') return renderRank(c)
   if (c.type === 'cta') return renderCta(c)
+  if (c.type === 'product') return renderProduct(c)
+  if (c.type === 'info') return renderInfo(c)
   return ''
 }
 
@@ -211,7 +192,25 @@ function cardCss(fmt) {
   .cta-title{font-weight:900;font-size:86px;line-height:1.22;letter-spacing:-.02em;}
   .cta-link{margin-top:46px;color:var(--accent);font-weight:700;font-size:46px;letter-spacing:.01em;}
   .cta .logo{margin-top:70px;height:62px;}
-  .cta-url{margin-top:24px;color:var(--muted);font-family:'Poppins',sans-serif;font-size:33px;letter-spacing:.06em;}`
+  .cta-url{margin-top:24px;color:var(--muted);font-family:'Poppins',sans-serif;font-size:33px;letter-spacing:.06em;}
+  .product{justify-content:flex-start;padding-bottom:150px;}
+  .product .head{padding:0 90px;}
+  .product .prod-card{flex:1;margin:40px 70px 30px;padding:30px;}
+  .product .name{font-weight:800;font-size:60px;letter-spacing:-.02em;margin-top:18px;}
+  .product .price{margin-top:14px;font-family:'Poppins',sans-serif;font-weight:700;font-size:40px;color:var(--ink);}
+  .info{justify-content:flex-start;padding:96px 90px 150px;}
+  .info .title{font-weight:900;font-size:72px;line-height:1.18;letter-spacing:-.02em;margin-top:22px;}
+  .info .sub{margin-top:24px;font-size:34px;color:var(--muted);}
+  .info .table-card{background:#fff;border-radius:30px;margin-top:56px;padding:24px 40px;}
+  .info table{width:100%;border-collapse:collapse;}
+  .info th{font-family:'Poppins',sans-serif;font-weight:700;font-size:30px;color:var(--muted);
+    letter-spacing:.04em;padding:24px 0;border-bottom:2px solid var(--border);text-align:center;}
+  .info td{font-size:36px;font-weight:500;color:var(--ink);padding:24px 0;text-align:center;
+    border-bottom:1px solid var(--border);}
+  .info tbody tr:last-child td{border-bottom:none;}
+  .info .c-key{font-family:'Poppins',sans-serif;font-weight:800;color:var(--accent);font-size:38px;}
+  .info .tip{margin-top:44px;font-size:32px;color:var(--muted);text-align:center;line-height:1.4;}
+  .info .logo{position:absolute;bottom:54px;left:0;right:0;}`
 }
 
 const SCALE = 0.38
@@ -270,15 +269,18 @@ function buildCaptions(deck) {
   const pinLink = utmLink(deck.link, 'pinterest', deck.slug)
   const igLink = utmLink(deck.link, 'instagram', deck.slug)
 
-  const pinDesc =
-    `올여름 엄마들이 가장 많이 담은 세트를 모았어요. ${names.join(' · ')} 등 매일 입히기 좋은 반팔+반바지 세트. ` +
-    `사이즈 XS–XL. ${cap.keywords ? cap.keywords + '. ' : ''}뭐 입힐지 고민된다면 여기서부터.`
+  // {names}·{keywords} 치환 — deck.caption.pinDesc가 있으면 사용, 없으면 generic.
+  const fill = (s) => s.replace(/\{names\}/g, names.join(' · ')).replace(/\{keywords\}/g, cap.keywords ?? '')
+  const pinDesc = cap.pinDesc
+    ? fill(cap.pinDesc)
+    : `${title}. ${names.length ? names.join(' · ') + '. ' : ''}${cap.keywords ? cap.keywords + '. ' : ''}`
 
+  const rankList = ranks.length ? ranks.map((c) => `${c.rank}. ${c.name}`).join('\n') + '\n\n' : ''
   const igCaption =
     `🍎 ${title}\n\n` +
-    `뭐 입힐지 고민될 땐, 요즘 엄마들이 제일 많이 담은 세트부터요.\n` +
-    ranks.map((c) => `${c.rank}. ${c.name}`).join('\n') +
-    `\n\n반팔+반바지 세트 · 사이즈 XS–XL\n프로필 링크에서 만나보세요 →`
+    (cap.igLead ? cap.igLead + '\n' : '') +
+    rankList +
+    (cap.igFoot ?? '프로필 링크에서 만나보세요 →')
 
   return `# 카드뉴스 캡션 — ${deck.slug}
 
@@ -324,19 +326,29 @@ const outDir = join(__dirname, 'output')
 const cardsDir = join(outDir, 'cards')
 mkdirSync(cardsDir, { recursive: true })
 
-for (const fmt of FORMATS) {
-  const base = `${deck.slug}-${fmt.name}`
-  writeFileSync(join(outDir, `${base}.html`), renderDeck(deck, fmt), 'utf-8')
-  deck.cards.forEach((c, i) => {
-    const name = `${base}-${String(i + 1).padStart(2, '0')}.html`
-    writeFileSync(join(cardsDir, name), renderCardPage(c, fmt), 'utf-8')
-  })
-  console.log(`생성: output/${base}.html  (미리보기, ${fmt.w}×${fmt.h})`)
+const decks = await loadDecks()
+if (!decks.length) {
+  console.error('decks/ 폴더에 소재 파일(*.mjs)이 없습니다.')
+  process.exit(1)
 }
 
-// 캡션 파일 (포맷 무관 — 1회)
-writeFileSync(join(outDir, `${deck.slug}-captions.md`), buildCaptions(deck), 'utf-8')
-console.log(`생성: output/${deck.slug}-captions.md  (핀터레스트·인스타 복붙 캡션 + UTM 링크)`)
+const manifest = {}   // slug → type. export-png가 읽어 유형별 폴더로 분류.
+for (const deck of decks) {
+  manifest[deck.slug] = deck.type ?? 'etc'
+  for (const fmt of FORMATS) {
+    const base = `${deck.slug}-${fmt.name}`
+    writeFileSync(join(outDir, `${base}.html`), renderDeck(deck, fmt), 'utf-8')
+    deck.cards.forEach((c, i) => {
+      const name = `${base}-${String(i + 1).padStart(2, '0')}.html`
+      writeFileSync(join(cardsDir, name), renderCardPage(c, fmt), 'utf-8')
+    })
+  }
+  // 캡션 파일 (포맷 무관 — deck당 1회)
+  writeFileSync(join(outDir, `${deck.slug}-captions.md`), buildCaptions(deck), 'utf-8')
+  console.log(`✓ ${deck.slug} [${manifest[deck.slug]}] — 카드 ${deck.cards.length}장 × ${FORMATS.length}포맷 + 캡션`)
+}
+// slug→type 매핑 — export-png가 PNG를 유형별 폴더로 분류하는 데 사용
+writeFileSync(join(cardsDir, 'manifest.json'), JSON.stringify(manifest, null, 2), 'utf-8')
 
-console.log(`카드 ${deck.cards.length}장 × ${FORMATS.length}포맷`)
-console.log(`→ PNG 추출: node marketing/export-png.mjs ${deck.slug}`)
+console.log(`\n총 ${decks.length}개 소재 생성 완료 → output/`)
+console.log(`PNG 추출: node marketing/export-png.mjs <slug>  (예: ${decks[0].slug})`)
