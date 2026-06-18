@@ -52,7 +52,7 @@ const deck = {
   link: '/shop/shopbrand.html?xcode=012&mcode=005&type=Y',   // 핀/캡션 목적지 — 메이크샵 KIDS (UTM 자동 부착)
   // 캡션 자동 생성용 — 채널별 복붙 텍스트(output/<slug>-captions.md)로 출력됨
   caption: {
-    title: '올여름 엄마들이 가장 많이 고른 아기 세트 TOP 5',
+    title: '올여름 엄마들이 가장 많이 고른 세트 TOP 5',
     keywords: '아기 여름 세트, 베이비 반팔 반바지, 신생아 돌아기 코디',
     hashtags: ['아동복', '아기옷', '아기여름옷', '베이비룩', '아기코디', '돌아기', '신생아옷', '키즈패션', '남아옷', '여아옷', '세트룩', 'applebuttercollege', '애플버터칼리지'],
   },
@@ -60,7 +60,7 @@ const deck = {
     {
       type: 'cover',
       eyebrow: 'SUMMER BEST',
-      title: '올여름, 엄마들이\n가장 많이 고른\n아기 세트 TOP 5',
+      title: '올여름, 엄마들이\n가장 많이 고른\n세트 TOP 5',
       sub: '올여름 다들 입힌 그 세트',
       image: IMG.babypink,
     },
@@ -173,7 +173,8 @@ const FONTS = `
 
 // 카드 스타일 (포맷별 치수 주입). scale 축소는 미리보기에서만 .scaler로 적용.
 function cardCss(fmt) {
-  const rankPhotoH = fmt.h - 528   // 캡션+로고 영역 확보 후 나머지를 상품 사진에
+  // 사진 박스 비중을 줄여(빈 여백 축소) 캡션·로고 공간을 확보. 전체는 세로 중앙 정렬.
+  const rankPhotoH = Math.round(fmt.h * 0.46)
   return `
   :root{
     --ink:${THEME.ink}; --muted:${THEME.inkMuted}; --pink:${THEME.pink};
@@ -196,18 +197,19 @@ function cardCss(fmt) {
   .cv-title{font-weight:900;font-size:80px;line-height:1.2;letter-spacing:-.02em;margin-top:22px;}
   .cv-sub{margin-top:24px;font-size:34px;color:var(--muted);}
   .cover .prod-card{flex:1;margin:46px 90px 40px;padding:40px;}
-  .rank .prod-card{margin:70px 60px 0;height:${rankPhotoH}px;padding:48px 80px;}
-  .caption{padding:46px 90px 0;}
-  .rank .logo{margin-top:auto;}
+  .rank{justify-content:center;padding-bottom:150px;}
+  .rank .prod-card{margin:0 60px;height:${rankPhotoH}px;padding:18px 36px;}
+  .caption{padding:0 90px;margin-top:44px;}
+  .rank .logo{position:absolute;bottom:54px;left:0;right:0;}
   .meta{display:flex;align-items:center;gap:20px;}
-  .meta .no{font-family:'Poppins',sans-serif;font-weight:800;font-size:42px;color:var(--red);letter-spacing:.02em;}
+  .meta .no{font-family:'Poppins',sans-serif;font-weight:800;font-size:42px;color:var(--accent);letter-spacing:.02em;}
   .meta .tag{font-size:25px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;
     padding-left:20px;border-left:1px solid var(--border);}
   .name{font-weight:800;font-size:62px;letter-spacing:-.02em;margin-top:22px;}
   .desc{margin-top:16px;font-size:35px;line-height:1.45;color:var(--muted);font-weight:500;}
   .cta{justify-content:center;align-items:center;text-align:center;padding:90px;}
   .cta-title{font-weight:900;font-size:86px;line-height:1.22;letter-spacing:-.02em;}
-  .cta-link{margin-top:46px;color:var(--red);font-weight:700;font-size:46px;letter-spacing:.01em;}
+  .cta-link{margin-top:46px;color:var(--accent);font-weight:700;font-size:46px;letter-spacing:.01em;}
   .cta .logo{margin-top:70px;height:62px;}
   .cta-url{margin-top:24px;color:var(--muted);font-family:'Poppins',sans-serif;font-size:33px;letter-spacing:.06em;}`
 }
@@ -269,7 +271,7 @@ function buildCaptions(deck) {
   const igLink = utmLink(deck.link, 'instagram', deck.slug)
 
   const pinDesc =
-    `올여름 엄마들이 가장 많이 담은 아기 세트를 모았어요. ${names.join(' · ')} 등 매일 입히기 좋은 반팔+반바지 세트. ` +
+    `올여름 엄마들이 가장 많이 담은 세트를 모았어요. ${names.join(' · ')} 등 매일 입히기 좋은 반팔+반바지 세트. ` +
     `사이즈 XS–XL. ${cap.keywords ? cap.keywords + '. ' : ''}뭐 입힐지 고민된다면 여기서부터.`
 
   const igCaption =
