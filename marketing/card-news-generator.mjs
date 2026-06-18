@@ -60,7 +60,7 @@ const deck = {
       type: 'cover',
       eyebrow: 'SUMMER BEST',
       title: '올여름, 엄마들이\n가장 많이 고른\n아기 세트 TOP 5',
-      sub: '실제 판매 데이터로 뽑은 베스트',
+      sub: '올여름 다들 입힌 그 세트',
       image: IMG.babypink,
     },
     {
@@ -266,12 +266,12 @@ function buildCaptions(deck) {
   const igLink = utmLink(deck.link, 'instagram', deck.slug)
 
   const pinDesc =
-    `실제 판매 데이터로 뽑은 ${title}. ${names.join(' · ')} 등 인기 반팔+반바지 세트를 한눈에. ` +
-    `사이즈 XS–XL. ${cap.keywords ? cap.keywords + '. ' : ''}우리 아이 여름 코디 지금 만나보기.`
+    `올여름 엄마들이 가장 많이 담은 아기 세트를 모았어요. ${names.join(' · ')} 등 매일 입히기 좋은 반팔+반바지 세트. ` +
+    `사이즈 XS–XL. ${cap.keywords ? cap.keywords + '. ' : ''}뭐 입힐지 고민된다면 여기서부터.`
 
   const igCaption =
     `🍎 ${title}\n\n` +
-    `실제로 엄마들이 가장 많이 고른 베스트 세트만 모았어요.\n` +
+    `뭐 입힐지 고민될 땐, 요즘 엄마들이 제일 많이 담은 세트부터요.\n` +
     ranks.map((c) => `${c.rank}. ${c.name}`).join('\n') +
     `\n\n반팔+반바지 세트 · 사이즈 XS–XL\n프로필 링크에서 만나보세요 →`
 
