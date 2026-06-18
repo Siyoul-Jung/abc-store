@@ -27,9 +27,11 @@ const THEME = {
 }
 
 // 발행용 목적지 — 핀/캡션 링크의 베이스. 채널별 UTM을 자동으로 붙인다.
-const SITE = 'https://applebuttercollege.com'
+// 런칭 전: 메이크샵 자사몰(라이브). Shopify 런칭 시 도메인만 교체.
+const SITE = 'https://www.applebuttercollege.com'
 function utmLink(path, source, campaign) {
-  return `${SITE}${path}?utm_source=${source}&utm_medium=organic&utm_campaign=${campaign}`
+  const sep = path.includes('?') ? '&' : '?'   // 경로에 쿼리(xcode 등) 있으면 &로 이어붙임
+  return `${SITE}${path}${sep}utm_source=${source}&utm_medium=organic&utm_campaign=${campaign}`
 }
 
 // ─────────────────────────────────────────────
@@ -46,7 +48,7 @@ const IMG = {
 
 const deck = {
   slug: 'summer-bestsellers',
-  link: '/ko/collections/kids',   // 핀/캡션 목적지 (UTM 자동 부착)
+  link: '/shop/shopbrand.html?xcode=012&mcode=005&type=Y',   // 핀/캡션 목적지 — 메이크샵 KIDS (UTM 자동 부착)
   // 캡션 자동 생성용 — 채널별 복붙 텍스트(output/<slug>-captions.md)로 출력됨
   caption: {
     title: '올여름 엄마들이 가장 많이 고른 아기 세트 TOP 5',
