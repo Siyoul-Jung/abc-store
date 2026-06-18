@@ -20,6 +20,7 @@ const THEME = {
   inkMuted: '#A8968F',
   pink: '#FFEDE9',      // 브랜드 블러시 핑크 (인스타 피드에서 추출)
   red: '#CF181C',       // 브랜드 레드 (로고 색)
+  accent: '#F5562E',    // 밝은 코랄 — eyebrow 포인트 (레드 계열이라 통일감 + 여름 느낌)
   border: '#F3DAD4',
   logo: LOGO_URL,   // 레드 스크립트 로고 (워터마크)
   brand: 'applebuttercollege',
@@ -176,7 +177,7 @@ function cardCss(fmt) {
   return `
   :root{
     --ink:${THEME.ink}; --muted:${THEME.inkMuted}; --pink:${THEME.pink};
-    --red:${THEME.red}; --border:${THEME.border};
+    --red:${THEME.red}; --border:${THEME.border}; --accent:${THEME.accent};
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   .card{
@@ -185,7 +186,7 @@ function cardCss(fmt) {
     color:var(--ink);overflow:hidden;padding-bottom:58px;
   }
   .eyebrow{font-family:'Poppins',sans-serif;font-weight:700;letter-spacing:.24em;
-    font-size:27px;color:var(--red);text-transform:uppercase;}
+    font-size:27px;color:var(--accent);text-transform:uppercase;}
   .prod-card{background:#fff;border-radius:30px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .prod-card img{width:100%;height:100%;object-fit:contain;}
   .prod-card span{color:#C9B8B2;font-size:34px;}
