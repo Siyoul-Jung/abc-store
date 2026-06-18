@@ -18,11 +18,13 @@ node marketing/card-news-generator.mjs
 # 3) PNG 추출 (설치된 Chrome을 headless로 호출 — npm 패키지 0)
 node marketing/export-png.mjs summer-bestsellers
 
-# 4) output/png/*.png 를 인스타·핀터레스트에 업로드
+# 4) 채널별 폴더에서 업로드
+#    output/png/instagram/   (4:5)  → 인스타
+#    output/png/pinterest/   (2:3)  → 핀터레스트
 ```
 
 - 미리보기: `output/<slug>-<fmt>.html` (브라우저로 열어 확인)
-- 최종 PNG: `output/png/<slug>-<fmt>-NN.png`
+- 최종 PNG: `output/png/instagram/<slug>-4x5-NN.png` · `output/png/pinterest/<slug>-2x3-NN.png`
 
 ### 비율(포맷)
 `card-news-generator.mjs`의 `FORMATS` 배열에서 제어:

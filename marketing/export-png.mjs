@@ -36,17 +36,26 @@ if (!files.length) {
   process.exit(1)
 }
 
-// 파일명의 포맷 토큰으로 캔버스 높이 결정 (-4x5- → 1350 등)
+// 파일명의 포맷 토큰으로 캔버스 높이 + 채널 폴더 결정
 function heightFor(fname) {
   if (fname.includes('-4x5-')) return 1350
   if (fname.includes('-2x3-')) return 1620
   return 1080
 }
+// 채널별 하위 폴더로 분리 (헷갈리지 않게): 4x5=인스타, 2x3=핀터레스트
+function channelFor(fname) {
+  if (fname.includes('-4x5-')) return 'instagram'
+  if (fname.includes('-2x3-')) return 'pinterest'
+  return 'etc'
+}
 
 console.log(`Chrome으로 ${files.length}장 PNG 추출 중...`)
 for (const f of files) {
+  const channel = channelFor(f)
+  const channelDir = join(pngDir, channel)
+  mkdirSync(channelDir, { recursive: true })
   const htmlUrl = pathToFileURL(join(cardsDir, f)).href
-  const pngPath = join(pngDir, f.replace('.html', '.png'))
+  const pngPath = join(channelDir, f.replace('.html', '.png'))
   execFileSync(chrome, [
     '--headless=new',
     '--disable-gpu',
@@ -57,6 +66,6 @@ for (const f of files) {
     `--screenshot=${pngPath}`,
     htmlUrl,
   ], { stdio: 'ignore' })
-  console.log(`  ✓ output/png/${f.replace('.html', '.png')}`)
+  console.log(`  ✓ output/png/${channel}/${f.replace('.html', '.png')}`)
 }
-console.log(`완료: ${files.length}장 → marketing/output/png/`)
+console.log(`완료: ${files.length}장 → marketing/output/png/{instagram,pinterest}/`)
