@@ -26,6 +26,12 @@ const THEME = {
   url: 'applebuttercollege.com',
 }
 
+// 발행용 목적지 — 핀/캡션 링크의 베이스. 채널별 UTM을 자동으로 붙인다.
+const SITE = 'https://applebuttercollege.com'
+function utmLink(path, source, campaign) {
+  return `${SITE}${path}?utm_source=${source}&utm_medium=organic&utm_campaign=${campaign}`
+}
+
 // ─────────────────────────────────────────────
 // 2) 소재(deck) — 실제 판매 1위 데이터 기반
 //    (여기만 바꾸면 다른 카드뉴스 생성됨)
@@ -40,6 +46,13 @@ const IMG = {
 
 const deck = {
   slug: 'summer-bestsellers',
+  link: '/ko/collections/kids',   // 핀/캡션 목적지 (UTM 자동 부착)
+  // 캡션 자동 생성용 — 채널별 복붙 텍스트(output/<slug>-captions.md)로 출력됨
+  caption: {
+    title: '올여름 엄마들이 가장 많이 고른 아기 세트 TOP 5',
+    keywords: '아기 여름 세트, 베이비 반팔 반바지, 신생아 돌아기 코디',
+    hashtags: ['아동복', '아기옷', '아기여름옷', '베이비룩', '아기코디', '돌아기', '신생아옷', '키즈패션', '남아옷', '여아옷', '세트룩', 'applebuttercollege', '애플버터칼리지'],
+  },
   cards: [
     {
       type: 'cover',
@@ -238,11 +251,66 @@ ${cardCss(fmt)}
 }
 
 // ─────────────────────────────────────────────
+// 4.5) 캡션 생성 — 채널별 복붙용 텍스트 (제목·설명·해시태그·UTM 링크)
+//      핀터레스트/인스타 수동 발행을 승인·비용 없이 즉시 가능하게.
+// ─────────────────────────────────────────────
+function buildCaptions(deck) {
+  const cap = deck.caption ?? {}
+  const ranks = deck.cards.filter((c) => c.type === 'rank')
+  const names = ranks.map((c) => c.name)
+  const title = cap.title ?? deck.slug
+  const tags = (cap.hashtags ?? []).map((h) => `#${h}`).join(' ')
+  const pinLink = utmLink(deck.link, 'pinterest', deck.slug)
+  const igLink = utmLink(deck.link, 'instagram', deck.slug)
+
+  const pinDesc =
+    `실제 판매 데이터로 뽑은 ${title}. ${names.join(' · ')} 등 인기 반팔+반바지 세트를 한눈에. ` +
+    `사이즈 XS–XL. ${cap.keywords ? cap.keywords + '. ' : ''}우리 아이 여름 코디 지금 만나보기.`
+
+  const igCaption =
+    `🍎 ${title}\n\n` +
+    `실제로 엄마들이 가장 많이 고른 베스트 세트만 모았어요.\n` +
+    ranks.map((c) => `${c.rank}. ${c.name}`).join('\n') +
+    `\n\n반팔+반바지 세트 · 사이즈 XS–XL\n프로필 링크에서 만나보세요 →`
+
+  return `# 카드뉴스 캡션 — ${deck.slug}
+
+> 복붙용. 핀터레스트는 핀 설명에 링크 직접 입력(클릭 트래픽), 인스타 피드는 링크 불가 → 프로필 링크 안내.
+
+## 📌 핀터레스트 (핀)
+**제목**
+${title}
+
+**설명**
+${pinDesc}
+
+**목적지 링크 (핀에 입력)**
+${pinLink}
+
+**해시태그**
+${tags}
+
+---
+
+## 📷 인스타그램 (캐러셀 1장 = 카드 전체)
+**캡션**
+${igCaption}
+
+**해시태그**
+${tags}
+
+**링크 안내**
+- 피드: 링크 불가 → "프로필 링크" 문구로 유도
+- 스토리/하이라이트: ${igLink}
+`
+}
+
+// ─────────────────────────────────────────────
 // 5) 출력 (포맷별 — 세로형)
 // ─────────────────────────────────────────────
 const FORMATS = [
   { name: '4x5', w: 1080, h: 1350 },   // 인스타 피드 (세로)
-  // { name: '2x3', w: 1080, h: 1620 },  // 핀터레스트 (더 길쭉) — 필요 시 주석 해제
+  { name: '2x3', w: 1080, h: 1620 },   // 핀터레스트 (더 길쭉)
 ]
 
 const outDir = join(__dirname, 'output')
@@ -258,5 +326,10 @@ for (const fmt of FORMATS) {
   })
   console.log(`생성: output/${base}.html  (미리보기, ${fmt.w}×${fmt.h})`)
 }
+
+// 캡션 파일 (포맷 무관 — 1회)
+writeFileSync(join(outDir, `${deck.slug}-captions.md`), buildCaptions(deck), 'utf-8')
+console.log(`생성: output/${deck.slug}-captions.md  (핀터레스트·인스타 복붙 캡션 + UTM 링크)`)
+
 console.log(`카드 ${deck.cards.length}장 × ${FORMATS.length}포맷`)
 console.log(`→ PNG 추출: node marketing/export-png.mjs ${deck.slug}`)

@@ -81,9 +81,15 @@ marketing/
 
 ---
 
-## 다음 단계 (미구현)
-- [ ] 핀터레스트 2:3 포맷 켜기 (`FORMATS` 주석 해제)
+## 다음 단계
+- [x] 핀터레스트 2:3 포맷 켜기 (`FORMATS`)
+- [x] 캡션·해시태그·UTM 링크 자동 생성 — `output/<slug>-captions.md` (제목·설명·해시태그 + 채널별 UTM 목적지). 템플릿 기반, 비용 0
 - [ ] 다른 소재 뱅킹 (사이즈 가이드, 신상 룩북 등)
-- [ ] 캡션·해시태그 자동 생성 (Claude API + 피드 caption 톤 학습)
-- [ ] 핀터레스트 자동 발행 파이프라인 (앱 승인 후) — 핀 + 캡션 + 목적지 URL(UTM)
-- [ ] 검증: 수동으로 몇 개 발행 → 반응 확인 → 자동화 결정
+- [ ] 캡션 톤 고도화 (Claude API + 피드 caption 톤 학습) — 선택
+- [ ] 핀터레스트 자동 발행 파이프라인 (앱 승인 후) — 핀 + 위 캡션 + UTM 링크 재사용
+- [ ] 검증: 위 캡션으로 **수동 발행** 몇 개 → 반응 확인 → 자동화 결정
+
+### 발행 흐름 (지금, 무승인·무비용)
+1. `node marketing/card-news-generator.mjs` → HTML + 캡션 생성
+2. `node marketing/export-png.mjs summer-bestsellers` → PNG
+3. `output/<slug>-captions.md` 열어 → 핀터레스트/인스타에 **이미지 + 캡션 복붙**, 핀에 UTM 링크 입력
