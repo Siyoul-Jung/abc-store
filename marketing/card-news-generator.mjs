@@ -218,8 +218,10 @@ const SCALE = 0.38
 function renderDeck(deck, fmt) {
   const total = deck.cards.length
   const sw = Math.round(fmt.w * SCALE), sh = Math.round(fmt.h * SCALE)
+  // watch 모드(WATCH=1)에선 1초마다 자동 새로고침 → 저장 즉시 브라우저에 반영
+  const autoReload = process.env.WATCH ? '<meta http-equiv="refresh" content="1">' : ''
   return `<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"/><title>카드뉴스 — ${deck.slug} (${fmt.name})</title>${FONTS}
+<html lang="ko"><head><meta charset="utf-8"/>${autoReload}<title>카드뉴스 — ${deck.slug} (${fmt.name})</title>${FONTS}
 <style>
 ${cardCss(fmt)}
   body{background:#EFE7E3;font-family:'Noto Sans KR',sans-serif;padding:40px 0;}
