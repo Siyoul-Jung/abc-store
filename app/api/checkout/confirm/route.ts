@@ -110,7 +110,9 @@ export async function GET(request: NextRequest) {
   let shipping: ReturnType<typeof JSON.parse> | undefined
   let items: { title: string; variantTitle: string; quantity: number; lineTotal: number }[] = []
 
-  if (cart && shippingRaw) {
+  // 카트가 비었으면(TTL 만료 등) 주문 생성을 건너뛴다 — 라인 없는 빈 주문 생성 방지.
+  // orderOk=false로 떨어져 아래에서 "결제됨·주문실패" 관리자 알림 경로로 처리된다.
+  if (cart && cart.lines.nodes.length > 0 && shippingRaw) {
     try {
       shipping = JSON.parse(decodeURIComponent(shippingRaw))
       const lineItems = cart.lines.nodes.map((line) => ({

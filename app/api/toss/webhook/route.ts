@@ -58,6 +58,11 @@ export async function POST(req: NextRequest) {
       return new NextResponse('Internal Server Error', { status: 500 })
     }
 
+    // 이미 처리된 입금(웹훅 재전송)이면 CAPI Purchase 중복 전송을 막고 즉시 200 반환.
+    if (result.alreadyPaid) {
+      return new NextResponse('OK', { status: 200 })
+    }
+
     const { capiData } = result
     sendCAPIEvent({
       eventName: 'Purchase',
