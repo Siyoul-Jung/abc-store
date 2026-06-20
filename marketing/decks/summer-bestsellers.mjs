@@ -12,7 +12,8 @@ const IMG = {
 
 export default {
   slug: 'summer-bestsellers',
-  type: 'curation',   // 카테고리. 세부 형태: 랭킹(베스트 TOP)
+  type: 'curation',     // 카테고리
+  subtype: 'ranking',   // 세부 형태: 랭킹(베스트 TOP)
   link: '/shop/shopbrand.html?xcode=012&mcode=005&type=Y',   // 핀/캡션 목적지 — 메이크샵 KIDS (UTM 자동 부착)
   caption: {
     title: '올여름 엄마들이 가장 많이 고른 세트 TOP 5',

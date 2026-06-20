@@ -48,13 +48,14 @@ function channelFor(fname) {
   if (fname.includes('-2x3-')) return 'pinterest'
   return 'etc'
 }
-// slug→type 매핑 (생성기가 남긴 manifest). 유형별 하위 폴더(ranking/product/info) 분류용.
+// slug→유형경로 매핑 (생성기가 남긴 manifest). 값은 "type" 또는 "type/subtype".
+// 유형별(+세부유형) 하위 폴더(curation/ranking, curation/seasonal, product, info) 분류용.
 let manifest = {}
 const manifestPath = join(cardsDir, 'manifest.json')
 if (existsSync(manifestPath)) {
   try { manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) } catch { /* 없으면 etc */ }
 }
-// 파일명에서 slug 추출 → manifest로 유형 결정
+// 파일명에서 slug 추출 → manifest로 유형경로 결정 (슬래시 포함 시 중첩 폴더)
 function typeFor(fname) {
   const slug = fname.replace(/-(2x3|4x5)-\d+\.html$/, '')
   return manifest[slug] ?? 'etc'

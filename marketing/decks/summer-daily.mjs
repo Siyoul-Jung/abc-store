@@ -10,7 +10,8 @@ const IMG = {
 
 export default {
   slug: 'summer-daily',
-  type: 'curation',   // 카테고리. 세부 형태: 시즌 모음
+  type: 'curation',     // 카테고리
+  subtype: 'seasonal',  // 세부 형태: 시즌 모음
   link: '/shop/shopbrand.html?xcode=012&mcode=005&type=Y',
   caption: {
     title: '매일 입히기 좋은 여름 데일리 세트 3',

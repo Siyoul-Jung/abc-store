@@ -332,9 +332,10 @@ if (!decks.length) {
   process.exit(1)
 }
 
-const manifest = {}   // slug → type. export-png가 읽어 유형별 폴더로 분류.
+const manifest = {}   // slug → "type" 또는 "type/subtype". export-png가 읽어 폴더로 분류.
 for (const deck of decks) {
-  manifest[deck.slug] = deck.type ?? 'etc'
+  // subtype이 있으면 한 단계 더 세분화 (예: curation/ranking, curation/seasonal)
+  manifest[deck.slug] = deck.subtype ? `${deck.type}/${deck.subtype}` : (deck.type ?? 'etc')
   for (const fmt of FORMATS) {
     const base = `${deck.slug}-${fmt.name}`
     writeFileSync(join(outDir, `${base}.html`), renderDeck(deck, fmt), 'utf-8')
