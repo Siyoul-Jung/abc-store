@@ -8,15 +8,19 @@ import type { Image as ShopifyImage } from '@/lib/shopify/types'
 export default function ProductImageGallery({
   images,
   title,
+  featuredUrl,
 }: {
   images: ShopifyImage[]
   title: string
+  featuredUrl?: string
 }) {
+  // 메인 목록 대표컷(그레이 배경)은 상세 갤러리에서 제외 — 상세는 흰배경 상세컷만 노출
+  const gallery = featuredUrl ? images.filter((i) => i.url !== featuredUrl) : images
   const [active, setActive] = useState(0)
   const [zoom, setZoom] = useState(false)
 
-  const prev = () => setActive((i) => (i - 1 + images.length) % images.length)
-  const next = () => setActive((i) => (i + 1) % images.length)
+  const prev = () => setActive((i) => (i - 1 + gallery.length) % gallery.length)
+  const next = () => setActive((i) => (i + 1) % gallery.length)
 
   // 라이트박스: 스크롤 잠금 + 키보드(ESC/←/→)
   useEffect(() => {
@@ -33,9 +37,9 @@ export default function ProductImageGallery({
       window.removeEventListener('keydown', onKey)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zoom, images.length])
+  }, [zoom, gallery.length])
 
-  if (images.length === 0) {
+  if (gallery.length === 0) {
     return (
       <div className="aspect-[3/4] bg-sand flex items-center justify-center">
         <span className="text-xs text-ink-muted">No image</span>
@@ -43,11 +47,11 @@ export default function ProductImageGallery({
     )
   }
 
-  // 가로로 긴 이미지(사이즈표 등)는 contain(전체 표시), 정사각·세로(제품컷)는 cover(꽉 채움)
-  const activeImg = images[active]
+  // 가로로 긴 이미지(사이즈표 등)는 contain(전체), 정사각·세로(제품컷)는 cover(꽉)
+  const activeImg = gallery[active]
   const fitClass = activeImg.width > activeImg.height ? 'object-contain' : 'object-cover'
 
-  const thumbnailButtons = images.map((img, i) => (
+  const thumbnailButtons = gallery.map((img, i) => (
     <button
       key={img.url}
       onClick={() => setActive(i)}
@@ -69,7 +73,7 @@ export default function ProductImageGallery({
     <>
       {/* 데스크탑: 좌측 썸네일 세로 + 우측 메인 이미지 */}
       <div className="hidden md:flex gap-3">
-        {images.length > 1 && (
+        {gallery.length > 1 && (
           <div className="flex flex-col gap-2 w-16 shrink-0 overflow-y-auto max-h-[700px]">
             {thumbnailButtons}
           </div>
@@ -81,8 +85,8 @@ export default function ProductImageGallery({
           className="relative aspect-[3/4] overflow-hidden flex-1 cursor-zoom-in"
         >
           <Image
-            src={images[active].url}
-            alt={images[active].altText ?? title}
+            src={gallery[active].url}
+            alt={gallery[active].altText ?? title}
             fill
             sizes="50vw"
             className={fitClass}
@@ -100,15 +104,15 @@ export default function ProductImageGallery({
           className="relative aspect-[3/4] overflow-hidden cursor-zoom-in"
         >
           <Image
-            src={images[active].url}
-            alt={images[active].altText ?? title}
+            src={gallery[active].url}
+            alt={gallery[active].altText ?? title}
             fill
             sizes="100vw"
             className={fitClass}
             priority
           />
         </button>
-        {images.length > 1 && (
+        {gallery.length > 1 && (
           <div className="flex gap-2 overflow-x-auto pb-1">
             {thumbnailButtons}
           </div>
@@ -122,7 +126,6 @@ export default function ProductImageGallery({
             className="fixed inset-0 z-[120] bg-black/90 flex items-center justify-center"
             onClick={() => setZoom(false)}
           >
-            {/* 닫기 */}
             <button
               type="button"
               aria-label="닫기"
@@ -135,22 +138,20 @@ export default function ProductImageGallery({
               </svg>
             </button>
 
-            {/* 이미지 (전체, 잘리지 않게) */}
             <div
               className="relative w-full h-full max-w-5xl max-h-[88vh] m-4"
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={images[active].url}
-                alt={images[active].altText ?? title}
+                src={gallery[active].url}
+                alt={gallery[active].altText ?? title}
                 fill
                 sizes="100vw"
                 className="object-contain"
               />
             </div>
 
-            {/* 이전/다음 + 카운터 */}
-            {images.length > 1 && (
+            {gallery.length > 1 && (
               <>
                 <button
                   type="button"
@@ -173,7 +174,7 @@ export default function ProductImageGallery({
                   </svg>
                 </button>
                 <span className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/70 text-xs">
-                  {active + 1} / {images.length}
+                  {active + 1} / {gallery.length}
                 </span>
               </>
             )}

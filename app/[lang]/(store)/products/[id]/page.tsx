@@ -89,7 +89,7 @@ export default async function ProductPage({ params }: Props) {
             행 높이에 맞춰 늘어나(object-cover 확대) 보이던 세로 stretch 문제 방지. 각 컬럼은 자기 높이로. */}
       <div className="grid grid-cols-1 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-10 lg:gap-16 items-start">
 
-        <ProductImageGallery images={product.images.nodes} title={product.title} />
+        <ProductImageGallery images={product.images.nodes} title={product.title} featuredUrl={product.featuredImage?.url} />
 
         <div className="flex flex-col gap-5">
           <h1 className="text-xl md:text-2xl font-bold tracking-wide leading-tight break-keep">
