@@ -22,50 +22,49 @@ type Props = {
 }
 
 function ShippingTimeline({ text }: { text: string }) {
-  const [expanded, setExpanded] = useState(false)
-
-  const lines = text.split('\n')
-  const title = lines[0]
-  const body = lines.slice(1)
-
-  const firstBlank = body.findIndex(l => !l.trim())
-  const latest = firstBlank === -1 ? body : body.slice(0, firstBlank)
-  const older = firstBlank === -1 ? [] : body.slice(firstBlank)
-  const hasOlder = older.some(l => l.trim())
-  const visibleItems = expanded ? body : latest
-
-  function renderLines(items: string[]) {
-    const nonEmptyCount = items.filter(l => l.trim()).length
-    let dotIndex = -1
-    return items.map((line, i) => {
-      if (!line.trim()) return <div key={i} className="h-1" />
-      dotIndex++
-      const isLast = dotIndex === nonEmptyCount - 1
-      return (
-        <div key={i} className="flex gap-3">
-          <div className="flex flex-col items-center pt-[3px]">
-            <div className="w-1.5 h-1.5 rounded-full bg-ink-muted shrink-0" />
-            {!isLast && <div className="w-px flex-1 bg-border mt-1 min-h-[14px]" />}
-          </div>
-          <p className="text-xs text-ink-muted pb-2 leading-relaxed">{line}</p>
-        </div>
-      )
-    })
-  }
+  // 일정(오픈/배송 날짜)과 주의사항(- 으로 시작)을 분리
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+  const schedule = lines.filter(l => !l.startsWith('-') && /(오픈|배송)\s*[:：]/.test(l))
+  const notices = lines.filter(l => l.startsWith('-')).map(l => l.replace(/^-+\s*/, ''))
 
   return (
     <div className="border border-border px-4 py-3">
-      <p className="text-xs font-semibold tracking-widest uppercase mb-3 text-ink">{title}</p>
+      <p className="text-xs font-semibold tracking-widest uppercase mb-3 text-ink">
+        {'오픈 & 배송 안내'}
+      </p>
+
+      {/* 일정: 오픈 · 배송 날짜 타임라인 */}
       <div className="flex flex-col">
-        {renderLines(visibleItems)}
+        {schedule.map((line, i) => {
+          const idx = line.search(/[:：]/)
+          const label = idx >= 0 ? line.slice(0, idx).trim() : line
+          const val = idx >= 0 ? line.slice(idx + 1).trim() : ''
+          const isLast = i === schedule.length - 1
+          return (
+            <div key={i} className="flex gap-3">
+              <div className="flex flex-col items-center pt-[5px]">
+                <div className="w-1.5 h-1.5 rounded-full bg-ink shrink-0" />
+                {!isLast && <div className="w-px flex-1 bg-border mt-1 min-h-[16px]" />}
+              </div>
+              <p className="text-xs pb-2.5 leading-relaxed">
+                <span className="font-semibold text-ink">{label}</span>
+                {val && <span className="text-ink-muted ml-2">{val}</span>}
+              </p>
+            </div>
+          )
+        })}
       </div>
-      {hasOlder && (
-        <button
-          onClick={() => setExpanded(v => !v)}
-          className="mt-1 text-xs text-ink-muted underline underline-offset-2 hover:text-ink transition-colors"
-        >
-          {expanded ? '접기 ↑' : '더보기 ↓'}
-        </button>
+
+      {/* 주의사항: 점선 아래 작은 회색 목록 */}
+      {notices.length > 0 && (
+        <ul className="mt-1 pt-3 border-t border-dashed border-border flex flex-col gap-1.5">
+          {notices.map((n, i) => (
+            <li key={i} className="text-[11px] text-ink-muted leading-relaxed flex gap-1.5">
+              <span className="shrink-0">·</span>
+              <span>{n}</span>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )
