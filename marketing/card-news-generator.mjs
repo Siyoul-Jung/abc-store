@@ -133,12 +133,35 @@ function renderInfo(c) {
   </div>`
 }
 
+// 스타일링 모음(콜라주) — 상품 누끼 여러 개를 흰 카드 격자로 묶어 한 핀에. "세트/컬러 모음" 검색용.
+// ※ 사진 플랫레이 아님(촬영 필요) — 보유한 누끼컷으로 만드는 그래픽 구성.
+function renderCollage(c) {
+  const cells = c.items
+    .map((it) => `
+      <div class="cell">
+        <div class="prod-card"><img src="${it.image}" alt="${it.label ?? ''}"/></div>
+        ${it.label ? `<div class="cell-label">${it.label}</div>` : ''}
+      </div>`)
+    .join('')
+  return `
+  <div class="card collage">
+    <div class="head">
+      ${c.eyebrow ? `<div class="eyebrow">${c.eyebrow}</div>` : ''}
+      <h1 class="title">${nl(c.title)}</h1>
+      ${c.sub ? `<div class="sub">${c.sub}</div>` : ''}
+    </div>
+    <div class="grid">${cells}</div>
+    ${logoTag}
+  </div>`
+}
+
 function renderCard(c) {
   if (c.type === 'cover') return renderCover(c)
   if (c.type === 'rank') return renderRank(c)
   if (c.type === 'cta') return renderCta(c)
   if (c.type === 'product') return renderProduct(c)
   if (c.type === 'info') return renderInfo(c)
+  if (c.type === 'collage') return renderCollage(c)
   return ''
 }
 
@@ -210,7 +233,16 @@ function cardCss(fmt) {
   .info tbody tr:last-child td{border-bottom:none;}
   .info .c-key{font-family:'Poppins',sans-serif;font-weight:800;color:var(--accent);font-size:38px;}
   .info .tip{margin-top:44px;font-size:32px;color:var(--muted);text-align:center;line-height:1.4;}
-  .info .logo{position:absolute;bottom:54px;left:0;right:0;}`
+  .info .logo{position:absolute;bottom:54px;left:0;right:0;}
+  .collage{justify-content:flex-start;padding:88px 70px 150px;}
+  .collage .head{padding:0 20px;}
+  .collage .title{font-weight:900;font-size:66px;line-height:1.18;letter-spacing:-.02em;margin-top:18px;}
+  .collage .sub{margin-top:18px;font-size:32px;color:var(--muted);}
+  .collage .grid{display:flex;flex-wrap:wrap;gap:28px;margin-top:46px;}
+  .collage .cell{flex:1 1 calc(50% - 14px);display:flex;flex-direction:column;}
+  .collage .cell .prod-card{height:430px;padding:22px;}
+  .collage .cell-label{margin-top:14px;text-align:center;font-size:27px;font-weight:600;color:var(--ink);}
+  .collage .logo{position:absolute;bottom:54px;left:0;right:0;}`
 }
 
 const SCALE = 0.38
