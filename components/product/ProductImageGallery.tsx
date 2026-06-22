@@ -43,6 +43,10 @@ export default function ProductImageGallery({
     )
   }
 
+  // 가로로 긴 이미지(사이즈표 등)는 contain(전체 표시), 정사각·세로(제품컷)는 cover(꽉 채움)
+  const activeImg = images[active]
+  const fitClass = activeImg.width > activeImg.height ? 'object-contain' : 'object-cover'
+
   const thumbnailButtons = images.map((img, i) => (
     <button
       key={img.url}
@@ -81,7 +85,7 @@ export default function ProductImageGallery({
             alt={images[active].altText ?? title}
             fill
             sizes="50vw"
-            className="object-cover"
+            className={fitClass}
             priority
           />
         </button>
@@ -100,7 +104,7 @@ export default function ProductImageGallery({
             alt={images[active].altText ?? title}
             fill
             sizes="100vw"
-            className="object-cover"
+            className={fitClass}
             priority
           />
         </button>
