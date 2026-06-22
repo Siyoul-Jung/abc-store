@@ -201,9 +201,10 @@ export async function submitAnswer(questionId: string, content: string, lang: st
   if (qErr) throw new Error(qErr.message)
 
   // 고객 이메일 알림 (특정 질문으로 링크 — 비회원은 게이트에서 비번 입력)
-  const { data: q } = await supabaseAdmin.from('questions').select('customer_email, title').eq('id', questionId).single()
+  // 메일 언어는 질문 작성 언어(q.lang)를 따른다 — 호출부가 넘긴 lang은 폴백.
+  const { data: q } = await supabaseAdmin.from('questions').select('customer_email, title, lang').eq('id', questionId).single()
   if (q) {
-    await notifyCustomerAnswered({ email: q.customer_email, title: q.title, lang, questionId })
+    await notifyCustomerAnswered({ email: q.customer_email, title: q.title, lang: q.lang ?? lang, questionId })
   }
 
   revalidatePath('/admin/qa')

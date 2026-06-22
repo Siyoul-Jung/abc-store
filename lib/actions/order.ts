@@ -159,7 +159,19 @@ export async function createShopifyOrder(params: {
   }
 }
 
-export async function markShopifyOrderPaid(tossOrderId: string, amount: number, paymentKey: string) {
+type CapiData = {
+  email?: string; phone?: string; firstName?: string; zipcode?: string
+  contents: { id: string; quantity: number; item_price: number }[]
+}
+
+export async function markShopifyOrderPaid(
+  tossOrderId: string,
+  amount: number,
+  paymentKey: string,
+): Promise<
+  | { ok: false }
+  | { ok: true; alreadyPaid?: boolean; shopifyOrderName: string; capiData?: CapiData }
+> {
   // 1. 태그로 주문 검색 (CAPI용 고객/상품 정보 포함)
   const searchRes = await fetch(
     `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?tag=toss-${tossOrderId}&status=any&fields=id,name,email,phone,shipping_address,line_items`,
@@ -173,6 +185,24 @@ export async function markShopifyOrderPaid(tossOrderId: string, amount: number, 
   if (!order) {
     console.error('[markShopifyOrderPaid] order not found for tossOrderId:', tossOrderId)
     return { ok: false }
+  }
+
+  // 멱등성: 동일 paymentKey의 결제 트랜잭션이 이미 있으면 중복 추가하지 않는다 (웹훅 재전송 대비).
+  // 중복으로 판정되면 alreadyPaid=true로 반환 → 호출부(웹훅)가 CAPI 재전송도 건너뛴다.
+  const existingTxRes = await fetch(
+    `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders/${order.id}/transactions.json`,
+    { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' },
+  )
+  if (existingTxRes.ok) {
+    const existingTx = await existingTxRes.json()
+    const dup = (existingTx.transactions ?? []).some(
+      (t: { authorization?: string; kind?: string; status?: string }) =>
+        t.authorization === paymentKey && t.kind === 'sale' && t.status === 'success',
+    )
+    if (dup) {
+      console.warn('[markShopifyOrderPaid] 이미 처리된 결제 — 중복 트랜잭션/CAPI 방지:', tossOrderId)
+      return { ok: true, alreadyPaid: true, shopifyOrderName: order.name as string }
+    }
   }
 
   // 2. 결제 트랜잭션 추가 → financial_status: paid 로 전환

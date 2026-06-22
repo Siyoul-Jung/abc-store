@@ -37,7 +37,7 @@ export default function ProductDisclosure() {
                 <th scope="row" className="text-left align-top font-normal text-ink-muted py-2 pr-3 w-32 break-keep">
                   {label}
                 </th>
-                <td className="py-2 text-ink break-keep">{value}</td>
+                <td className="py-2 text-ink break-words">{value}</td>
               </tr>
             ))}
           </tbody>
