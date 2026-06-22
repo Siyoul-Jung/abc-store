@@ -83,8 +83,11 @@ export default async function ProductPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* 상단: 이미지 좌 | 제목+가격+사이즈 우 */}
-      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-10 lg:gap-16">
+      {/* 상단: 이미지 좌 | 제목+가격+사이즈 우
+          - minmax(0,fr): 넓은 자식이 컬럼을 밀어내는 가로 오버플로 방지 (fr 기본은 minmax(auto,fr))
+          - items-start: 그리드 기본 stretch를 끔 — 우측 아코디언 펼침 시 좌측 이미지가
+            행 높이에 맞춰 늘어나(object-cover 확대) 보이던 세로 stretch 문제 방지. 각 컬럼은 자기 높이로. */}
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-10 lg:gap-16 items-start">
 
         <ProductImageGallery images={product.images.nodes} title={product.title} />
 
