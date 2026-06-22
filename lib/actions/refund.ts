@@ -93,11 +93,23 @@ export async function processCardRefund(returnId: string, paymentKey: string, am
   await updateReturnStatus(returnId, 'completed')
 }
 
-export async function completeBankRefund(returnId: string, amount: number) {
+// 금액 기록 + 완료 처리(고객 완료메일 발송). Toss API는 호출하지 않는다 —
+// 실제 송금은 외부(은행 이체 / Toss 대시보드 수동 환불)에서 이미 했다는 전제.
+async function markRefundCompleted(returnId: string, amount: number) {
   await supabaseAdmin
     .from('return_requests')
     .update({ refund_amount: amount })
     .eq('id', returnId)
 
   await updateReturnStatus(returnId, 'completed')
+}
+
+// 가상계좌: 관리자가 계좌로 직접 이체한 뒤 완료 처리.
+export async function completeBankRefund(returnId: string, amount: number) {
+  await markRefundCompleted(returnId, amount)
+}
+
+// 카드인데 paymentKey가 없어 자동 환불 불가한 경우 — Toss 대시보드에서 수동 환불 후 완료 처리.
+export async function completeManualRefund(returnId: string, amount: number) {
+  await markRefundCompleted(returnId, amount)
 }

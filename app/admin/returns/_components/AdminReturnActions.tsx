@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react'
 import { updateReturnStatus } from '@/lib/actions/returns'
-import { processCardRefund, completeBankRefund } from '@/lib/actions/refund'
+import { processCardRefund, completeBankRefund, completeManualRefund } from '@/lib/actions/refund'
 import type { RefundPreview } from '@/lib/actions/refund'
 
 export default function AdminReturnActions({
@@ -82,7 +82,19 @@ export default function AdminReturnActions({
               {pending ? '환불 처리 중...' : `카드 자동 환불 ${refundPreview.refundAmount.toLocaleString()}원`}
             </button>
           ) : (
-            <p className="text-xs text-red-600">paymentKey 없음 — 수동 처리 필요</p>
+            /* paymentKey 없음(레거시·수동 생성 주문 등) → 자동 환불 불가.
+               Toss 대시보드에서 직접 환불 후 수동 완료 처리해 관리자가 막히지 않게. */
+            <div className="flex flex-col gap-2">
+              <p className="text-xs text-red-600">
+                자동 환불 불가 (paymentKey 없음) — Toss 대시보드에서 직접 환불한 뒤 아래 버튼으로 완료 처리하세요.
+              </p>
+              <button
+                onClick={() => startTransition(() => completeManualRefund(returnId, refundPreview.refundAmount))}
+                disabled={pending}
+                className="text-xs px-4 py-2.5 bg-green-600 text-white rounded-lg hover:opacity-80 disabled:opacity-40 font-medium">
+                {pending ? '처리 중...' : `수동 환불 완료 처리 ${refundPreview.refundAmount.toLocaleString()}원`}
+              </button>
+            </div>
           )
         ) : (
           /* 가상계좌: 수동 이체 후 완료 처리 */
