@@ -84,7 +84,7 @@ export default async function ProductPage({ params }: Props) {
       />
 
       {/* 상단: 이미지 좌 | 제목+가격+사이즈 우 */}
-      <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-10 lg:gap-16">
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-10 lg:gap-16">
 
         <ProductImageGallery images={product.images.nodes} title={product.title} />
 
