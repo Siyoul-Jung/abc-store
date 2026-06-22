@@ -30,14 +30,14 @@ export default function ProductDisclosure() {
         </svg>
       </summary>
       <div className="pb-5">
-        <table className="w-full text-xs">
+        <table className="w-full text-xs table-fixed">
           <tbody>
             {DISCLOSURE_ROWS.map(([label, value]) => (
               <tr key={label} className="border-b border-border last:border-b-0">
-                <th scope="row" className="text-left align-top font-normal text-ink-muted py-2 pr-3 w-32 break-keep">
+                <th scope="row" className="text-left align-top font-normal text-ink-muted py-2 pr-3 w-28 break-keep">
                   {label}
                 </th>
-                <td className="py-2 text-ink break-keep">{value}</td>
+                <td className="py-2 text-ink break-words">{value}</td>
               </tr>
             ))}
           </tbody>

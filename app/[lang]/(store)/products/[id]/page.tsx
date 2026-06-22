@@ -88,7 +88,7 @@ export default async function ProductPage({ params }: Props) {
 
         <ProductImageGallery images={product.images.nodes} title={product.title} />
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 min-w-0">
           <h1 className="text-xl md:text-2xl font-bold tracking-wide leading-tight break-keep">
             {stripTitlePrefix(product.title)}
           </h1>
