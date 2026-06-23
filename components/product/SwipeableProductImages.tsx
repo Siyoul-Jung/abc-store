@@ -72,7 +72,7 @@ export default function SwipeableProductImages({ images, title, sizes = '50vw' }
           <span
             key={i}
             className={`flex-1 h-[2px] transition-colors ${
-              i === activeIndex ? 'bg-ink' : 'bg-ink/20'
+              i === activeIndex ? 'bg-ink/50' : 'bg-ink/15'
             }`}
           />
         ))}
