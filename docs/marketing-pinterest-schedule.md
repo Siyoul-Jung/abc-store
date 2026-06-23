@@ -1,59 +1,87 @@
-# 핀터레스트 발행 일정 (큐)
+# 핀터레스트 발행 운영 모델 + 큐
 
-> 매번 "뭘 올리지" 고민하지 않도록 정해둔 발행 리듬 + 대기열.
-> **규칙: 주 3회(월·수·금), 큐 맨 위 핀을 하나씩 올리고 ✅ 체크.** 끝나면 다음으로 내려간다.
+> 매번 "뭘 어떻게 올리지" 고민하지 않도록 정해둔 **운영 원칙 + 발행 리듬 + 대기열**.
 > 핀 만드는 법·유형은 [marketing-content-roadmap.md](marketing-content-roadmap.md), 발행 절차는 [marketing-pinterest-pipeline.md](marketing-pinterest-pipeline.md).
 
 승인(핀터레스트 API) 전까지는 **수동 발행**. 승인 후엔 이 큐를 자동 발행 파이프라인이 그대로 소비.
 
 ---
 
-## 주간 리듬
+## 핀 운영 3원칙 (먼저 읽기)
+
+**1) 핀 = 사이트로 들어오는 문 하나. standalone(단일 이미지) 위주.**
+- 핀터레스트는 검색엔진 → 핀 1장 = 독립 검색결과 1개.
+- ❌ 멀티카드 묶음(5장 세트)의 **커버 1장만** 올리는 건 비효율 — 그건 캐러셀 전제 디자인이라 단독으론 클릭 유인이 약하다.
+- ✅ 5장짜리 랭킹/데일리 덱은 **각 상품 카드를 개별 핀**으로 쪼개 올린다 (한 상품 = 한 핀 = 한 검색결과).
+
+**2) 핀 3종 믹스.**
+| 종류 | 역할 | 목적지 링크 |
+|---|---|---|
+| **상품핀** (주력) | 검색 커버리지·직행 클릭 | 해당 상품 페이지 |
+| **큐레이션핀** (콜라주) | 폭넓은 유입("여름 세트 모음") | 컬렉션/기획전 |
+| 정보핀 (후순위) | 트래픽 검증 후 도입 | — |
+
+**3) 양보다 꾸준함. 성공지표는 노출이 아니라 outbound clicks.**
+- 신규 계정은 일관된 리듬에 보상이 큼. 폭발 발행 후 멈춤이 최악.
+- 핀터레스트 인덱싱에 **2~6주** 소요 + 도메인 인증 후 분배 증가 → **초기 조회 1~4는 정상.** 이틀치 조회수로 판단 금지.
+
+---
+
+## 주간 리듬 — 주 3회 (월·수·금)
 
 | 요일 | 유형 (기본 배치) | 이유 |
 |---|---|---|
 | **월** | 단일 상품핀 | 한 주 시작, 상품 직접 노출 |
-| **수** | 큐레이션 (시즌/데일리) | 스타일 검색 |
-| **금** | 큐레이션(랭킹) 또는 정보형 | 주말 쇼핑 전 |
+| **수** | 큐레이션 (콜라주/시즌) | 스타일 검색 유입 |
+| **금** | 단일 상품핀 (랭킹 덱의 상품 카드 활용) | 주말 쇼핑 전 |
 
 > 도배 금지(하루 여러 장 X). 한 슬롯 = 핀 1장. 못 올린 날은 건너뛰고 다음 슬롯에.
+> 콘텐츠 여유가 생기면 주말 1회 추가해 주 4회까지. **무리해서 늘리지 말 것.**
 
 ---
 
 ## 발행 큐 (위에서부터 순서대로)
 
-| # | 예정일 | 유형 | 핀 이미지 | 캡션 |
-|---|---|---|---|---|
-| 1 | 06-19(금) | 큐레이션·랭킹 | `pinterest/curation/ranking/summer-bestsellers-2x3-01` (커버) | `summer-bestsellers-captions.md` | ✅ 완료 |
-| 2 | 06-23(월) | 단일 상품핀 | `pinterest/product/product-pins-2x3-01` (피그 베이비핑크) | `product-pins-captions.md` | ⬜ |
-| 3 | 06-25(수) | 정보형 | `pinterest/info/sizeguide-2x3-01` (사이즈 가이드) | `sizeguide-captions.md` | ⬜ |
-| 4 | 06-27(금) | 큐레이션·시즌 | `pinterest/curation/seasonal/summer-daily-2x3-01` (여름 데일리 커버) | `summer-daily-captions.md` | ⬜ |
-| 5 | 06-30(월) | 단일 상품핀 | `pinterest/product/product-pins-2x3-02` (핑크 공룡) | `product-pins-captions.md` | ⬜ |
-| 6 | 07-02(수) | 큐레이션·랭킹 | `pinterest/curation/ranking/summer-bestsellers-2x3-02` (랭킹 2위) | `summer-bestsellers-captions.md` | ⬜ |
-| 7 | 07-04(금) | 단일 상품핀 | `pinterest/product/product-pins-2x3-03` (허니베어) | `product-pins-captions.md` | ⬜ |
+| # | 예정일 | 유형 | 핀 이미지 | 캡션 | 상태 |
+|---|---|---|---|---|---|
+| — | 06-19(금) | 큐레이션·랭킹 커버 | `summer-bestsellers-2x3-01` | `summer-bestsellers-captions.md` | ✅ 발행됨(커버) |
+| — | 06-21(토) | 큐레이션·시즌 커버 | `summer-daily-2x3-01` | `summer-daily-captions.md` | ✅ 발행됨(커버) |
+| 1 | 06-23(월) | 큐레이션·콜라주 | `pinterest/curation/collage/summer-collage-2x3-01` | `summer-collage-captions.md` | ⬜ |
+| 2 | 06-25(수) | 단일 상품핀 | 랭킹 덱 상품카드 1 (best 2x3-02) 또는 product-pins | — | ⬜ |
+| 3 | 06-27(금) | 단일 상품핀 | 랭킹 덱 상품카드 2 (best 2x3-03) | — | ⬜ |
 
-> 경로 기준: `marketing/output/png/...` · 캡션 기준: `marketing/output/...`
-> ⚠️ **단일 상품핀은 가격이 placeholder(32,000원)** — 발행 전 실제 가격으로 교체(`marketing/decks/product-pins.mjs`).
+> ⚠️ 이미 올린 두 커버는 caption만 단독으론 약함 — **재방문 트래픽용으로 유지**하되, 앞으로는 standalone 상품핀 위주로 전환.
+> ⚠️ `product-pins` 덱은 **가격 placeholder(32,000원)** — 발행 전 실제 가격으로 교체(`marketing/decks/product-pins.mjs`).
+> 🔧 **선행 작업 필요**: 랭킹/데일리 덱의 상품 카드를 개별 핀으로 뽑는 출력 구조 정비 (아래 "구조 정비" 참고).
+> ⏸ **사이즈 가이드 정보핀은 보류** — 정보핀은 핀 위에서 답을 다 줘 클릭률 낮음. 트래픽 검증 후 도입.
+
+---
+
+## 구조 정비 (다음 작업)
+
+현재 엔진은 랭킹/시즌 덱을 `cover → rank×N → cta` 캐러셀 전제로 출력한다.
+standalone 운영에 맞추려면 **각 rank 카드가 그 자체로 완결된 단일 핀**이 되도록(브랜드/키워드/사이즈 노출) 보강이 필요하다.
+→ `marketing/card-news-generator.mjs`의 `renderRank` + 캡션 생성(`buildCaptions`)을 상품핀 수준으로 정비.
 
 ---
 
 ## 큐가 바닥나면
 
-새 소재를 `marketing/decks/`에 추가하고 재생성하면 큐에 채울 핀이 늘어난다:
+새 소재를 `marketing/decks/`에 추가하고 재생성:
 ```
 node marketing/card-news-generator.mjs
 node marketing/export-png.mjs <slug>
 ```
-소재 아이디어는 [marketing-content-roadmap.md](marketing-content-roadmap.md)의 유형별 표 참고
-(시즌: 물놀이룩·등원룩 / 정보형: 세탁 가이드 / 단일 상품핀: 전 상품 — 상품컷 보강 후).
+소재 아이디어는 [marketing-content-roadmap.md](marketing-content-roadmap.md) 유형별 표 참고
+(시즌: 물놀이룩·등원룩 / 단일 상품핀: 전 상품 — 상품컷 보강 후).
 
 ---
 
 ## 발행 시 체크 (핀터레스트 Create Pin)
 
-- [ ] 이미지 업로드 (위 경로)
-- [ ] 제목·설명 = 캡션 파일 복붙
-- [ ] **링크(목적지 URL)** 입력 ← 트래픽 핵심 (UTM 포함된 캡션의 링크)
-- [ ] 보드 선택 (예: "여름 아동복")
+- [ ] 세로 2:3 이미지 업로드 (`marketing/output/png/pinterest/...`)
+- [ ] 제목·설명 = 캡션 파일 복붙 (검색 키워드 포함)
+- [ ] **링크(목적지 URL)** 입력 ← 트래픽 핵심 (UTM 포함). 런칭 전엔 현재 라이브몰, 런칭 후 Shopify URL
+- [ ] 보드 선택 (주제별: "여름 아동복", "키즈 코디" 등)
 - [ ] **Organic > Create Pin** 사용 (Paid = 광고, 사용 안 함)
-- [ ] 발행 → 며칠 뒤 Analytics에서 아웃바운드 클릭 확인
+- [ ] 발행 → 며칠 뒤 Analytics에서 **아웃바운드 클릭** 확인 (노출 아님)
