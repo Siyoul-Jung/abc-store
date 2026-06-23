@@ -77,24 +77,24 @@
 ### 상품 탐색 UX
 | 상태 | 항목 | 파일 |
 |---|---|---|
-| [ ] | 상품 카드 배지 (SALE / NEW / 품절) | `components/home/ProductGrid.tsx` |
-| [ ] | 상품 카드 호버 시 두 번째 이미지 | `components/home/ProductGrid.tsx` |
+| [x] | 상품 카드 배지 (SALE / NEW / 품절) | `ProductGrid.tsx` — 좌상단 배지 스택 (품절 우선, SALE coral, NEW=new태그) |
+| [x] | 상품 카드 호버 시 두 번째 이미지 | `SwipeableProductImages.tsx` — 데스크톱 호버 시 2번째로 smooth scroll (모바일 무영향) |
 | [x] | 컬렉션 정렬 (신상순 / 가격순 / 인기순) | 컬렉션 페이지 |
-| [ ] | 재입고 알림 신청 | 품절 variant 버튼 영역 |
-| [ ] | 최근 본 상품 | localStorage 기반 |
+| [x] | 재입고 알림 신청 | 품절 variant 선택 시 이메일 폼 (`RestockNotify.tsx` + `restock.ts`). ⚠️ 운영 전 `docs/sql/2026-06-22-restock-subscriptions.sql` 실행 필요 |
+| [x] | 최근 본 상품 | `RecentlyViewed.tsx` — localStorage, 상세 하단 가로 스크롤 |
 
 ### 전환율
 | 상태 | 항목 | 비고 |
 |---|---|---|
-| [ ] | 카카오톡 공유 버튼 | 상품 상세 페이지 |
-| [ ] | 결제 단계 표시 (프로그레스 바) | 체크아웃 페이지 |
-| [ ] | 빈 상태 디자인 | 검색 0건, 컬렉션 비었을 때 |
+| [x] | 카카오톡 공유 버튼 | `ShareButtons.tsx` — Kakao(NEXT_PUBLIC_KAKAO_JS_KEY 있을 때) + navigator.share/링크복사 폴백 |
+| [ ] | 결제 단계 표시 (프로그레스 바) | 체크아웃이 단일 페이지라 보류 — 단계 표시가 부정확·저가치 |
+| [x] | 빈 상태 디자인 | 검색 0건·컬렉션·장바구니 빈 상태 완료 |
 
 ### 콘텐츠 / 운영
 | 상태 | 항목 | 비고 |
 |---|---|---|
 | [ ] | Hero 이미지 CMS 관리 | 현재 코드 수정 필요 — Shopify 메타오브젝트 또는 환경변수로 전환 |
-| [ ] | 공지사항 / 이벤트 배너 | 간단한 배너 관리 구조 필요 |
+| [x] | 공지사항 / 이벤트 배너 | `NoticeBanner.tsx` — 환경변수(NEXT_PUBLIC_NOTICE_KO/_JA/_LINK)로 관리, dismiss 가능 |
 | [ ] | 네이버 쇼핑 피드 | `sitemap.xml` 완성 후 연동 |
 
 ### 접근성 / 품질
@@ -102,8 +102,8 @@
 |---|---|---|
 | [ ] | 이미지 alt 텍스트 전수 검토 | 빈 `alt=""` 확인 |
 | [ ] | 탭 영역 최소 44×44px | 모바일 소형 버튼 확인 |
-| [ ] | focus-visible 스타일 | 키보드 탐색 접근성 |
-| [ ] | 폰트 `font-display: swap` | `app/layout.tsx` |
+| [x] | focus-visible 스타일 | `globals.css` — 키보드 포커스 시 ink 윤곽선 |
+| [x] | 폰트 `font-display: swap` | @fontsource CSS에 기본 포함됨(확인 완료) — 별도 설정 불필요 |
 | [ ] | 페이지 로딩 Suspense 경계 | 주요 동적 섹션 |
 | [ ] | 색상 대비 WCAG AA 확인 | `ink-muted #9A8F88` — 배경 대비 |
 

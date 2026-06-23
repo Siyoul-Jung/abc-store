@@ -8,6 +8,8 @@ import ProductImageGallery from '@/components/product/ProductImageGallery'
 import VariantSelector from '@/components/product/VariantSelector'
 import ProductDisclosure from '@/components/product/ProductDisclosure'
 import ProductGrid from '@/components/home/ProductGrid'
+import RecentlyViewed from '@/components/product/RecentlyViewed'
+import ShareButtons from '@/components/product/ShareButtons'
 import type { Locale, Product } from '@/lib/shopify/types'
 
 const BASE = 'https://applebuttercollege.com'
@@ -99,6 +101,8 @@ export default async function ProductPage({ params }: Props) {
           <VariantSelector
             variants={product.variants.nodes}
             locale={lang as Locale}
+            productId={product.id}
+            productTitle={stripTitlePrefix(product.title)}
             addToCartLabel={dict.product.addToCart}
             soldOutLabel={dict.product.soldOut}
             sizeGuideLabel={dict.product.sizeGuide}
@@ -108,6 +112,14 @@ export default async function ProductPage({ params }: Props) {
             shippingNotice={metafields.shippingNotice ?? undefined}
             initialPrice={firstVariant.price}
             initialCompareAtPrice={firstVariant.compareAtPrice}
+          />
+
+          <ShareButtons
+            url={`${BASE}/${lang}/products/${id}`}
+            title={stripTitlePrefix(product.title)}
+            description={product.description}
+            imageUrl={product.featuredImage?.url ?? product.images.nodes[0]?.url}
+            locale={lang as Locale}
           />
 
           {/* 상품정보제공고시 + KC 표시 — 한국 판매분 법적 고지 (ko 전용) */}
@@ -125,6 +137,17 @@ export default async function ProductPage({ params }: Props) {
           />
         </div>
       )}
+
+      <RecentlyViewed
+        lang={lang as Locale}
+        current={{
+          numericId: gidToNumericId(product.id),
+          title: stripTitlePrefix(product.title),
+          image: product.featuredImage?.url ?? product.images.nodes[0]?.url ?? null,
+          amount: product.priceRange.minVariantPrice.amount,
+          currencyCode: product.priceRange.minVariantPrice.currencyCode,
+        }}
+      />
 
     </div>
   )

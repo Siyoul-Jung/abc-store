@@ -31,6 +31,8 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
             const compareAt = product.compareAtPriceRange?.maxVariantPrice
             const isOnSale  = compareAt && Number(compareAt.amount) > Number(minPrice.amount)
             const soldOut   = !product.variants.nodes.some((v) => v.availableForSale)
+            const isNew     = product.tags.includes('new')   // 컬렉션 핸들과 동일한 태그 기준
+            const soldOutLabel = lang === 'ja' ? '完売' : lang === 'en' ? 'SOLD OUT' : '품절'
             return (
               <div key={product.id}>
                 <Link href={`/${lang}/products/${id}`} className="group flex flex-col">
@@ -40,11 +42,32 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
                       title={product.title}
                       sizes="(max-width: 640px) 50vw, 25vw"
                     />
-                    {product.tags.includes('adult') && (
-                      <span className="absolute top-2 left-2 bg-white/90 text-ink text-[10px] font-semibold tracking-widest px-2 py-0.5 uppercase">
-                        ADULT
-                      </span>
-                    )}
+                    {/* 배지 스택: 품절이면 품절만, 아니면 SALE·NEW. ADULT는 카테고리 표식이라 별도. */}
+                    <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
+                      {soldOut ? (
+                        <span className="bg-ink/75 text-white text-[10px] font-semibold tracking-widest px-2 py-0.5 uppercase">
+                          {soldOutLabel}
+                        </span>
+                      ) : (
+                        <>
+                          {isOnSale && (
+                            <span className="bg-coral text-white text-[10px] font-semibold tracking-widest px-2 py-0.5 uppercase">
+                              SALE
+                            </span>
+                          )}
+                          {isNew && (
+                            <span className="bg-ink text-white text-[10px] font-semibold tracking-widest px-2 py-0.5 uppercase">
+                              NEW
+                            </span>
+                          )}
+                        </>
+                      )}
+                      {product.tags.includes('adult') && (
+                        <span className="bg-white/90 text-ink text-[10px] font-semibold tracking-widest px-2 py-0.5 uppercase">
+                          ADULT
+                        </span>
+                      )}
+                    </div>
                     {!soldOut && (
                       <div className="absolute bottom-2 right-2 z-10">
                         <QuickAddButton product={product} lang={lang} soldOut={soldOut} />
