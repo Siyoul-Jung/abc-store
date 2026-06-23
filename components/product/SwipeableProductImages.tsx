@@ -30,6 +30,15 @@ export default function SwipeableProductImages({ images, title, sizes = '50vw' }
     setActiveIndex(Math.round(scrollLeft / clientWidth))
   }
 
+  // 데스크톱 호버 시 2번째 이미지로 미리보기 — 기존 스크롤을 그대로 재사용해 모바일 스와이프엔 무영향.
+  // 터치 기기는 hover가 없거나 탭 즉시 이동하므로 사실상 동작 안 함.
+  function handleEnter() {
+    scrollRef.current?.scrollTo({ left: scrollRef.current.clientWidth, behavior: 'smooth' })
+  }
+  function handleLeave() {
+    scrollRef.current?.scrollTo({ left: 0, behavior: 'smooth' })
+  }
+
   if (displayImages.length === 0) return <div className="w-full h-full bg-surface" />
 
   if (displayImages.length === 1) {
@@ -49,6 +58,8 @@ export default function SwipeableProductImages({ images, title, sizes = '50vw' }
       <div
         ref={scrollRef}
         onScroll={handleScroll}
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
         className="flex w-full h-full overflow-x-auto snap-x snap-mandatory"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
