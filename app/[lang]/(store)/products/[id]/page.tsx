@@ -9,6 +9,7 @@ import VariantSelector from '@/components/product/VariantSelector'
 import ProductDisclosure from '@/components/product/ProductDisclosure'
 import ProductGrid from '@/components/home/ProductGrid'
 import RecentlyViewed from '@/components/product/RecentlyViewed'
+import ShareButtons from '@/components/product/ShareButtons'
 import type { Locale, Product } from '@/lib/shopify/types'
 
 const BASE = 'https://applebuttercollege.com'
@@ -111,6 +112,14 @@ export default async function ProductPage({ params }: Props) {
             shippingNotice={metafields.shippingNotice ?? undefined}
             initialPrice={firstVariant.price}
             initialCompareAtPrice={firstVariant.compareAtPrice}
+          />
+
+          <ShareButtons
+            url={`${BASE}/${lang}/products/${id}`}
+            title={stripTitlePrefix(product.title)}
+            description={product.description}
+            imageUrl={product.featuredImage?.url ?? product.images.nodes[0]?.url}
+            locale={lang as Locale}
           />
 
           {/* 상품정보제공고시 + KC 표시 — 한국 판매분 법적 고지 (ko 전용) */}
