@@ -14,8 +14,10 @@ export default function ProductImageGallery({
   title: string
   featuredUrl?: string
 }) {
-  // 메인 목록 대표컷(그레이 배경)은 상세 갤러리에서 제외 — 상세는 흰배경 상세컷만 노출
-  const gallery = featuredUrl ? images.filter((i) => i.url !== featuredUrl) : images
+  // 메인 목록 대표컷(그레이 배경 maximage, 파일명 001…)만 상세 갤러리에서 제외 — 상세는 흰배경 상세컷만 노출.
+  // 그레이 대표컷이 없는 상품은 featured가 진짜 대표 상품컷이므로 제외하지 않는다(썸네일=상세 1번 일치).
+  const isCover = (url?: string) => !!url && /\/0\d{5,}[._]/.test(url)
+  const gallery = isCover(featuredUrl) ? images.filter((i) => i.url !== featuredUrl) : images
   const [active, setActive] = useState(0)
   const [zoom, setZoom] = useState(false)
 
