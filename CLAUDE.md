@@ -142,7 +142,11 @@ SUPABASE_SERVICE_ROLE_KEY=          # 등록 완료
 ADMIN_SECRET=                       # 관리자 페이지 접근용
 ADMIN_EMAIL=                        # 등록 완료
 NEXT_PUBLIC_SITE_URL=               # 등록 완료
-RESEND_API_KEY=                     # 등록 완료 (.env.local) — Q&A 답변/환불 알림 메일. 운영은 Vercel 등록 + 도메인(applebuttercollege.com) DKIM/SPF 인증 필요
+RESEND_API_KEY=                     # 등록 완료 (.env.local) — Q&A 답변/환불/재입고 알림 메일. 운영은 Vercel 등록 + 도메인(applebuttercollege.com) DKIM/SPF 인증 필요
+NEXT_PUBLIC_KAKAO_JS_KEY=           # (선택) 카카오톡 공유용 JS 키 — 없으면 공유 버튼은 네이티브공유/링크복사만 동작
+NEXT_PUBLIC_NOTICE_KO=              # (선택) 상단 공지 배너 문구(한국) — 비면 배너 미노출
+NEXT_PUBLIC_NOTICE_JA=              # (선택) 상단 공지 배너 문구(일본)
+NEXT_PUBLIC_NOTICE_LINK=            # (선택) 공지 배너 클릭 시 이동 링크
 ```
 
 ---
