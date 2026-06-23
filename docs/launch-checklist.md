@@ -49,8 +49,8 @@
 | 상태 | 항목 | 파일 / 비고 |
 |---|---|---|
 | [x] | CS 채널 플로팅 버튼 | Q&A 게시판 1:1 문의로 대체 (채널톡 미사용) |
-| [ ] | 검색 결과 전용 페이지 | `app/[lang]/(store)/search/page.tsx` — 현재 드롭다운만 |
-| [ ] | 주문완료 페이지 상세 | 상품명·수량·금액·배송지 요약 표시 |
+| [x] | 검색 결과 전용 페이지 | `app/[lang]/(store)/search/page.tsx` — Shopify SEARCH_QUERY 조회 + ProductGrid + 무결과 안내(빈 상태) 완료 |
+| [x] | 주문완료 페이지 상세 | 상품명·옵션·수량·라인합계·결제금액·배송지·가상계좌 안내까지 표시 (`checkout/complete/page.tsx` ← confirm 라우트가 `order_confirmation` 쿠키로 전달) |
 | [x] | 제주/도서산간 배송비 결제 반영 | 우편번호 63xxx 자동감지(+3,000) / 도서산간 체크박스(+4,000) → 결제금액·shipping_lines 반영. 우편번호 5자리 필수 검증 포함 |
 
 ### SEO / 기술
@@ -58,7 +58,7 @@
 |---|---|---|
 | [x] | robots.txt | `app/robots.ts` |
 | [x] | sitemap.xml | `app/sitemap.ts` — 상품 URL 포함 |
-| [ ] | 기본 OG 이미지 | 홈·법적 페이지용 `og-default.png` + `app/layout.tsx` 메타 |
+| [x] | 기본 OG 이미지 | `public/og-default.png`(5000×2625) + `app/[lang]/layout.tsx`에 openGraph.images·twitter summary_large_image·metadataBase 연결 완료 |
 | [x] | Product Structured Data (JSON-LD) | `app/[lang]/(store)/products/[id]/page.tsx` — 구글 쇼핑 노출 |
 | [ ] | Google Search Console 등록 | 도메인 인증 |
 
