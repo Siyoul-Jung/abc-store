@@ -99,6 +99,8 @@ export default async function ProductPage({ params }: Props) {
           <VariantSelector
             variants={product.variants.nodes}
             locale={lang as Locale}
+            productId={product.id}
+            productTitle={stripTitlePrefix(product.title)}
             addToCartLabel={dict.product.addToCart}
             soldOutLabel={dict.product.soldOut}
             sizeGuideLabel={dict.product.sizeGuide}

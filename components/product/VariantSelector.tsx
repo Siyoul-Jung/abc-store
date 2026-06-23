@@ -5,11 +5,14 @@ import type { ProductVariant, Locale, Money } from '@/lib/shopify/types'
 import { addToCart } from '@/lib/actions/cart'
 import SizeGuideModal from '@/components/product/SizeGuideModal'
 import PolicyModal from '@/components/product/PolicyModal'
+import RestockNotify from '@/components/product/RestockNotify'
 import { formatPrice } from '@/lib/utils/format'
 
 type Props = {
   variants: ProductVariant[]
   locale: Locale
+  productId: string
+  productTitle: string
   addToCartLabel: string
   soldOutLabel: string
   sizeGuideLabel: string
@@ -70,7 +73,7 @@ function ShippingTimeline({ text }: { text: string }) {
   )
 }
 
-export default function VariantSelector({ variants, locale, addToCartLabel, soldOutLabel, sizeGuideLabel, freeShippingNotice, descriptionHtml, careInstructions, shippingNotice, initialPrice, initialCompareAtPrice }: Props) {
+export default function VariantSelector({ variants, locale, productId, productTitle, addToCartLabel, soldOutLabel, sizeGuideLabel, freeShippingNotice, descriptionHtml, careInstructions, shippingNotice, initialPrice, initialCompareAtPrice }: Props) {
   const [selectedId, setSelectedId] = useState<string>(
     variants.find((v) => v.availableForSale)?.id ?? variants[0]?.id ?? '',
   )
@@ -163,6 +166,17 @@ export default function VariantSelector({ variants, locale, addToCartLabel, sold
         >
           {isPending ? '···' : added ? '✓' : selected?.availableForSale ? addToCartLabel : soldOutLabel}
         </button>
+
+        {/* 선택한 사이즈가 품절이면 재입고 알림 신청 — 이탈 대신 수요를 수집 */}
+        {selected && !selected.availableForSale && (
+          <RestockNotify
+            productId={productId}
+            productTitle={productTitle}
+            variantId={selected.id}
+            variantTitle={selected.selectedOptions[0]?.value ?? selected.title}
+            locale={locale}
+          />
+        )}
 
         {locale === 'ko' ? (
           <div className="flex flex-col gap-2">
