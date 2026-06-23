@@ -15,8 +15,14 @@ export default function SwipeableProductImages({ images, title, sizes = '50vw' }
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
-  // 카드에선 최대 3장
-  const displayImages = images.slice(0, 3).filter((img) => img.url)
+  // 카드 미리보기 정리:
+  //  1) 사이즈표(altText="sizechart")는 제외 — 호버 미리보기엔 상품컷만 노출.
+  //  2) 메이크샵 대표컷(그레이배경, 파일명 001…)이 0번이면 그 '무배경 쌍둥이'(1번)를 생략.
+  //     대표컷은 첫 상품컷을 그레이배경으로 만든 거라, 안 빼면 같은 옷이 그레이/무배경으로 두 번 보임.
+  const photos = images.filter((img) => img.url && img.altText !== 'sizechart')
+  const hasCover = /\/0\d{5,}[._]/.test(photos[0]?.url ?? '')
+  const deduped = hasCover ? [photos[0], ...photos.slice(2)] : photos
+  const displayImages = deduped.slice(0, 3)
 
   function handleScroll() {
     if (!scrollRef.current) return
