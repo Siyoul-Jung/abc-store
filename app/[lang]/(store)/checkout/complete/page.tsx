@@ -24,7 +24,7 @@ type Props = { params: Promise<{ lang: string }> }
 const t: Record<Locale, {
   titleCard: string; titleVbank: string
   orderNum: string
-  items: string; total: string; shippingAddr: string
+  items: string; subtotal: string; shippingFee: string; free: string; total: string; shippingAddr: string
   depositGuide: string; depositBank: string; depositAccount: string; depositAmount: string; depositDue: string
   depositNote: string
   continueShopping: string
@@ -35,6 +35,9 @@ const t: Record<Locale, {
     titleVbank: '입금 계좌를 확인해 주세요',
     orderNum: '주문번호',
     items: '주문 상품',
+    subtotal: '상품 합계',
+    shippingFee: '배송비',
+    free: '무료',
     total: '결제 금액',
     shippingAddr: '배송지',
     depositGuide: '아래 계좌로 입금하시면 주문이 확정됩니다.',
@@ -54,6 +57,9 @@ const t: Record<Locale, {
     titleVbank: '振込先口座をご確認ください',
     orderNum: '注文番号',
     items: 'ご注文商品',
+    subtotal: '商品合計',
+    shippingFee: '送料',
+    free: '無料',
     total: 'お支払い金額',
     shippingAddr: 'お届け先',
     depositGuide: '下記の口座へお振込みいただくとご注文が確定します。',
@@ -73,6 +79,9 @@ const t: Record<Locale, {
     titleVbank: 'Please complete your bank transfer',
     orderNum: 'Order',
     items: 'Items',
+    subtotal: 'Subtotal',
+    shippingFee: 'Shipping',
+    free: 'Free',
     total: 'Total',
     shippingAddr: 'Ship to',
     depositGuide: 'Your order will be confirmed once we receive your payment.',
@@ -108,6 +117,11 @@ export default async function CheckoutCompletePage({ params }: Props) {
 
   const d = t[locale]
   const { isVbank, vbank, shipping, items, amount, orderName, orderFailed, orderRef } = order!
+
+  // 배송비는 별도 필드로 넘어오지 않으므로 총 결제액 − 상품합계로 역산한다.
+  // 제주/도서산간 추가비도 자연히 배송비에 포함되어 총액과 항상 일치한다.
+  const subtotal = items.reduce((sum, it) => sum + it.lineTotal, 0)
+  const shippingFee = Math.max(0, amount - subtotal)
 
   // 결제는 됐으나 주문 생성이 실패한 경우 — 깨끗한 성공 화면 대신 지연 안내를 표시한다.
   // (관리자에겐 이미 알림 메일이 발송되어 수동 처리로 이어진다.)
@@ -167,9 +181,19 @@ export default async function CheckoutCompletePage({ params }: Props) {
               </div>
             ))}
           </div>
-          <div className="flex justify-between px-5 py-3 border-t border-border bg-surface">
-            <span className="text-sm font-semibold">{d.total}</span>
-            <span className="text-sm font-semibold">{amount.toLocaleString()}원</span>
+          <div className="border-t border-border bg-surface px-5 py-3 flex flex-col gap-2">
+            <div className="flex justify-between text-sm text-ink-muted">
+              <span>{d.subtotal}</span>
+              <span>{subtotal.toLocaleString()}원</span>
+            </div>
+            <div className="flex justify-between text-sm text-ink-muted">
+              <span>{d.shippingFee}</span>
+              <span>{shippingFee > 0 ? `${shippingFee.toLocaleString()}원` : d.free}</span>
+            </div>
+            <div className="flex justify-between border-t border-border pt-2 mt-1">
+              <span className="text-sm font-semibold">{d.total}</span>
+              <span className="text-sm font-semibold">{amount.toLocaleString()}원</span>
+            </div>
           </div>
         </div>
       )}
