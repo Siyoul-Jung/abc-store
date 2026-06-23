@@ -20,7 +20,7 @@ const THEME = {
   inkMuted: '#A8968F',
   pink: '#FFEDE9',      // 브랜드 블러시 핑크 (인스타 피드에서 추출)
   red: '#CF181C',       // 브랜드 레드 (로고 색)
-  accent: '#F5562E',    // 밝은 코랄 — eyebrow 포인트 (레드 계열이라 통일감 + 여름 느낌)
+  accent: '#F5562E',    // eyebrow·랭크번호·CTA링크 포인트 컬러. 텍스트 레드(차분한 코랄). 로고도 브랜드 레드.
   border: '#F3DAD4',
   logo: LOGO_URL,   // 레드 스크립트 로고 (워터마크)
   brand: 'applebuttercollege',
@@ -79,6 +79,7 @@ function renderRank(c) {
   <div class="card rank">
     ${photo}
     <div class="caption">
+      ${c.eyebrow ? `<div class="eyebrow">${c.eyebrow}</div>` : ''}
       <div class="meta"><span class="no">${String(c.rank).padStart(2, '0')}</span><span class="tag">${c.tag}</span>${c.size ? `<span class="tag">${c.size}</span>` : ''}</div>
       <h2 class="name">${c.name}</h2>
       <p class="desc">${nl(c.desc)}</p>
@@ -205,6 +206,7 @@ function cardCss(fmt) {
   .rank .prod-card{margin:0 60px;height:${rankPhotoH}px;padding:18px 36px;}
   .caption{padding:0 90px;margin-top:44px;}
   .rank .logo{position:absolute;bottom:54px;left:0;right:0;}
+  .rank .caption .eyebrow{margin-bottom:20px;}
   .meta{display:flex;align-items:center;gap:20px;}
   .meta .no{font-family:'Poppins',sans-serif;font-weight:800;font-size:42px;color:var(--accent);letter-spacing:.02em;}
   .meta .tag{font-size:25px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;
@@ -307,6 +309,16 @@ function buildCaptions(deck) {
     ? fill(cap.pinDesc)
     : `${title}. ${names.length ? names.join(' · ') + '. ' : ''}${cap.keywords ? cap.keywords + '. ' : ''}`
 
+  // 랭킹 카드를 개별 단일 핀으로 발행하기 위한 카드별 캡션 (PNG 파일명 + 제목/설명/링크)
+  const rankPinBlocks = deck.cards
+    .map((c, i) => ({ c, i }))
+    .filter(({ c }) => c.type === 'rank')
+    .map(({ c, i }) => {
+      const png = `${deck.slug}-2x3-${String(i + 1).padStart(2, '0')}.png`
+      return `**${c.name}** — \`pinterest/.../${png}\`\n- 제목: ${c.name}\n- 설명: ${c.name}. ${cap.keywords ?? ''}\n- 링크: ${pinLink}`
+    })
+    .join('\n\n')
+
   const rankList = ranks.length ? ranks.map((c) => `${c.rank}. ${c.name}`).join('\n') + '\n\n' : ''
   const igCaption =
     `🍎 ${title}\n\n` +
@@ -330,7 +342,14 @@ ${pinLink}
 
 **해시태그**
 ${tags}
+${rankPinBlocks ? `
+---
 
+## 📌 개별 상품핀 (랭킹 카드별 — 각각 단독 핀으로)
+> 커버 1장만 올리지 말 것. 아래 카드를 각각 단일 핀으로 발행 = 상품마다 검색결과 1개.
+
+${rankPinBlocks}
+` : ''}
 ---
 
 ## 📷 인스타그램 (캐러셀 1장 = 카드 전체)
@@ -362,6 +381,17 @@ const decks = await loadDecks()
 if (!decks.length) {
   console.error('decks/ 폴더에 소재 파일(*.mjs)이 없습니다.')
   process.exit(1)
+}
+
+// 랭크 카드를 단독 핀으로 써도 맥락이 완결되도록, 커버의 eyebrow를 각 랭크 카드에 전파한다.
+// (덱 파일을 일일이 고치지 않아도 "SUMMER BEST" 같은 키워드 라벨이 모든 상품 카드에 붙음)
+for (const deck of decks) {
+  const coverEyebrow = deck.cards.find((c) => c.type === 'cover')?.eyebrow
+  if (coverEyebrow) {
+    for (const c of deck.cards) {
+      if (c.type === 'rank' && !c.eyebrow) c.eyebrow = coverEyebrow
+    }
+  }
 }
 
 const manifest = {}   // slug → "type" 또는 "type/subtype". export-png가 읽어 폴더로 분류.

@@ -1,10 +1,11 @@
 // 소재(deck) — 여름 베스트셀러 랭킹 카드뉴스
 // 유형: ranking (cover → rank×N → cta). 같은 유형의 새 소재는 이 파일을 복사해 데이터만 교체.
 // 이미지: Shopify CDN URL.
+// ⚠️ 아래 URL은 재마이그레이션으로 깨졌을 수 있음 — 복구 후 새 Shopify CDN URL로 교체 필요.
 
 const IMG = {
-  babypink: 'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000557.png?v=1778568130',
-  skyblue:  'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000556.png?v=1778568124',
+  babypink: 'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000609.png?v=1778568428',  // 싯피그 베이비 핑크
+  skyblue:  'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000608.png?v=1778568422',  // 싯피그 스카이블루
   nine:     'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000562.png?v=1778568163',
   dino:     'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000558.png?v=1778568137',
   honey:    'https://cdn.shopify.com/s/files/1/0787/0916/2212/files/001000000560.png?v=1778568150',
@@ -34,15 +35,15 @@ export default {
     },
     {
       type: 'rank', rank: 1,
-      name: '피그 베이비핑크 세트',
-      desc: '전 사이즈 고르게 사랑받은\n올여름 부동의 1위',
+      name: '싯피그 베이비 핑크 세트',
+      desc: '따뜻한 핑크 톤으로\n여아맘들이 가장 많이 픽',
       tag: '반팔 + 반바지', size: 'XS–XL',
       image: IMG.babypink,
     },
     {
       type: 'rank', rank: 2,
-      name: '피그 스카이블루 세트',
-      desc: '시원한 컬러감으로\n남아맘들이 가장 많이 픽',
+      name: '싯피그 스카이블루 세트',
+      desc: '시원한 블루 톤으로\n남아맘들이 가장 많이 픽',
       tag: '반팔 + 반바지', size: 'XS–XL',
       image: IMG.skyblue,
     },
