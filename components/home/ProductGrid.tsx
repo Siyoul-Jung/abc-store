@@ -79,7 +79,7 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
                     {stripTitlePrefix(product.title)}
                   </p>
                   <div className="flex items-center justify-center gap-2 mt-1">
-                    <span className={`text-[13px] ${isOnSale ? 'text-coral font-medium' : 'text-ink-muted'}`}>
+                    <span className={`text-[13px] ${isOnSale ? 'text-coral font-medium' : 'text-ink'}`}>
                       {formatPrice(minPrice.amount, minPrice.currencyCode, lang)}
                     </span>
                     {isOnSale && compareAt && (

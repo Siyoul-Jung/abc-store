@@ -57,7 +57,7 @@ export default function CartLineItem({ line, locale }: Props) {
           <button
             onClick={handleRemove}
             disabled={isPending}
-            className="flex-none -mt-1 -mr-1 p-1 text-xs text-ink-muted hover:text-coral transition-colors disabled:opacity-30"
+            className="flex-none -mt-1 -mr-1 p-2 text-xs text-ink-muted hover:text-coral transition-colors disabled:opacity-30"
           >
             {removeLabel[locale]}
           </button>
@@ -65,7 +65,7 @@ export default function CartLineItem({ line, locale }: Props) {
         {merchandise.title !== 'Default Title' && (
           <p className="text-xs text-ink-muted">{merchandise.title}</p>
         )}
-        <p className="text-sm text-ink-muted">
+        <p className="text-sm text-ink">
           {formatPrice(merchandise.price.amount, merchandise.price.currencyCode, locale)}
         </p>
 
@@ -73,7 +73,7 @@ export default function CartLineItem({ line, locale }: Props) {
           <button
             onClick={() => handleQuantity(line.quantity - 1)}
             disabled={isPending || line.quantity <= 1}
-            className="w-7 h-7 flex items-center justify-center border border-border text-sm hover:border-ink transition-colors disabled:opacity-30"
+            className="w-10 h-10 flex items-center justify-center border border-border text-sm hover:border-ink transition-colors disabled:opacity-30"
           >
             −
           </button>
@@ -81,7 +81,7 @@ export default function CartLineItem({ line, locale }: Props) {
           <button
             onClick={() => handleQuantity(line.quantity + 1)}
             disabled={isPending}
-            className="w-7 h-7 flex items-center justify-center border border-border text-sm hover:border-ink transition-colors disabled:opacity-30"
+            className="w-10 h-10 flex items-center justify-center border border-border text-sm hover:border-ink transition-colors disabled:opacity-30"
           >
             +
           </button>

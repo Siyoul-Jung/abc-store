@@ -27,7 +27,7 @@ export default function MobileMenu({ lang, navItems, labels, loggedIn }: Props) 
       <button
         onClick={() => setOpen(true)}
         aria-label={labels.menu}
-        className="p-1 text-ink hover:opacity-60 transition-opacity"
+        className="p-2.5 -ml-2.5 inline-flex items-center justify-center min-w-11 min-h-11 text-ink hover:opacity-60 transition-opacity"
       >
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
           <line x1="3" y1="6" x2="19" y2="6" />
@@ -52,7 +52,7 @@ export default function MobileMenu({ lang, navItems, labels, loggedIn }: Props) 
               <button
                 onClick={() => setOpen(false)}
                 aria-label={labels.close}
-                className="text-ink-muted hover:text-ink transition-colors"
+                className="-mr-2 inline-flex items-center justify-center min-w-11 min-h-11 text-ink-muted hover:text-ink transition-colors"
               >
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                   <line x1="2" y1="2" x2="16" y2="16" />

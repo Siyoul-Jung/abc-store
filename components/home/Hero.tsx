@@ -5,7 +5,10 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import type { Locale } from '@/lib/shopify/types'
 
-const slides = [
+export type HeroSlide = { src: string; alt: string }
+
+// 기본 슬라이드(코드 내장). 환경변수 HERO_SLIDES 미설정 시 폴백.
+const DEFAULT_SLIDES: HeroSlide[] = [
   { src: '/new_main01.png', alt: 'applebuttercollege 2026 S/S' },
   { src: '/new_main02.png', alt: 'applebuttercollege 2026 S/S' },
   { src: '/new_main03.png', alt: 'applebuttercollege 2026 S/S' },
@@ -16,9 +19,11 @@ type Props = {
   season: string
   tagline: string
   ctaLabel: string
+  slides?: HeroSlide[]   // 서버에서 env 기반 주입(없으면 기본). 코드 수정 없이 시즌 교체용.
 }
 
-export default function Hero({ lang, season, tagline, ctaLabel }: Props) {
+export default function Hero({ lang, season, tagline, ctaLabel, slides: slidesProp }: Props) {
+  const slides = slidesProp && slidesProp.length > 0 ? slidesProp : DEFAULT_SLIDES
   const [current, setCurrent] = useState(0)
 
   useEffect(() => {
@@ -77,17 +82,21 @@ export default function Hero({ lang, season, tagline, ctaLabel }: Props) {
         </Link>
       </div>
 
-      {/* 인디케이터 */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+      {/* 인디케이터 — 점은 작게 보이되 탭 영역은 p-2.5로 확대 */}
+      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex z-20">
         {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrent(i)}
             aria-label={`슬라이드 ${i + 1}`}
-            className={`w-1.5 h-1.5 rounded-full transition-colors ${
-              i === current ? 'bg-white' : 'bg-white/40'
-            }`}
-          />
+            className="p-2.5 flex items-center justify-center"
+          >
+            <span
+              className={`block w-1.5 h-1.5 rounded-full transition-colors ${
+                i === current ? 'bg-white' : 'bg-white/40'
+              }`}
+            />
+          </button>
         ))}
       </div>
     </section>
