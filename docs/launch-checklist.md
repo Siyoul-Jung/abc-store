@@ -14,11 +14,11 @@
 | [ ] | `NEXT_PUBLIC_TOSS_CLIENT_KEY` 등록 | Vercel 환경변수 |
 | [ ] | `TOSS_SECRET_KEY` 등록 | Vercel 환경변수 |
 | [x] | Shopify Admin API 토큰 확보 (`shpat_`) | 결제 성공 → 주문 생성에 필수 |
-| [ ] | `SHOPIFY_ADMIN_API_TOKEN` Vercel 등록 | |
+| [x] | `SHOPIFY_ADMIN_API_TOKEN` Vercel 등록 | Production 등록 확인 완료 (`vercel env ls`) |
 | [x] | 토스 웹훅 서명검증 구현 | `app/api/toss/webhook/route.ts` — fail-closed, 테스트 통과 |
 | [ ] | `TOSS_WEBHOOK_SECRET` 등록 (`.env.local` + Vercel) | 토스 지급대행 설정의 **보안 키** (API 시크릿과 별개). 미등록 시 모든 웹훅 401 거부 |
 | [ ] | Vercel 환경변수 전체 점검 | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `INSTAGRAM_ACCESS_TOKEN` 포함 |
-| [ ] | Supabase 정지/백업 대응 결정 | 무료 플랜은 7일 무활동 시 자동 정지(Q&A·반품·환불 DB). 옵션: ⓐ 무료+keep-alive 핑(영구 무료) ⓑ Pro 업그레이드($25/월, 자동백업). **런칭 직전 실데이터 기준 재검토** — keep-alive 핑 라우트는 미구현 |
+| [x] | Supabase 정지/백업 대응 | keep-alive 핑 구현 완료(`app/api/cron/keep-alive` + vercel.json cron 매일 03:00 UTC, answer_templates head count). 무료 플랜 7일 무활동 정지 방지. 백업이 필요하면 추후 Pro($25/월) 별도 검토 |
 | [ ] | 도메인 연결 (applebuttercollege.com → Vercel) | DNS 변경 + SSL 확인 |
 
 ### 법적 표시 (아동복 이커머스 의무사항)
