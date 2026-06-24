@@ -6,9 +6,9 @@ import { useEffect, useState } from 'react'
 import type { Locale } from '@/lib/shopify/types'
 
 const slides = [
-  { src: '/new_main01.png', alt: 'applebuttercollege 2025 S/S' },
-  { src: '/new_main02.png', alt: 'applebuttercollege 2025 S/S' },
-  { src: '/new_main03.png', alt: 'applebuttercollege 2025 S/S' },
+  { src: '/new_main01.png', alt: 'applebuttercollege 2026 S/S' },
+  { src: '/new_main02.png', alt: 'applebuttercollege 2026 S/S' },
+  { src: '/new_main03.png', alt: 'applebuttercollege 2026 S/S' },
 ]
 
 type Props = {
