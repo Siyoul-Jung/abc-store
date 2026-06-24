@@ -1,4 +1,7 @@
-export type QuestionCategory = 'shipping' | 'return' | 'refund' | 'product' | 'other'
+// 문의 카테고리 단일 출처(SSOT). UI·관리자 필터·서버 검증이 모두 이 배열을 참조.
+// 'return'·'defective'는 /returns 폼으로 유도되지만, 카테고리 값 자체는 유효해야 함.
+export const QUESTION_CATEGORIES = ['shipping', 'return', 'defective', 'refund', 'product', 'other'] as const
+export type QuestionCategory = (typeof QUESTION_CATEGORIES)[number]
 export type QuestionStatus = 'pending' | 'answered'
 export type RefundStatus = 'pending' | 'processing' | 'completed'
 

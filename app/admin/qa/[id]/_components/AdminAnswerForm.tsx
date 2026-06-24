@@ -5,7 +5,7 @@ import { submitAnswer } from '@/lib/actions/qa'
 import type { AnswerTemplate, QuestionCategory } from '@/lib/supabase/types'
 
 const categoryLabels: Record<string, string> = {
-  shipping: '배송', return: '교환/반품', refund: '환불', product: '상품', other: '기타',
+  shipping: '배송', return: '교환/반품', defective: '불량/오배송', refund: '환불', product: '상품', other: '기타',
 }
 
 export default function AdminAnswerForm({
