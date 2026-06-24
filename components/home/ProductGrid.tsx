@@ -29,9 +29,10 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
             const id        = gidToNumericId(product.id)
             const minPrice  = product.priceRange.minVariantPrice
             const compareAt = product.compareAtPriceRange?.maxVariantPrice
-            const isOnSale  = compareAt && Number(compareAt.amount) > Number(minPrice.amount)
+            const isOnSale  = compareAt && Number(compareAt.amount) > Number(minPrice.amount)   // 정가>판매가 → 코랄·취소선 가격
             const soldOut   = !product.variants.nodes.some((v) => v.availableForSale)
-            const isNew     = product.tags.includes('new')   // 컬렉션 핸들과 동일한 태그 기준
+            const isNew     = product.tags.includes('new')    // 컬렉션 핸들과 동일한 태그 기준
+            const isSale    = product.tags.includes('sale')   // SALE 배지는 'sale' 태그로만 — 상시할인(정가)과 분리
             const soldOutLabel = lang === 'ja' ? '完売' : lang === 'en' ? 'SOLD OUT' : '품절'
             return (
               <div key={product.id}>
@@ -50,7 +51,7 @@ export default function ProductGrid({ products, lang, title, viewAllLabel }: Pro
                         </span>
                       ) : (
                         <>
-                          {isOnSale && (
+                          {isSale && (
                             <span className="bg-coral text-white text-[10px] font-semibold tracking-widest px-2 py-0.5 uppercase">
                               SALE
                             </span>
