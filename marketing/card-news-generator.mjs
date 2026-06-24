@@ -75,11 +75,14 @@ function renderRank(c) {
   const photo = c.image
     ? `<div class="prod-card"><img src="${c.image}" alt="${c.name}"/></div>`
     : `<div class="prod-card"><span>상품 이미지</span></div>`
+  // 단독 핀 완결성: rank 번호(랭킹 맥락) + 카테고리 tag + 사이즈를 메타 줄에 함께 노출.
+  // searchTag(예: "공룡 아동복")가 있으면 eyebrow 대신 검색 키워드 라벨을 우선 노출 → 핀 검색 친화.
+  const label = c.searchTag ?? c.eyebrow
   return `
   <div class="card rank">
     ${photo}
     <div class="caption">
-      ${c.eyebrow ? `<div class="eyebrow">${c.eyebrow}</div>` : ''}
+      ${label ? `<div class="eyebrow">${label}</div>` : ''}
       <div class="meta"><span class="no">${String(c.rank).padStart(2, '0')}</span><span class="tag">${c.tag}</span>${c.size ? `<span class="tag">${c.size}</span>` : ''}</div>
       <h2 class="name">${c.name}</h2>
       <p class="desc">${nl(c.desc)}</p>
@@ -99,15 +102,22 @@ function renderCta(c) {
 }
 
 // 단일 상품핀 — 상품 1개 = 핀 1장. 검색 커버리지·클릭 직행용.
+// 단독 핀 완결성: 검색 키워드 라벨(eyebrow/searchTag) + 상품명 + 카테고리·사이즈 메타 + 브랜드 로고가
+// 한 장에 모두 노출 → 핀만 봐도 "무슨 브랜드의 어떤 옷, 사이즈 범위"가 전달됨. 가격은 정책상 미표기.
 function renderProduct(c) {
   const photo = c.image
     ? `<div class="prod-card"><img src="${c.image}" alt="${c.name}"/></div>`
     : `<div class="prod-card"><span>상품 이미지</span></div>`
+  const label = c.searchTag ?? c.eyebrow
+  const meta = (c.tag || c.size)
+    ? `<div class="meta">${c.tag ? `<span class="tag">${c.tag}</span>` : ''}${c.size ? `<span class="tag">${c.size}</span>` : ''}</div>`
+    : ''
   return `
   <div class="card product">
     <div class="head">
-      ${c.eyebrow ? `<div class="eyebrow">${c.eyebrow}</div>` : ''}
+      ${label ? `<div class="eyebrow">${label}</div>` : ''}
       <h2 class="name">${c.name}</h2>
+      ${meta}
       ${c.price ? `<div class="price">${c.price}</div>` : ''}
     </div>
     ${photo}
@@ -222,6 +232,10 @@ function cardCss(fmt) {
   .product .head{padding:0 90px;}
   .product .prod-card{flex:1;margin:40px 70px 30px;padding:30px;}
   .product .name{font-weight:800;font-size:60px;letter-spacing:-.02em;margin-top:18px;}
+  .product .meta{margin-top:20px;}
+  .product .meta .tag{font-size:25px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;
+    padding-right:20px;}
+  .product .meta .tag + .tag{padding-left:20px;border-left:1px solid var(--border);}
   .product .price{margin-top:14px;font-family:'Poppins',sans-serif;font-weight:700;font-size:40px;color:var(--ink);}
   .info{justify-content:flex-start;padding:96px 90px 150px;}
   .info .title{font-weight:900;font-size:72px;line-height:1.18;letter-spacing:-.02em;margin-top:22px;}
@@ -309,13 +323,28 @@ function buildCaptions(deck) {
     ? fill(cap.pinDesc)
     : `${title}. ${names.length ? names.join(' · ') + '. ' : ''}${cap.keywords ? cap.keywords + '. ' : ''}`
 
-  // 랭킹 카드를 개별 단일 핀으로 발행하기 위한 카드별 캡션 (PNG 파일명 + 제목/설명/링크)
-  const rankPinBlocks = deck.cards
+  // 단일 상품핀 = 한 상품 = 한 검색결과. rank·product 카드 각각을 완결된 단독 핀 캡션으로.
+  // 우선순위: 카드별 link(상품 페이지 핸들) > 덱 공통 link / 카드별 searchTag·size로 검색 키워드 보강.
+  const productPinBlocks = deck.cards
     .map((c, i) => ({ c, i }))
-    .filter(({ c }) => c.type === 'rank')
+    .filter(({ c }) => c.type === 'rank' || c.type === 'product')
     .map(({ c, i }) => {
       const png = `${deck.slug}-2x3-${String(i + 1).padStart(2, '0')}.png`
-      return `**${c.name}** — \`pinterest/.../${png}\`\n- 제목: ${c.name}\n- 설명: ${c.name}. ${cap.keywords ?? ''}\n- 링크: ${pinLink}`
+      // 카드에 link(상품 핸들)가 있으면 그 상품 페이지로 직행 UTM, 없으면 덱 공통 링크.
+      const dest = c.link
+        ? utmLink(c.link, 'pinterest', deck.slug)
+        : pinLink
+      // 제목: 검색 친화 — 상품명 + 검색 키워드 라벨(있으면).
+      const pinTitle = c.searchTag ? `${c.name} | ${c.searchTag}` : c.name
+      // 설명: 상품명 + 카드 desc(있으면) + searchTag/keywords + 사이즈 안내.
+      const descBits = [
+        c.name + (c.tag ? ` ${c.tag}` : ''),
+        c.desc ? c.desc.replace(/\n/g, ' ') : '',
+        c.searchTag ?? '',
+        cap.keywords ?? '',
+        c.size ? `사이즈 ${c.size}.` : '',
+      ].filter(Boolean)
+      return `**${c.name}** — \`pinterest/.../${png}\`\n- 제목: ${pinTitle}\n- 설명: ${descBits.join('. ').replace(/\.\./g, '.')}\n- 링크: ${dest}\n- 해시태그: ${(c.hashtags ? c.hashtags.map((h) => `#${h}`).join(' ') : tags)}`
     })
     .join('\n\n')
 
@@ -342,13 +371,14 @@ ${pinLink}
 
 **해시태그**
 ${tags}
-${rankPinBlocks ? `
+${productPinBlocks ? `
 ---
 
-## 📌 개별 상품핀 (랭킹 카드별 — 각각 단독 핀으로)
+## 📌 개별 상품핀 (상품 카드별 — 각각 단독 핀으로) ★주력
 > 커버 1장만 올리지 말 것. 아래 카드를 각각 단일 핀으로 발행 = 상품마다 검색결과 1개.
+> 각 핀의 링크는 해당 상품 페이지로 직행(상품 핸들 기반 UTM).
 
-${rankPinBlocks}
+${productPinBlocks}
 ` : ''}
 ---
 

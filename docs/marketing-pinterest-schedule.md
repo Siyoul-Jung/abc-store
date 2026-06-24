@@ -46,12 +46,15 @@
 |---|---|---|---|---|---|
 | — | 06-19(금) | 큐레이션·랭킹 커버 | `summer-bestsellers-2x3-01` | `summer-bestsellers-captions.md` | ✅ 발행됨(커버) |
 | — | 06-21(토) | 큐레이션·시즌 커버 | `summer-daily-2x3-01` | `summer-daily-captions.md` | ✅ 발행됨(커버) |
-| 1 | 06-23(월) | 큐레이션·콜라주 | `pinterest/curation/collage/summer-collage-2x3-01` | `summer-collage-captions.md` | ⬜ |
-| 2 | 06-25(수) | 단일 상품핀 | 랭킹 덱 상품카드 1 (best 2x3-02) 또는 product-pins | — | ⬜ |
-| 3 | 06-27(금) | 단일 상품핀 | 랭킹 덱 상품카드 2 (best 2x3-03) | — | ⬜ |
+| — | 06-23(월) | 큐레이션·콜라주 | `pinterest/curation/collage/summer-collage-2x3-01` | `summer-collage-captions.md` | ✅ 발행됨 |
+| — | 06-24(화) | 큐레이션·콜라주 (신규 나시) | `pinterest/curation/collage/mesh-summer-2x3-01` | `mesh-summer-captions.md` | ✅ 발행됨 |
+| 1 | 06-25(수) | 큐레이션·콜라주 (신상) | `pinterest/curation/collage/new-abc-skin-2x3-01` | `new-abc-skin-captions.md` | ⬜ |
+| 2 | 06-27(금) | 단일 상품핀 | 랭킹 덱 상품카드 (best 2x3-02) 또는 product-pins | — | ⬜ |
+| 3 | 06-29(일) | 단일 상품핀 | 랭킹 덱 상품카드 (best 2x3-03) | — | ⬜ |
 
 > ⚠️ 이미 올린 두 커버는 caption만 단독으론 약함 — **재방문 트래픽용으로 유지**하되, 앞으로는 standalone 상품핀 위주로 전환.
-> ⚠️ `product-pins` 덱은 **가격 placeholder(32,000원)** — 발행 전 실제 가격으로 교체(`marketing/decks/product-pins.mjs`).
+> ✅ 핀 이미지에 **가격 미표기** 정책 — evergreen 핀이라 가격 변동 시 박제됨. 실시간 가격은 상품 페이지에서.
+> ⚠️ 재마이그레이션으로 덱의 Shopify CDN 이미지 URL이 깨졌을 수 있음 — 발행 전 새 URL로 교체(`marketing/decks/*.mjs`의 `IMG`).
 > 🔧 **선행 작업 필요**: 랭킹/데일리 덱의 상품 카드를 개별 핀으로 뽑는 출력 구조 정비 (아래 "구조 정비" 참고).
 > ⏸ **사이즈 가이드 정보핀은 보류** — 정보핀은 핀 위에서 답을 다 줘 클릭률 낮음. 트래픽 검증 후 도입.
 
