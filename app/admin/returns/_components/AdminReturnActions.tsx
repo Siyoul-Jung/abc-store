@@ -117,9 +117,14 @@ export default function AdminReturnActions({
   }
 
   if (status === 'approved') {
+    // 수령 확인은 되돌릴 수 없고(환불 금액 계산 단계로 진입) 오조작 위험이 커서 확인창을 거친다.
+    const confirmReceive = () => {
+      if (!confirm('반품 상품을 실제로 수령하셨나요?\n확인하면 환불 금액 계산 단계로 넘어가며 되돌릴 수 없습니다.')) return
+      startTransition(() => updateReturnStatus(returnId, 'received'))
+    }
     return (
       <button
-        onClick={() => startTransition(() => updateReturnStatus(returnId, 'received'))}
+        onClick={confirmReceive}
         disabled={pending}
         className="text-xs px-4 py-2 bg-yellow-500 text-white rounded-lg hover:opacity-80 disabled:opacity-40">
         {pending ? '...' : '물건 수령 확인'}

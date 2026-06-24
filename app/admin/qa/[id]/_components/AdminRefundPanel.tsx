@@ -109,19 +109,20 @@ export default function AdminRefundPanel({
             <input type="number" name="refund_amount" required
               className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-ink" />
           </div>
+          {/* Q&A 환불은 항상 무통장(가상계좌) 이체 → 계좌 3필드 필수. 누락 시 환불 불가. */}
           <div>
-            <label className="text-xs text-ink-muted block mb-1">은행명</label>
-            <input type="text" name="bank_name" placeholder="예: 국민은행"
+            <label className="text-xs text-ink-muted block mb-1">은행명 <span className="text-coral">*</span></label>
+            <input type="text" name="bank_name" placeholder="예: 국민은행" required
               className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-ink" />
           </div>
           <div>
-            <label className="text-xs text-ink-muted block mb-1">계좌번호</label>
-            <input type="text" name="account_number"
+            <label className="text-xs text-ink-muted block mb-1">계좌번호 <span className="text-coral">*</span></label>
+            <input type="text" name="account_number" required
               className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-ink" />
           </div>
           <div>
-            <label className="text-xs text-ink-muted block mb-1">예금주</label>
-            <input type="text" name="account_holder"
+            <label className="text-xs text-ink-muted block mb-1">예금주 <span className="text-coral">*</span></label>
+            <input type="text" name="account_holder" required
               className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-ink" />
           </div>
           <input type="hidden" name="payment_type" value="bank_transfer" />
