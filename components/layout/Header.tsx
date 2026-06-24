@@ -108,7 +108,7 @@ export default function Header({ lang, dict }: Props) {
           <a
             href={loggedIn ? `/${lang}/account` : `/api/auth/login?redirect=/${lang}/account`}
             aria-label={loggedIn ? '내 계정' : '로그인'}
-            className="text-ink hover:opacity-60 transition-opacity inline-flex"
+            className="text-ink hover:opacity-60 transition-opacity inline-flex items-center justify-center min-w-11 min-h-11 -mx-2"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <circle cx="12" cy="8" r="4" />
@@ -118,18 +118,20 @@ export default function Header({ lang, dict }: Props) {
           <Link
             href={`/${lang}/cart`}
             aria-label={dict.nav.cart}
-            className="relative inline-flex items-center text-ink hover:opacity-60 transition-opacity"
+            className="inline-flex items-center justify-center min-w-11 min-h-11 -mx-2 text-ink hover:opacity-60 transition-opacity"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <path d="M16 10a4 4 0 01-8 0" />
-            </svg>
-            {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-coral text-white text-[10px] font-medium rounded-full flex items-center justify-center leading-none">
-                {cartCount > 99 ? '99+' : cartCount}
-              </span>
-            )}
+            <span className="relative inline-flex">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
+              </svg>
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-coral text-white text-[10px] font-medium rounded-full flex items-center justify-center leading-none">
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
+            </span>
           </Link>
         </div>
 
