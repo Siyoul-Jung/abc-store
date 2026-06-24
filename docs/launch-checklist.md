@@ -19,6 +19,7 @@
 | [ ] | `TOSS_WEBHOOK_SECRET` 등록 (`.env.local` + Vercel) | 토스 지급대행 설정의 **보안 키** (API 시크릿과 별개). 미등록 시 모든 웹훅 401 거부 |
 | [ ] | Vercel 환경변수 전체 점검 | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `INSTAGRAM_ACCESS_TOKEN` 포함 |
 | [x] | Supabase 정지/백업 대응 | keep-alive 핑 구현 완료(`app/api/cron/keep-alive` + vercel.json cron 매일 03:00 UTC, answer_templates head count). 무료 플랜 7일 무활동 정지 방지. 백업이 필요하면 추후 Pro($25/월) 별도 검토 |
+| [ ] | **Supabase 테이블 DDL 전체 실행** | 운영 Supabase에서 `docs/sql/*.sql` 전부 실행 필수. 누락 시 해당 기능이 `server_error`로 죽음(고객 시도 순간에야 발각). 목록: `qa-guest`, `restock-subscriptions`, `answer-templates`, `return-requests`, `refund-requests`. ⚠️ `refund-requests`는 `questions` 테이블 먼저(FK). 이후 `node scripts/seed-templates.mjs` |
 | [ ] | 도메인 연결 (applebuttercollege.com → Vercel) | DNS 변경 + SSL 확인 |
 
 ### 법적 표시 (아동복 이커머스 의무사항)
