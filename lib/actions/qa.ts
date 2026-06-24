@@ -225,16 +225,26 @@ export async function getAnswerTemplates() {
 
 // ─── 환불 요청 저장 ────────────────────────────────────────────
 export async function createRefundRequest(questionId: string, formData: FormData) {
+  const paymentType = String(formData.get('payment_type') || 'bank_transfer')
+  const bankName = String(formData.get('bank_name') || '').trim()
+  const accountNumber = String(formData.get('account_number') || '').trim()
+  const accountHolder = String(formData.get('account_holder') || '').trim()
+
+  // 무통장(가상계좌) 환불은 계좌 3필드 필수 — 누락 시 입금 불가하므로 서버에서도 차단.
+  if (paymentType === 'bank_transfer' && (!bankName || !accountNumber || !accountHolder)) {
+    throw new Error('무통장 환불은 은행명·계좌번호·예금주가 모두 필요합니다.')
+  }
+
   const { error } = await supabaseAdmin.from('refund_requests').insert({
     question_id: questionId,
     customer_name: String(formData.get('customer_name')),
     customer_email: String(formData.get('customer_email')),
     order_number: String(formData.get('order_number')),
     refund_amount: Number(formData.get('refund_amount')),
-    bank_name: String(formData.get('bank_name') || ''),
-    account_number: String(formData.get('account_number') || ''),
-    account_holder: String(formData.get('account_holder') || ''),
-    payment_type: String(formData.get('payment_type') || 'bank_transfer'),
+    bank_name: bankName,
+    account_number: accountNumber,
+    account_holder: accountHolder,
+    payment_type: paymentType,
   })
   if (error) throw new Error(error.message)
   revalidatePath(`/admin/qa/${questionId}`)

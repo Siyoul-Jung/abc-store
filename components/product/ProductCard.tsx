@@ -34,8 +34,8 @@ export default function ProductCard({ product, lang }: Props) {
         )}
       </div>
       <div className="mt-2 flex flex-col gap-0.5">
-        <p className="text-[13px] font-medium leading-snug line-clamp-2">{stripTitlePrefix(product.title)}</p>
-        <div className="flex items-center gap-2">
+        <p className="text-[13px] font-medium leading-snug line-clamp-2 text-center break-keep">{stripTitlePrefix(product.title)}</p>
+        <div className="flex items-center justify-center gap-2">
           <span className={`text-[13px] ${isOnSale ? 'text-coral font-medium' : 'text-ink-muted'}`}>
             {formatPrice(minPrice.amount, minPrice.currencyCode, lang)}
           </span>
