@@ -95,9 +95,9 @@ export async function createShopifyOrder(params: {
       })),
       ...(shippingLines.length > 0 && { shipping_lines: shippingLines }),
       // 고객 이메일 — 주문확인 메일·환불완료 알림의 발송 주소.
-      // API 생성 주문은 기본적으로 알림 메일을 안 보냄(send_receipt 미설정) —
-      // Shopify 주문확인 메일은 한국어 템플릿 작업 후 활성화 예정 (launch-checklist 참조).
-      ...(shipping.email && { email: shipping.email }),
+      // send_receipt: 이메일이 있으면 Shopify 주문확인 메일 발송(한국어 템플릿은 Shopify Admin>알림).
+      //   카드 = 결제완료 영수증 / 무통장 = 주문접수+입금대기 안내. 이메일 없으면 발송 생략.
+      ...(shipping.email && { email: shipping.email, send_receipt: true }),
       financial_status: isBankTransfer ? 'pending' : 'paid',
       fulfillment_status: null,
       // 재고 차감: REST orders.json 기본값은 'bypass'(차감 안 함)이므로 명시 필요.
