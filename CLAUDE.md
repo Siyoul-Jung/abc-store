@@ -106,6 +106,8 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 - **PolicyAccordion**: 파일은 존재하나 상품 상세 페이지에서 더 이상 사용하지 않음 (PolicyModal로 대체)
 - **사이즈 가이드**: `SizeGuide.tsx`에 하드코딩 (XS~3XL, 7개 사이즈). 모바일 overflow-x-auto 적용.
 - **환불 운영**: 결제수단 × 요청유형별 환불 처리 절차·체크리스트는 `docs/refund-operations.md` 참조.
+- **SALE 배지**: 홈 `ProductGrid`의 SALE 배지는 상품 `sale` 태그 기준(`compareAtPrice` 아님). 상시할인 상품(정가>판매가)은 전부 정가가 있어 배지 기준으로 부적합 → 진짜 세일만 `sale` 태그를 붙여 배지+SALE 컬렉션 동시 노출. 가격의 코랄색·취소선 정가 표시는 `compareAtPrice` 기준 그대로(상시할인 앵커).
+- **상품 카드 이미지**: `SwipeableProductImages` — 데스크톱 hover 시 2번째 상품컷으로 CSS 크로스페이드(부모 Link `group-hover`), 모바일은 대표컷 1장. 가로 스와이프/스크롤 없음. 클라이언트 JS 없는 서버 컴포넌트. (파일명은 과거 swipe 잔재)
 
 ---
 
