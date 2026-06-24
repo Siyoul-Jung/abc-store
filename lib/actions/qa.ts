@@ -9,7 +9,7 @@ import {
   hashPassword, verifyPassword,
   makeAccessToken, UNLOCK_TTL_MS, EMAIL_LINK_TTL_MS,
 } from '@/lib/utils/qa-auth'
-import type { QuestionCategory } from '@/lib/supabase/types'
+import { QUESTION_CATEGORIES, type QuestionCategory } from '@/lib/supabase/types'
 
 // ─── 고객: 질문 작성 ───────────────────────────────────────────
 // 하이브리드: 로그인 고객은 계정 신원으로, 비회원은 이름+이메일+글비밀번호로.
@@ -18,7 +18,10 @@ export async function createQuestion(formData: FormData) {
   const token = cookieStore.get('customer_token')?.value
 
   const lang = String(formData.get('lang') || 'ko')
-  const category = String(formData.get('category') || 'other') as QuestionCategory
+  const rawCategory = String(formData.get('category') || 'other')
+  const category: QuestionCategory = (QUESTION_CATEGORIES as readonly string[]).includes(rawCategory)
+    ? (rawCategory as QuestionCategory)
+    : 'other'
   const title = String(formData.get('title')).trim()
   const content = String(formData.get('content')).trim()
   const orderNumber = String(formData.get('order_number') || '').trim() || null

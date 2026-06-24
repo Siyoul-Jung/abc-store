@@ -18,9 +18,9 @@ export default async function AdminQaPage({
 
   const pendingCount = questions.filter((q) => q.status === 'pending').length
 
-  const categories = ['all', 'shipping', 'return', 'refund', 'product', 'other']
+  const categories = ['all', 'shipping', 'return', 'defective', 'refund', 'product', 'other']
   const categoryLabels: Record<string, string> = {
-    all: '전체', shipping: '배송', return: '교환/반품', refund: '환불', product: '상품', other: '기타',
+    all: '전체', shipping: '배송', return: '교환/반품', defective: '불량/오배송', refund: '환불', product: '상품', other: '기타',
   }
   const statusLabels: Record<string, string> = { pending: '답변대기', answered: '답변완료', all: '전체' }
 
