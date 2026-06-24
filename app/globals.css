@@ -12,7 +12,7 @@
 
   /* ── Text ── */
   --color-ink:        #1C1C1C;
-  --color-ink-muted:  #9A8F88;
+  --color-ink-muted:  #736E66;  /* WCAG AA: 흰 5.06:1 / 크림 4.74:1 (구 #9A8F88은 ~3:1로 미달) */
 
   /* ── Border ── */
   --color-line: #E8E3DC;

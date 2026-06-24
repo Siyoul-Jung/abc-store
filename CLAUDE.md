@@ -86,7 +86,7 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 | 토큰 | 값 | 용도 |
 |---|---|---|
 | `ink` | #1C1C1C | 본문 텍스트 |
-| `ink-muted` | #9A8F88 | 보조 텍스트 |
+| `ink-muted` | #736E66 | 보조 텍스트 (WCAG AA 통과값. 구 #9A8F88은 대비 미달이라 교체) |
 | `surface` | #FAF7F3 (cream) | 카드, 푸터 배경 |
 | `border` | #E8E3DC (line) | 구분선 |
 | `coral` | oklch(57.7% 0.245 27.325) | CTA 버튼, 에러 |
