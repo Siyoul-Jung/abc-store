@@ -43,13 +43,13 @@ export default {
     },
     {
       type: 'product',
-      searchTag: '탈것 아동복',
+      searchTag: '자동차 패턴 아동복',
       name: '오프로드 트럭 세트',
       desc: '자동차·트럭 좋아하는 아이라면\n등원룩으로 딱',
       tag: '반팔 + 반바지', size: 'XS–XL',
       image: IMG.truck,
       link: LINK.truck,
-      hashtags: ['아동복', '아기여름옷', '남아옷', '등원룩', '자동차', '키즈패션', 'applebuttercollege'],
+      hashtags: ['아동복', '아기여름옷', '남녀공용', '등원룩', '자동차', '키즈패션', 'applebuttercollege'],
     },
     {
       type: 'product',
