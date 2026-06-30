@@ -48,8 +48,9 @@
 | — | 06-21(토) | 큐레이션·시즌 커버 | `summer-daily-2x3-01` | `summer-daily-captions.md` | ✅ 발행됨(커버) |
 | — | 06-23(월) | 큐레이션·콜라주 | `pinterest/curation/collage/summer-collage-2x3-01` | `summer-collage-captions.md` | ✅ 발행됨 |
 | — | 06-24(화) | 큐레이션·콜라주 (신규 나시) | `pinterest/curation/collage/mesh-summer-2x3-01` | `mesh-summer-captions.md` | ✅ 발행됨 |
-| 1 | 06-25(수) | 큐레이션·콜라주 (신상) | `pinterest/curation/collage/new-abc-skin-2x3-01` | `new-abc-skin-captions.md` | ⬜ |
-| 2 | 06-27(금) | 단일 상품핀 | 랭킹 덱 상품카드 (best 2x3-02) 또는 product-pins | — | ⬜ |
+| — | 06-24(화) | 큐레이션·콜라주 (신상) | `pinterest/curation/collage/new-abc-skin-2x3-01` | `new-abc-skin-captions.md` | ✅ 발행됨(수 슬롯 당겨 발행) |
+| — | 06-30(수) | 큐레이션·콜라주 (메쉬 나시 세트) | `pinterest/curation/collage/summer-mesh-set-2x3-01` | (이 문서 하단 패키지) | ⬜ 발행 준비 완료(수동 업로드 대기) |
+| 2 | 06-27(금) | 단일 상품핀 | 랭킹 덱 상품카드 (best 2x3-02) 또는 product-pins | — | ⬜ ⚠️현재 판매중 상품으로 선별(단종 제외) |
 | 3 | 06-29(일) | 단일 상품핀 | 랭킹 덱 상품카드 (best 2x3-03) | — | ⬜ |
 
 > ⚠️ 이미 올린 두 커버는 caption만 단독으론 약함 — **재방문 트래픽용으로 유지**하되, 앞으로는 standalone 상품핀 위주로 전환.
