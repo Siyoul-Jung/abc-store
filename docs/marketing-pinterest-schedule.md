@@ -49,9 +49,13 @@
 | — | 06-23(월) | 큐레이션·콜라주 | `pinterest/curation/collage/summer-collage-2x3-01` | `summer-collage-captions.md` | ✅ 발행됨 |
 | — | 06-24(화) | 큐레이션·콜라주 (신규 나시) | `pinterest/curation/collage/mesh-summer-2x3-01` | `mesh-summer-captions.md` | ✅ 발행됨 |
 | — | 06-24(화) | 큐레이션·콜라주 (신상) | `pinterest/curation/collage/new-abc-skin-2x3-01` | `new-abc-skin-captions.md` | ✅ 발행됨(수 슬롯 당겨 발행) |
-| — | 06-30(수) | 큐레이션·콜라주 (메쉬 나시 세트) | `pinterest/curation/collage/summer-mesh-set-2x3-01` | (이 문서 하단 패키지) | ⬜ 발행 준비 완료(수동 업로드 대기) |
-| 2 | 06-27(금) | 단일 상품핀 | 랭킹 덱 상품카드 (best 2x3-02) 또는 product-pins | — | ⬜ ⚠️현재 판매중 상품으로 선별(단종 제외) |
-| 3 | 06-29(일) | 단일 상품핀 | 랭킹 덱 상품카드 (best 2x3-03) | — | ⬜ |
+| — | 06-28(월) | 단일 상품핀 (트럭) | `pinterest/product/product-spotlight-0627-2x3-02` | 오프로드 트럭(자동차 패턴), 상품 직링크 branduid=11331198 | ✅ 발행됨 |
+| — | 06-30(수) | 큐레이션·콜라주 (피그 패밀리) | `pinterest/curation/collage/pig-family-2x3-01` | `pig-family.mjs` | ✅ 발행됨 |
+| 1 | 07-02(금) | 단일 상품핀 | 현재 active 상품에서 선별(파인애플·공룡 등, 단종 제외) | — | ⬜ |
+| 2 | 07-05(월) | 단일 상품핀 | active 상품 | — | ⬜ |
+
+> ⚠️ `summer-mesh-set` 덱은 **폐기**(발행 안 함) — 이미 올린 `mesh-summer`와 상품 3/4 중복이라 near-duplicate. 삭제함.
+> 🔁 **발행 전 필수 대조**: 새 콜라주 소재는 이미 발행된 덱(mesh-summer·new-abc-skin·pig-family·summer-*)과 상품·테마가 겹치지 않는지 확인할 것.
 
 > ⚠️ 이미 올린 두 커버는 caption만 단독으론 약함 — **재방문 트래픽용으로 유지**하되, 앞으로는 standalone 상품핀 위주로 전환.
 > ✅ 핀 이미지에 **가격 미표기** 정책 — evergreen 핀이라 가격 변동 시 박제됨. 실시간 가격은 상품 페이지에서.
