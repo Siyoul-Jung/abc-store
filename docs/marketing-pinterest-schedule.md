@@ -3,7 +3,8 @@
 > 매번 "뭘 어떻게 올리지" 고민하지 않도록 정해둔 **운영 원칙 + 발행 리듬 + 대기열**.
 > 핀 만드는 법·유형은 [marketing-content-roadmap.md](marketing-content-roadmap.md), 발행 절차는 [marketing-pinterest-pipeline.md](marketing-pinterest-pipeline.md).
 
-승인(핀터레스트 API) 전까지는 **수동 발행**. 승인 후엔 이 큐를 자동 발행 파이프라인이 그대로 소비.
+**Pinterest API 승인 완료(2026-06-30).** 발행기 `marketing/publish-pinterest.mjs` 구축 — `.publish-job.json`(imagePath·title·description·link·altText) + access token으로 **여름 아동복 보드**(`PINTEREST_BOARD_ID`)에 `POST /v5/pins` 발행. access token 30일·refresh 60일, 401 시 자동 갱신.
+> 현재 **반자동**: job 작성 → `node marketing/publish-pinterest.mjs [--dry-run]`. dry-run 검증 완료, 첫 실발행은 금요일 상품핀으로 예정. 완전 자동(cron)은 검증 후 도입. Vercel 발행 시 PINTEREST_* env 등록 필요(현재 .env.local만).
 
 ---
 
