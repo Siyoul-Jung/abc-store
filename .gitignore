@@ -47,3 +47,6 @@ marketing/output/
 
 # CS 테스트 데이터 시드 실행 시 생성되는 런타임 매니페스트(주문번호 등)
 scripts/.test-data-manifest.json
+
+# Pinterest 발행 job (런타임, 핀 내용)
+marketing/.publish-job.json
