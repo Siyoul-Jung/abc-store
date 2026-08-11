@@ -50,3 +50,9 @@ scripts/.test-data-manifest.json
 
 # Pinterest 발행 job (런타임, 핀 내용)
 marketing/.publish-job.json
+
+# analysis — 실데이터/생성 리포트는 버전관리 제외. sample_data/ 와 EXAMPLE_REPORT.md 는 커밋.
+analysis/data/
+analysis/output/
+analysis/**/__pycache__/
+!analysis/.env.example

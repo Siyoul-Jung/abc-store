@@ -1,0 +1,13 @@
+dimension,bucket,value
+age,25-34,42
+age,35-44,33
+age,18-24,14
+age,45-54,9
+gender,F,88
+gender,M,12
+city,Seoul,41
+city,Gyeonggi,27
+city,Busan,8
+city,Incheon,6
+country,KR,92
+country,JP,5
