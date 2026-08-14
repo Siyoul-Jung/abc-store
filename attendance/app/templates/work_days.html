@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ year }}-{{ '%02d' % month }} 근무기록{% endblock %}
+
+{% block content %}
+<h2>{{ year }}년 {{ month }}월 근무기록</h2>
+
+<form class="inline" method="get" action="/work-days">
+  <input type="number" name="year" value="{{ year }}" min="2020" max="2100" required>
+  <input type="number" name="month" value="{{ month }}" min="1" max="12" required>
+  <button type="submit">조회</button>
+</form>
+<a href="/export/monthly.xlsx?year={{ year }}&month={{ month }}"><button class="ghost" type="button">엑셀 다운로드</button></a>
+
+<h2>직원별 합계</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>직원</th><th>근무일수</th><th>총 근무시간</th></tr></thead>
+  <tbody>
+    {% for name, days, minutes in totals %}
+    <tr><td>{{ name }}</td><td>{{ days }}</td><td>{{ (minutes or 0) | hhmm }}</td></tr>
+    {% else %}
+    <tr><td colspan="3" class="empty">해당 월 기록이 없습니다.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2>상세</h2>
+<div class="scroll">
+<table>
+  <thead>
+    <tr><th>직원</th><th>날짜</th><th>출근</th><th>퇴근</th><th>근무시간</th><th>휴게(분)</th><th>상태</th><th>비고</th></tr>
+  </thead>
+  <tbody>
+    {% for work_day, employee in rows %}
+    <tr class="{% if work_day.needs_review %}warn{% endif %}">
+      <td>{{ employee.name }}</td>
+      <td>{{ work_day.work_date }}</td>
+      <td>{{ work_day.check_in_at | localtime }}</td>
+      <td>{{ work_day.check_out_at | localtime }}</td>
+      <td>{{ work_day.worked_minutes | hhmm }}</td>
+      <td>
+        <form class="inline" method="post" action="/work-days/{{ work_day.id }}/break">
+          <input type="number" name="break_minutes" value="{{ work_day.break_minutes }}" min="0" max="720" style="width:70px">
+          <button class="ghost" type="submit">저장</button>
+        </form>
+      </td>
+      <td>
+        {% if work_day.status == 'complete' %}<span class="ok">정상</span>
+        {% elif work_day.status == 'open' %}퇴근 미기록
+        {% else %}<span class="bad">이상</span>{% endif %}
+      </td>
+      <td class="muted" style="white-space:normal">{{ work_day.note or '' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8" class="empty">기록이 없습니다.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

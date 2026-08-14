@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}직원 관리{% endblock %}
+
+{% block content %}
+<h2>직원 등록 / 수정</h2>
+<p class="muted">이미 등록된 번호로 저장하면 이름·사번만 갱신됩니다. 번호는 국가번호를 포함한 E.164 형식(+821012345678)으로 입력하세요.</p>
+<form method="post" action="/employees" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+  <input name="name" placeholder="이름" required>
+  <input name="phone" placeholder="+821012345678" required>
+  <input name="code" placeholder="사번(선택)">
+  <input name="memo" placeholder="비고(선택)">
+  <button type="submit">저장</button>
+</form>
+
+<h2>직원 목록 ({{ employees|length }}명)</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>이름</th><th>번호</th><th>사번</th><th>상태</th><th>비고</th></tr></thead>
+  <tbody>
+    {% for employee in employees %}
+    <tr>
+      <td>{{ employee.name }}</td>
+      <td>{{ employee.phone }}</td>
+      <td>{{ employee.code or '' }}</td>
+      <td>{% if employee.active %}<span class="ok">재직</span>{% else %}<span class="muted">퇴사</span>{% endif %}</td>
+      <td class="muted">{{ employee.memo or '' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="empty">등록된 직원이 없습니다.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

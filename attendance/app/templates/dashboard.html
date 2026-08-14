@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}오늘 현황 — 출퇴근 관리{% endblock %}
+
+{% block content %}
+<h2>오늘 현황 ({{ today }})</h2>
+
+<div class="cards">
+  <div class="card"><span class="muted">출근</span><b>{{ rows|length }}</b></div>
+  <div class="card"><span class="muted">미출근</span><b>{{ absent|length }}</b></div>
+  <div class="card"><span class="muted">검토 필요</span><b class="{% if pending %}bad{% endif %}">{{ pending|length }}</b></div>
+</div>
+
+<div class="scroll">
+<table>
+  <thead>
+    <tr><th>직원</th><th>출근</th><th>퇴근</th><th>근무시간</th><th>상태</th><th>비고</th></tr>
+  </thead>
+  <tbody>
+    {% for work_day, employee in rows %}
+    <tr class="{% if work_day.needs_review %}warn{% endif %}">
+      <td>{{ employee.name }}</td>
+      <td>{{ work_day.check_in_at | localtime }}</td>
+      <td>{{ work_day.check_out_at | localtime }}</td>
+      <td>{{ work_day.worked_minutes | hhmm }}</td>
+      <td>
+        {% if work_day.status == 'complete' %}<span class="ok">정상</span>
+        {% elif work_day.status == 'open' %}근무중
+        {% else %}<span class="bad">이상</span>{% endif %}
+      </td>
+      <td class="muted">{{ work_day.note or '' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="empty">아직 오늘 수신된 기록이 없습니다.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if absent %}
+<p class="muted">미출근: {% for employee in absent %}{{ employee.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+{% endif %}
+
+<h2>검토 필요 <span class="badge review">{{ pending|length }}</span></h2>
+<p class="muted">OCR 이 시각을 읽지 못했거나 신뢰도가 낮은 건입니다. 사진을 직접 확인하고 시각을 교정하세요.</p>
+
+<div class="scroll">
+<table>
+  <thead>
+    <tr><th>직원</th><th>기록 시각</th><th>근무일</th><th>출처</th><th>OCR 원문</th><th>사유</th><th>처리</th></tr>
+  </thead>
+  <tbody>
+    {% for event, employee in pending %}
+    <tr>
+      <td>{{ employee.name }}</td>
+      <td>{{ event.captured_at | localdatetime }}</td>
+      <td>{{ event.work_date }}</td>
+      <td>
+        <span class="badge">{{ event.source }}</span>
+        {% if event.ocr_provider %}<span class="muted">{{ event.ocr_provider }}</span>{% endif %}
+      </td>
+      <td class="muted" style="max-width:280px;white-space:normal">{{ (event.ocr_text or '—')[:120] }}</td>
+      <td class="muted" style="white-space:normal">{{ event.review_note or '' }}</td>
+      <td>
+        <form class="inline" method="post" action="/events/{{ event.id }}/time">
+          <input type="datetime-local" name="local_dt"
+                 value="{{ (event.captured_at | localdatetime) | replace(' ', 'T') }}" required>
+          <button type="submit">시각 수정</button>
+        </form>
+        <form class="inline" method="post" action="/events/{{ event.id }}/review">
+          <button class="ghost" type="submit">확인함</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="empty">검토가 필요한 건이 없습니다.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if unknown %}
+<h2>미등록 번호에서 온 메시지</h2>
+<p class="muted">아래 번호는 직원 명단에 없어 기록되지 않았습니다. <a href="/employees">직원 등록</a> 후 다시 사진을 받으세요.</p>
+<div class="scroll">
+<table>
+  <thead><tr><th>번호</th><th>수신 시각</th><th>내용</th></tr></thead>
+  <tbody>
+    {% for message in unknown %}
+    <tr>
+      <td>{{ message.from_phone }}</td>
+      <td>{{ message.received_at | localdatetime }}</td>
+      <td class="muted">{{ (message.body or '(사진)')[:60] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+
+<h2>엑셀 다운로드</h2>
+<form class="inline" method="get" action="/export/monthly.xlsx">
+  <input type="number" name="year" value="{{ today.year }}" min="2020" max="2100" required>
+  <input type="number" name="month" value="{{ today.month }}" min="1" max="12" required>
+  <button type="submit">월별 xlsx 받기</button>
+</form>
+{% endblock %}

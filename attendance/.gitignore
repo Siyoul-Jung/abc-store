@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# 런타임 산출물
+.env
+attendance.db
+attendance.db-journal
+media/
+employees.csv
+
+# 상위 .gitignore 의 `.env*` 로 무시되므로 예시 파일만 다시 포함
+!.env.example
