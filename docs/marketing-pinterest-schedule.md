@@ -3,8 +3,11 @@
 > 매번 "뭘 어떻게 올리지" 고민하지 않도록 정해둔 **운영 원칙 + 발행 리듬 + 대기열**.
 > 핀 만드는 법·유형은 [marketing-content-roadmap.md](marketing-content-roadmap.md), 발행 절차는 [marketing-pinterest-pipeline.md](marketing-pinterest-pipeline.md).
 
-**Pinterest API 승인 완료(2026-06-30).** 발행기 `marketing/publish-pinterest.mjs` 구축 — `.publish-job.json`(imagePath·title·description·link·altText) + access token으로 **여름 아동복 보드**(`PINTEREST_BOARD_ID`)에 `POST /v5/pins` 발행. access token 30일·refresh 60일, 401 시 자동 갱신.
-> 현재 **반자동**: job 작성 → `node marketing/publish-pinterest.mjs [--dry-run]`. dry-run 검증 완료, 첫 실발행은 금요일 상품핀으로 예정. 완전 자동(cron)은 검증 후 도입. Vercel 발행 시 PINTEREST_* env 등록 필요(현재 .env.local만).
+**Pinterest API 발행기 완성 — 단, 앱이 Trial access라 production 발행 불가(2026-07-13 확인).** 발행기 `marketing/publish-pinterest.mjs` 구축 — `.publish-job.json`(imagePath·title·description·link·altText) + access token으로 **여름 아동복 보드**(`PINTEREST_BOARD_ID`)에 `POST /v5/pins` 발행. access token 30일·refresh 60일, 401 시 자동 갱신.
+>
+> ⚠️ **블로커: 앱 등급 = Trial access.** 07-13 실발행 시도 → `403 code 29: Apps with Trial access may not create Pins in production`. 스코프(boards:write·pins:write·user_accounts:read)·토큰·payload 전부 정상, dry-run도 통과 — **마지막 게이트는 앱 등급.** 정식 발행은 **Standard access 승격 심사** 필요(developers.pinterest.com → App 1582194 → Upgrade). 승격 전까지는 **수동 업로드로 발행 지속.** 승격되면 동일 코드로 즉시 자동발행 개방.
+> - 스코프는 07-13 재인증으로 `boards:read boards:write pins:read pins:write user_accounts:read` 5종 확보(user_accounts:read=분석 API용).
+> - Vercel 발행 시 PINTEREST_* env 등록 필요(현재 .env.local만).
 
 ---
 
@@ -51,9 +54,10 @@
 | — | 06-24(화) | 큐레이션·콜라주 (신규 나시) | `pinterest/curation/collage/mesh-summer-2x3-01` | `mesh-summer-captions.md` | ✅ 발행됨 |
 | — | 06-24(화) | 큐레이션·콜라주 (신상) | `pinterest/curation/collage/new-abc-skin-2x3-01` | `new-abc-skin-captions.md` | ✅ 발행됨(수 슬롯 당겨 발행) |
 | — | 06-28(월) | 단일 상품핀 (트럭) | `pinterest/product/product-spotlight-0627-2x3-02` | 오프로드 트럭(자동차 패턴), 상품 직링크 branduid=11331198 | ✅ 발행됨 |
-| — | 06-30(수) | 큐레이션·콜라주 (피그 패밀리) | `pinterest/curation/collage/pig-family-2x3-01` | `pig-family.mjs` | ✅ 발행됨 |
-| 1 | 07-02(금) | 단일 상품핀 | 현재 active 상품에서 선별(파인애플·공룡 등, 단종 제외) | — | ⬜ |
-| 2 | 07-05(월) | 단일 상품핀 | active 상품 | — | ⬜ |
+| — | 06-30(수) | 큐레이션·콜라주 (피그 패밀리) | `pinterest/curation/collage/pig-family-2x3-01` | `pig-family.mjs` | ✅ 발행됨(수동, API 이전 마지막) |
+| — | 07-02~07-20 | 발행 공백 | — | — | ⏭ 건너뜀 |
+| — | 07-22(수) | 큐레이션·콜라주 (동물 친구 모음) | `pinterest/curation/collage/animal-friends-0715-2x3-01` | 문어·악어·달팽이·풍선공룡, KIDS 컬렉션 utm=animal-friends-0715 | ✅ 발행됨(수동) |
+| 1 | 07-25(금) or 07-27(월) | 단일 상품핀 (병아리 튜브 — 뱅킹됨) | `pinterest/product/product-spotlight-0713-2x3-01` | 물놀이룩, KIDS 컬렉션 utm=chick-tube-0713 | ⬜ 다음 단일핀 슬롯 |
 
 > ⚠️ `summer-mesh-set` 덱은 **폐기**(발행 안 함) — 이미 올린 `mesh-summer`와 상품 3/4 중복이라 near-duplicate. 삭제함.
 > 🔁 **발행 전 필수 대조**: 새 콜라주 소재는 이미 발행된 덱(mesh-summer·new-abc-skin·pig-family·summer-*)과 상품·테마가 겹치지 않는지 확인할 것.

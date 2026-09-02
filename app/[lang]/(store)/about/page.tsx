@@ -90,6 +90,16 @@ const content: Record<Locale, AboutContent> = {
   },
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang } = await params
+  const titles: Record<string, string> = { ko: '브랜드 소개', ja: 'ブランドについて' }
+  return { title: titles[lang] ?? titles.ko }
+}
+
 export default async function AboutPage({
   params,
 }: {

@@ -310,6 +310,15 @@ const content: Record<Locale, { title: string; sections: FaqSection[] }> = {
   },
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang } = await params
+  return { title: content[(lang as Locale)]?.title ?? content.ko.title }
+}
+
 export default async function FaqPage({
   params,
 }: {
