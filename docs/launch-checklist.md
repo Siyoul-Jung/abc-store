@@ -10,13 +10,13 @@
 ### 환경 / 인프라
 | 상태 | 항목 | 비고 |
 |---|---|---|
-| [ ] | Toss Payments 계약 완료 | 계약 전까지 결제 불가 |
-| [ ] | `NEXT_PUBLIC_TOSS_CLIENT_KEY` 등록 | Vercel 환경변수 |
-| [ ] | `TOSS_SECRET_KEY` 등록 | Vercel 환경변수 |
+| [x] | Toss Payments 계약 완료 | ✅ 2026-08-31 계약완료. MID `vabcsty4go`(독립몰), 카드 9개사 전부 승인, 계좌이체 활성(에스크로 사용) |
+| [ ] | `NEXT_PUBLIC_TOSS_CLIENT_KEY` 등록 | Vercel 환경변수 — **live 키는 온보딩팀 안내(차주) 후 확보** |
+| [ ] | `TOSS_SECRET_KEY` 등록 | Vercel 환경변수 — live 키 확보 후 |
 | [x] | Shopify Admin API 토큰 확보 (`shpat_`) | 결제 성공 → 주문 생성에 필수 |
 | [x] | `SHOPIFY_ADMIN_API_TOKEN` Vercel 등록 | Production 등록 확인 완료 (`vercel env ls`) |
 | [x] | 토스 웹훅 서명검증 구현 | `app/api/toss/webhook/route.ts` — fail-closed, 테스트 통과 |
-| [ ] | `TOSS_WEBHOOK_SECRET` 등록 (`.env.local` + Vercel) | 토스 지급대행 설정의 **보안 키** (API 시크릿과 별개). 미등록 시 모든 웹훅 401 거부 |
+| [~] | `TOSS_WEBHOOK_SECRET` 등록 (`.env.local` + Vercel) | ⚠️ **블로커 완화 가능**: 웹훅(`VIRTUAL_ACCOUNT.DONE`)은 가상계좌 전용. **가상계좌→계좌이체 전환 시 웹훅 미사용** → 이 시크릿 불필요해질 수 있음. 온보딩팀에 "계좌이체 실시간이라 입금 웹훅 없음" 확인 후 확정 (`docs/toss-quick-transfer-migration.md`) |
 | [ ] | Vercel 환경변수 전체 점검 | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `INSTAGRAM_ACCESS_TOKEN` 포함 |
 | [x] | Supabase 정지/백업 대응 | keep-alive 핑 구현 완료(`app/api/cron/keep-alive` + vercel.json cron 매일 03:00 UTC, answer_templates head count). 무료 플랜 7일 무활동 정지 방지. 백업이 필요하면 추후 Pro($25/월) 별도 검토 |
 | [x] | **Supabase 테이블 DDL 전체 실행** | 운영 Supabase 실행 완료(2026-06-23): `qa-guest`·`restock-subscriptions`·`answer-templates`·`return-requests`·`refund-requests` 5종 + `seed-templates.mjs` 18종 시드. 반품·환불·재입고·비회원Q&A 전부 운영에서 동작 가능 상태 |
@@ -26,8 +26,8 @@
 | 상태 | 항목 | 비고 |
 |---|---|---|
 | [x] | **KC 인증 표시** (어린이제품 안전특별법) | 상품 상세에 상품정보제공고시 테이블 구현 (`ProductDisclosure.tsx`, ko 전용). 공급자적합성확인 필 + KATRI 성적서번호(KIKO25-00005662) 표기. ⚠️ 잔여: 라벨에 사용연령·모델명 추가, XS/S 유아용(36개월 미만) 구간 판매 정책 결정 — `docs/team-decisions.md` §4 |
-| [ ] | 현금영수증 발급 체계 | 토스 가상계좌 자동발급(cashReceipt) 계약 범위 확인. 임시: Q&A 접수 → 토스 대시보드 수동 발급 (FAQ에 안내됨) |
-| [ ] | 에스크로(구매안전서비스) 표시 | 가상계좌 수취 시 의무. 토스 계약에 포함 여부 확인 → 푸터/체크아웃 표시 |
+| [~] | 현금영수증 발급 체계 | ✅ 계좌이체 현금영수증 **사용**으로 확정(상점관리자 확인 2026-08-31). 가상계좌 미사용으로 전환. 잔여: 결제 UI/안내에 현금영수증 발급 문구 반영 |
+| [~] | 에스크로(구매안전서비스) 표시 | ✅ 계좌이체 **에스크로 사용** 확정. ✅ **푸터 "구매안전서비스 가입사실 확인" 링크 + 확인증 페이지 `/[lang]/escrow`**(등록번호 A08-260827-0001) 완료(ko 전용). 잔여: **체크아웃 결제 단계 안내 문구**(계좌이체 전환 시 결제 UI와 함께) |
 | [x] | FAQ 콘텐츠 전수 검수 | 기존 자사몰 기준 거짓 정보(적립금·1시간취소·이메일채널) 교정 완료 |
 | [x] | 통신판매업신고번호 표시 | 푸터 사업자 정보 (2022-다산-1147) |
 

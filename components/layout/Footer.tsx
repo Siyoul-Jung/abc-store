@@ -17,6 +17,7 @@ const bizInfo = [
   ['Address',          '경기도 남양주시 다산순환로 20, 10층'],
   ['Business Reg.',    '846-81-02489'],
   ['E-commerce Reg.',  '2022-다산-1147'],
+  ['Escrow',           'Toss Payments · A08-260827-0001'],
   ['Hosting',          'Vercel'],
 ]
 
@@ -104,6 +105,15 @@ export default function Footer({ lang, dict }: Props) {
                 <span>{value}</span>
               </div>
             ))}
+            {/* 구매안전서비스(에스크로) 가입사실 확인 — 한국 계좌이체 전용 법적 표시 */}
+            {lang === 'ko' && (
+              <Link
+                href={`/${lang}/escrow`}
+                className="mt-1.5 w-fit text-xs text-ink-muted underline underline-offset-4 hover:text-ink transition-colors"
+              >
+                구매안전서비스 가입사실 확인 →
+              </Link>
+            )}
           </div>
         </details>
 

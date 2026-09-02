@@ -12,6 +12,12 @@ const API_VERSION   = process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'
 
 type Props = { params: Promise<{ lang: string }> }
 
+export async function generateMetadata({ params }: Props) {
+  const { lang } = await params
+  const titles: Record<string, string> = { ko: '교환·반품 신청', ja: '返品・交換申請' }
+  return { title: titles[lang] ?? titles.ko }
+}
+
 export default async function ReturnsPage({ params }: Props) {
   const { lang } = await params
   if (!hasLocale(lang)) notFound()

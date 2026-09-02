@@ -97,6 +97,11 @@ const content = {
   },
 }
 
+export async function generateMetadata({ params }: Props) {
+  const { lang } = await params
+  return { title: content[(lang as 'ko' | 'ja')]?.title ?? content.ko.title }
+}
+
 export default async function PrivacyPage({ params }: Props) {
   const { lang } = await params
   if (!hasLocale(lang)) notFound()

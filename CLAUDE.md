@@ -55,6 +55,7 @@ app/
       privacy/          ← 개인정보처리방침 (ko/ja 작성 완료)
       terms/            ← 이용약관 (ko/ja 작성 완료)
       refund/           ← 환불정책 (ko/ja 작성 완료)
+      escrow/           ← 구매안전서비스 이용 확인증 (토스 A08-260827-0001, 계좌이체 법적표시, 푸터 링크는 ko 전용)
   admin/
     qa/                 ← 관리자 Q&A 답변 페이지
   api/
