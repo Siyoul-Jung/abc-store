@@ -12,12 +12,6 @@ const SHIPPING_FEE = 3500
 const JEJU_SURCHARGE = 3000
 const ISLAND_SURCHARGE = 4000
 
-const KO_BANKS = [
-  '국민은행', '신한은행', '우리은행', '하나은행', '농협은행',
-  '기업은행', '카카오뱅크', '토스뱅크', '케이뱅크', '새마을금고',
-  'SC제일은행', '우체국', '기타',
-]
-
 type Dict = {
   checkout: {
     name: string; phone: string; email: string; zipcode: string; address: string
@@ -25,11 +19,6 @@ type Dict = {
     orderSummary: string; shippingFee: string; freeShipping: string
     total: string; pay: string; required: string
     paymentMethod: string; card: string; bankTransfer: string
-    refundAccount: string; refundAccountNote: string
-    bank: string; bankPlaceholder: string
-    accountNumber: string; accountNumberPlaceholder: string
-    accountHolder: string; accountHolderPlaceholder: string
-    requiredBankInfo: string
   }
 }
 
@@ -90,9 +79,6 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
   const [addrMode, setAddrMode] = useState<'card' | 'picker' | 'form'>(savedAddresses.length ? 'card' : 'form')
   const [selectedId, setSelectedId] = useState<string | null>(initialAddr?.id ?? null)
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer'>('card')
-  const [refundBank, setRefundBank] = useState('')
-  const [refundAccountNum, setRefundAccountNum] = useState('')
-  const [refundHolder, setRefundHolder] = useState('')
   const [isPaying, setIsPaying] = useState(false)
   const [tossReady, setTossReady] = useState(false)
   const [error, setError] = useState('')
@@ -146,10 +132,6 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
       setError(d.required)
       return
     }
-    if (paymentMethod === 'bank_transfer' && (!refundBank || !refundAccountNum || !refundHolder)) {
-      setError(d.requiredBankInfo)
-      return
-    }
     if (!agreed) {
       setError('주문 내용 확인 및 약관 동의에 체크해 주세요.')
       return
@@ -168,11 +150,6 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
         shippingFee,
         surcharge,
         surchargeLabel: isJeju ? '제주 추가배송비' : isIsland ? '도서·산간 추가배송비' : '',
-        ...(paymentMethod === 'bank_transfer' && {
-          refundBank,
-          refundAccountNum,
-          refundHolder,
-        }),
       }
       document.cookie = `checkout_shipping=${encodeURIComponent(JSON.stringify(cookiePayload))};path=/;max-age=600;samesite=lax`
 
@@ -192,7 +169,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
         })
       } else {
         await payment.requestPayment({
-          method: 'VIRTUAL_ACCOUNT',
+          method: 'TRANSFER',
           amount: { currency: 'KRW', value: total },
           orderId,
           orderName,
@@ -200,6 +177,14 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           failUrl: `${window.location.origin}/${locale}/checkout/fail`,
           customerName: form.name,
           customerMobilePhone: normalizeKRMobile(form.phone),
+          // 에스크로(구매안전서비스) 사용 상점 — 계좌이체 결제 시 상품 목록 필수
+          escrowProducts: cart.lines.nodes.map((line) => ({
+            id: line.merchandise.id,
+            name: line.merchandise.product.title,
+            code: line.merchandise.id.split('/').pop() ?? line.merchandise.id,
+            unitPrice: Number(line.merchandise.price.amount),
+            quantity: line.quantity,
+          })),
         })
       }
     } catch {
@@ -431,39 +416,6 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                 </button>
               ))}
             </div>
-
-            {/* 무통장입금: 환불 계좌 */}
-            {paymentMethod === 'bank_transfer' && (
-              <div className="flex flex-col gap-3 border border-border p-4">
-                <div>
-                  <p className="text-xs font-semibold tracking-widest uppercase text-ink-muted">
-                    {d.refundAccount}
-                  </p>
-                  <p className="text-xs text-ink-muted mt-1">{d.refundAccountNote}</p>
-                </div>
-                <select
-                  value={refundBank}
-                  onChange={(e) => setRefundBank(e.target.value)}
-                  className={`${inputCls} bg-white`}
-                >
-                  <option value="">{d.bankPlaceholder}</option>
-                  {KO_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
-                </select>
-                <input
-                  className={inputCls}
-                  placeholder={d.accountNumberPlaceholder}
-                  inputMode="numeric"
-                  value={refundAccountNum}
-                  onChange={(e) => setRefundAccountNum(e.target.value)}
-                />
-                <input
-                  className={inputCls}
-                  placeholder={d.accountHolderPlaceholder}
-                  value={refundHolder}
-                  onChange={(e) => setRefundHolder(e.target.value)}
-                />
-              </div>
-            )}
           </div>
         </div>
 

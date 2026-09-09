@@ -61,7 +61,7 @@
     "required": "필수 항목을 모두 입력해주세요",
     "paymentMethod": "결제 수단",
     "card": "카드 결제",
-    "bankTransfer": "무통장입금",
+    "bankTransfer": "계좌이체",
     "refundAccount": "환불 계좌",
     "refundAccountNote": "취소 또는 환불 시 이 계좌로 처리됩니다",
     "bank": "은행",

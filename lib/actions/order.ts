@@ -37,9 +37,6 @@ export type ShippingData = {
   shippingFee?: number
   surcharge?: number
   surchargeLabel?: string
-  refundBank?: string
-  refundAccountNum?: string
-  refundHolder?: string
 }
 
 export async function createShopifyOrder(params: {
@@ -50,8 +47,7 @@ export async function createShopifyOrder(params: {
   lineItems: { variantGid: string; quantity: number }[]
   vbankDueDate?: string // 가상계좌 입금 마감(ISO) — 만료 스윕이 미입금 주문 판정에 사용
 }): Promise<{ ok: boolean; shopifyOrderId?: string; shopifyOrderName?: string }> {
-  const { orderId, amount, paymentKey, shipping, lineItems, vbankDueDate } = params
-  const isBankTransfer = shipping.paymentMethod === 'bank_transfer'
+  const { orderId, amount, paymentKey, shipping, lineItems } = params
 
   // 이중 호출 방어: 같은 토스 주문ID의 주문이 이미 있으면 재생성하지 않고 그대로 반환.
   // (confirm 라우트가 어쩌다 두 번 실행돼도 중복 주문이 생기지 않게.)
@@ -64,12 +60,6 @@ export async function createShopifyOrder(params: {
     { name: 'toss_order_id',   value: orderId },
     { name: 'toss_payment_key', value: paymentKey },
   ]
-  if (isBankTransfer) {
-    if (shipping.refundBank)       noteAttributes.push({ name: 'refund_bank',    value: shipping.refundBank })
-    if (shipping.refundAccountNum) noteAttributes.push({ name: 'refund_account', value: shipping.refundAccountNum })
-    if (shipping.refundHolder)     noteAttributes.push({ name: 'refund_holder',  value: shipping.refundHolder })
-    if (vbankDueDate)              noteAttributes.push({ name: 'vbank_due_date', value: vbankDueDate })
-  }
 
   // 배송비를 line_items가 아닌 shipping_lines로 분리.
   // → 주문총액 = 결제액 일치, 반품 시 환불 계산(배송비 별도 처리)이 정확해짐.
@@ -98,7 +88,7 @@ export async function createShopifyOrder(params: {
       // send_receipt: 이메일이 있으면 Shopify 주문확인 메일 발송(한국어 템플릿은 Shopify Admin>알림).
       //   카드 = 결제완료 영수증 / 무통장 = 주문접수+입금대기 안내. 이메일 없으면 발송 생략.
       ...(shipping.email && { email: shipping.email, send_receipt: true }),
-      financial_status: isBankTransfer ? 'pending' : 'paid',
+      financial_status: 'paid',
       fulfillment_status: null,
       // 재고 차감: REST orders.json 기본값은 'bypass'(차감 안 함)이므로 명시 필요.
       // 'decrement_obeying_policy' = 재고 차감하되, "품절 시에도 판매 계속" 설정은 존중.
@@ -115,7 +105,7 @@ export async function createShopifyOrder(params: {
       note: shipping.memo || undefined,
       // toss-{orderId} 태그: 웹훅에서 주문 검색에 사용
       tags: `toss-payments,toss-${orderId}`,
-      transactions: isBankTransfer ? [] : [
+      transactions: [
         {
           kind: 'sale',
           status: 'success',
