@@ -11,6 +11,8 @@ const CART_FRAGMENT = `
           ... on ProductVariant {
             id
             title
+            availableForSale
+            quantityAvailable
             price { amount currencyCode }
             selectedOptions { name value }
             product {

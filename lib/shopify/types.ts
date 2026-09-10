@@ -53,6 +53,8 @@ export type CartLine = {
   merchandise: {
     id: string
     title: string
+    availableForSale: boolean
+    quantityAvailable: number | null
     price: Money
     selectedOptions: { name: string; value: string }[]
     product: {

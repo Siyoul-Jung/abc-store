@@ -49,6 +49,13 @@ export default async function CartPage({ params, searchParams }: Props) {
             : '현재 결제 기능을 준비 중입니다. 조금만 기다려 주세요.'}
         </div>
       )}
+      {notice === 'out_of_stock' && (
+        <div className="mb-6 px-4 py-3 bg-coral/10 border border-coral rounded-xl text-sm text-ink">
+          {lang === 'ja'
+            ? '在庫が不足している商品があり、決済を完了できませんでした。数量をご確認ください。'
+            : '재고가 부족한 상품이 있어 결제를 완료하지 못했습니다. 수량을 확인해 주세요.'}
+        </div>
+      )}
       <h1 className="text-lg font-semibold mb-8 break-keep">{dict.cart.title}</h1>
 
       <div>
