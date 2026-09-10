@@ -23,6 +23,8 @@ export async function GET(request: Request) {
   cookieStore.set('_auth_state', state, opts)
   cookieStore.set('_auth_verifier', verifier, opts)
   cookieStore.set('_auth_redirect', redirectTo, opts)
+  // nonce를 저장해 콜백에서 id_token의 nonce와 대조한다(재생공격 방어).
+  cookieStore.set('_auth_nonce', nonce, opts)
 
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
