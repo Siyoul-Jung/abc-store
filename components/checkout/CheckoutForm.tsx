@@ -187,8 +187,15 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           })),
         })
       }
-    } catch {
+    } catch (err) {
       setIsPaying(false)
+      // 사용자가 결제창을 닫은 경우(USER_CANCEL)는 에러로 취급하지 않음
+      const code = (err as { code?: string })?.code
+      if (code && code !== 'USER_CANCEL') {
+        const message = (err as { message?: string })?.message
+        setError(message ?? '결제를 시작하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+        console.error('[toss requestPayment]', err)
+      }
     }
   }
 
@@ -416,6 +423,19 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                 </button>
               ))}
             </div>
+
+            {/* 계좌이체 결제 안내 — 에스크로(구매안전서비스) + 현금영수증 (한국 전용 법적 표시) */}
+            {paymentMethod === 'bank_transfer' && locale === 'ko' && (
+              <div className="flex flex-col gap-1.5 border border-border rounded-lg p-3 text-xs text-ink-muted leading-relaxed">
+                <p>
+                  · 계좌이체 결제는 <span className="text-ink font-medium">토스페이먼츠 구매안전서비스(에스크로)</span>로 안전하게 보호됩니다.{' '}
+                  <a href={`/${locale}/escrow`} target="_blank" className="underline underline-offset-2 hover:text-ink">
+                    가입사실 확인
+                  </a>
+                </p>
+                <p>· 현금영수증은 결제 진행 시 토스페이먼츠 결제창에서 신청하실 수 있습니다.</p>
+              </div>
+            )}
           </div>
         </div>
 
