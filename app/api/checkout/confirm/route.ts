@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getCart } from '@/lib/actions/cart'
-import { createShopifyOrder } from '@/lib/actions/order'
+import { createShopifyOrder, type ShippingData } from '@/lib/actions/order'
 import { sendCAPIEvent } from '@/lib/meta-capi'
+import { calcShipping, ISLAND_SURCHARGE, type ShippingCalc } from '@/lib/utils/shipping'
 import type { Locale } from '@/lib/shopify/types'
 
 const LOCALES: Locale[] = ['ko', 'ja', 'en']
@@ -99,27 +100,61 @@ export async function GET(request: NextRequest) {
   }
   const amount = Number(amountStr)
 
-  const confirmed = await confirmTossPayment(paymentKey, orderId, amount)
-  if (!confirmed.ok) return NextResponse.redirect(failUrl)
-
+  // 결제 승인(캡처) 전에 카트를 확보해 금액을 서버에서 검증한다.
+  // amount는 클라이언트가 requestPayment로 보낸 값이라 그대로 신뢰하지 않고,
+  // 카트 원천(cost.subtotalAmount) + 서버 배송비 규칙으로 재계산해 대조한다.
   const cart = await getCart(lang)
   const shippingRaw = request.cookies.get('checkout_shipping')?.value
 
+  let shipping: ShippingData | undefined
+  let verified: ShippingCalc | undefined
+  // 카트+배송지 쿠키가 있으면 금액 검증이 가능하다(정상 결제 흐름).
+  const canVerify = !!(cart && cart.lines.nodes.length > 0 && shippingRaw)
+
+  if (canVerify) {
+    try {
+      shipping = JSON.parse(decodeURIComponent(shippingRaw!)) as ShippingData
+    } catch (e) {
+      console.error('[checkout/confirm] 배송 쿠키 파싱 실패:', e)
+      return NextResponse.redirect(failUrl)
+    }
+    const serverSubtotal = Number(cart!.cost.subtotalAmount.amount)
+    verified = calcShipping(serverSubtotal, {
+      zipcode: shipping.zipcode ?? '',
+      // 도서·산간은 사용자 체크박스(선언값) — 결제액을 늘리는 방향이라 값 자체를 인정.
+      isIsland: shipping.surcharge === ISLAND_SURCHARGE,
+    })
+    const expected = serverSubtotal + verified.shippingFee + verified.surcharge
+    // 🔒 금액 위변조 차단: 서버 재계산값과 다르면 결제를 승인하지 않고 실패 처리.
+    if (amount !== expected) {
+      console.error('[checkout/confirm] 결제금액 불일치 — 위변조 의심, 승인 중단', { amount, expected, serverSubtotal })
+      return NextResponse.redirect(failUrl)
+    }
+  }
+
+  const confirmed = await confirmTossPayment(paymentKey, orderId, amount)
+  if (!confirmed.ok) return NextResponse.redirect(failUrl)
+
   let orderName: string | undefined
   let orderOk = false
-  let shipping: ReturnType<typeof JSON.parse> | undefined
   let items: { title: string; variantTitle: string; quantity: number; lineTotal: number }[] = []
 
-  // 카트가 비었으면(TTL 만료 등) 주문 생성을 건너뛴다 — 라인 없는 빈 주문 생성 방지.
-  // orderOk=false로 떨어져 아래에서 "결제됨·주문실패" 관리자 알림 경로로 처리된다.
-  if (cart && cart.lines.nodes.length > 0 && shippingRaw) {
+  // 카트가 비었으면(TTL 만료 등) 주문 생성을 건너뛴다 — orderOk=false로 아래 관리자 알림 경로.
+  if (canVerify && cart && shipping && verified) {
     try {
-      shipping = JSON.parse(decodeURIComponent(shippingRaw))
       const lineItems = cart.lines.nodes.map((line) => ({
         variantGid: line.merchandise.id,
         quantity: line.quantity,
       }))
-      const result = await createShopifyOrder({ orderId, amount, paymentKey, shipping, lineItems, vbankDueDate: confirmed.virtualAccount?.dueDate })
+      // 주문 shipping_lines에는 쿠키 원본이 아닌 서버 검증 배송비를 사용한다.
+      const result = await createShopifyOrder({
+        orderId,
+        amount,
+        paymentKey,
+        shipping: { ...shipping, shippingFee: verified.shippingFee, surcharge: verified.surcharge, surchargeLabel: verified.surchargeLabel },
+        lineItems,
+        vbankDueDate: confirmed.virtualAccount?.dueDate,
+      })
       if (result.ok) {
         orderName = result.shopifyOrderName
         orderOk = true

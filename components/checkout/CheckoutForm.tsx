@@ -4,13 +4,9 @@ import { useState } from 'react'
 import Script from 'next/script'
 import Image from 'next/image'
 import { formatPrice } from '@/lib/utils/format'
+import { SHIPPING_FEE, JEJU_SURCHARGE, ISLAND_SURCHARGE, isJejuZip, calcShipping } from '@/lib/utils/shipping'
 import AddressSearchModal from './AddressSearchModal'
 import type { Cart, Locale } from '@/lib/shopify/types'
-
-const SHIPPING_THRESHOLD = 80000
-const SHIPPING_FEE = 3500
-const JEJU_SURCHARGE = 3000
-const ISLAND_SURCHARGE = 4000
 
 type Dict = {
   checkout: {
@@ -92,9 +88,8 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
 
   const { checkout: d } = dict
   const subtotal = Number(cart.cost.subtotalAmount.amount)
-  const isJeju = form.zipcode.length === 5 && form.zipcode.startsWith('63')
-  const surcharge = isJeju ? JEJU_SURCHARGE : isIsland ? ISLAND_SURCHARGE : 0
-  const shippingFee = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE
+  const isJeju = isJejuZip(form.zipcode)
+  const { shippingFee, surcharge, surchargeLabel } = calcShipping(subtotal, { zipcode: form.zipcode, isIsland })
   const total = subtotal + shippingFee + surcharge
 
   const orderName =
@@ -149,7 +144,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
         // 배송비 내역 — 주문 생성 시 shipping_lines로 분리 반영 (order.ts)
         shippingFee,
         surcharge,
-        surchargeLabel: isJeju ? '제주 추가배송비' : isIsland ? '도서·산간 추가배송비' : '',
+        surchargeLabel,
       }
       document.cookie = `checkout_shipping=${encodeURIComponent(JSON.stringify(cookiePayload))};path=/;max-age=600;samesite=lax`
 
