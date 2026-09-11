@@ -119,15 +119,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(failUrl)
     }
 
-    // 🔒 재고 재검증 (오버셀 차단): 장바구니 담은 뒤 품절되거나 재고가 주문수량보다 적으면
-    // 결제를 승인하지 않고 장바구니로 돌려보낸다.
-    // availableForSale=false = 판매불가(품절, deny 정책). 품절허용(continue) 상품은
-    // quantityAvailable<=0이어도 availableForSale=true라 통과된다(의도된 오버셀 허용).
-    const oversold = cart!.lines.nodes.some((line) => {
-      const v = line.merchandise
-      if (!v.availableForSale) return true
-      return v.quantityAvailable != null && v.quantityAvailable > 0 && v.quantityAvailable < line.quantity
-    })
+    // 🔒 재고 재검증 (오버셀 차단): 장바구니 담은 뒤 품절되면 결제를 승인하지 않고 장바구니로 돌려보낸다.
+    // availableForSale=false = 판매불가(품절, deny 정책). 품절허용(continue) 상품은 true라 통과된다.
+    // (남은 수량 기반 초과주문 검증은 Storefront 토큰에 재고 조회 scope가 없어 제외 — availableForSale로 충분)
+    const oversold = cart!.lines.nodes.some((line) => !line.merchandise.availableForSale)
     if (oversold) {
       console.error('[checkout/confirm] 재고 부족 — 승인 중단(오버셀 방지)', { orderId })
       return NextResponse.redirect(new URL(`/${lang}/cart?notice=out_of_stock`, request.url))

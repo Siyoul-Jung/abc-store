@@ -12,7 +12,6 @@ const CART_FRAGMENT = `
             id
             title
             availableForSale
-            quantityAvailable
             price { amount currencyCode }
             selectedOptions { name value }
             product {

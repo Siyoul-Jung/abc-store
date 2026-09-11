@@ -19,11 +19,16 @@ export async function getCartCount(): Promise<number> {
   if (!cartId) return 0
 
   const ctx = getShopifyContext('ko')
-  const { data, errors } = await shopifyClient.request(GET_CART_QUERY, {
-    variables: { cartId, ...ctx },
-  })
-  if (errors || !data?.cart) return 0
-  return data.cart.totalQuantity ?? 0
+  // 헤더가 전 페이지에서 호출 — Storefront 오류가 throw돼도 레이아웃 전체를 500내지 않도록 방어.
+  try {
+    const { data, errors } = await shopifyClient.request(GET_CART_QUERY, {
+      variables: { cartId, ...ctx },
+    })
+    if (errors || !data?.cart) return 0
+    return data.cart.totalQuantity ?? 0
+  } catch {
+    return 0
+  }
 }
 
 export async function getCart(locale: Locale): Promise<Cart | null> {
@@ -32,11 +37,15 @@ export async function getCart(locale: Locale): Promise<Cart | null> {
   if (!cartId) return null
 
   const ctx = getShopifyContext(locale)
-  const { data, errors } = await shopifyClient.request(GET_CART_QUERY, {
-    variables: { cartId, ...ctx },
-  })
-  if (errors) return null
-  return data.cart ?? null
+  try {
+    const { data, errors } = await shopifyClient.request(GET_CART_QUERY, {
+      variables: { cartId, ...ctx },
+    })
+    if (errors) return null
+    return data.cart ?? null
+  } catch {
+    return null
+  }
 }
 
 type UserError = { field?: string[] | null; message: string }
