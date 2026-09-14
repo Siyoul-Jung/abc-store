@@ -45,7 +45,7 @@ docs/                 — 체크리스트 · 의사결정 기록(decisions/)
 - 가격 표시에 `Intl.NumberFormat` currency 스타일 금지 — `formatPrice()` 사용
 - Admin API 호출은 `lib/shopify/admin.ts`의 `adminGql()`만 사용 (`storefront.ts`에 직접 작성 금지)
 - `getProductById`에 locale 인자 필수 (Shopify 다국어 컨텍스트)
-- 배송비 상수는 `CheckoutForm.tsx`에서만 관리
+- 배송비 상수·계산은 `lib/utils/shipping.ts`에서만 관리 (클라이언트·서버 공유, `CheckoutForm.tsx`에 재정의 금지)
 - 서버 컴포넌트에 불필요한 `'use client'` 추가 금지
 - 타입을 우회하려 `as any` 사용 금지 — 설치된 버전의 타입/문서를 확인
 

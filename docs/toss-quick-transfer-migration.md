@@ -49,12 +49,13 @@
 ## 지금(온보딩 전) 안전하게 할 수 있는 것
 - [x] 코드 파악 + 본 지도 작성
 - [ ] **세금 과세여부 확인** — 상점관리자 부분면세 → 아동복 과세 맞는지 세무 확인 (코드 아님)
-- [ ] **CHECKOUT_PAUSED 잠금 유지 확인** — `proxy.ts:39` 게이트. 실키 전환·런칭 전까지 Vercel env `CHECKOUT_PAUSED=true`로 잠가둘 것 (값 변경 전 현재값 확인)
+- [x] **CHECKOUT_PAUSED 잠금 유지 확인** — `proxy.ts:39` 게이트. 실키 전환·런칭 전까지 Vercel env `CHECKOUT_PAUSED=true`로 잠가둘 것 (값 변경 전 현재값 확인)
+  - ⚠️ **사고 기록(2026-09-12)**: 라이브 결제 테스트 세팅 중 `false`로 풀었다가 500 에러→전략논의로 넘어가며 **재잠금 못한 채 방치**. `/ko/checkout` Location에 `notice=checkout_paused` 없음으로 발각(풀림 확정). Vercel env `true` + **빌드캐시 없이 재배포** 후 재잠금 확정(양 로케일 `?notice=checkout_paused` 복귀). 교훈: **미들웨어 env는 빌드타임 인라인 → env만 바꾸면 무효, 캐시 없는 재배포 필수.**
 
 ## 진행 상황
 1. [x] 4문항 확정(문서) → ① CheckoutForm(TRANSFER+escrowProducts, 환불UI 제거) ② order.ts(항상 paid+sale) ③ dictionaries/ko(계좌이체) 수정 — **2026-09-08 완료** (브랜치 `feat/toss-quick-transfer`, main 기준, 미커밋)
 2. [x] `npx tsc --noEmit` + `npm run build` 통과
-3. [ ] **⚠️ 테스트 키로 계좌이체 실결제 테스트** — 특히 **escrowProducts 금액합(상품소계) vs 결제액(+배송비) 불일치 시 토스 처리** 검증. 에러 시 배송비를 escrowProducts에 포함하는 등 조정.
+3. [x] **✅ 테스트 키로 계좌이체 결제창 진입 검증 (2026-09-09)** — 우리 법인명 상점의 **API 개별 연동 테스트키**(`test_ck_`/`test_sk_`)로 진입 성공. **escrowProducts 금액합(20,900) ≠ 결제액(24,400) 불일치가 토스에서 안 막힘 → 배송비 라인 추가 불필요, 코드 그대로 OK.** (은행 실인증 벽으로 end-to-end는 런칭날 라이브 실결제 때 확인) + 법적고지·에러표시 PR #47 머지. ⚠️ **키 함정**: 문서키(`_docs_`)는 에스크로 미지원 / 위젯키(`test_gck_`)는 payment SDK 미지원 → 반드시 우리상점 `test_ck_`.
 4. [ ] Live 키 교체(.env.local + Vercel, 현재값 확인 후) → 실키 테스트
 5. [ ] `CHECKOUT_PAUSED=false` 해제 → 런칭
 

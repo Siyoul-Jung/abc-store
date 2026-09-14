@@ -4,7 +4,8 @@ import { useState, useTransition, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { addToCart } from '@/lib/actions/cart'
-import { stripTitlePrefix, formatPrice } from '@/lib/utils/format'
+import { stripTitlePrefix, formatPrice, gidToNumericId } from '@/lib/utils/format'
+import { trackPixel } from '@/lib/analytics/pixel'
 import type { Product, Locale } from '@/lib/shopify/types'
 
 type Props = {
@@ -81,9 +82,19 @@ export default function QuickAddButton({ product, lang, soldOut }: Props) {
     window.dispatchEvent(new Event('cart:updated'))
   }
 
+  function fireAddToCart() {
+    trackPixel('AddToCart', {
+      content_ids: [gidToNumericId(product.id)],
+      content_type: 'product',
+      value: Number(minPrice.amount),
+      currency: minPrice.currencyCode,
+    })
+  }
+
   function handleAddDirect(variantId: string) {
     startTransition(async () => {
       await addToCart(variantId, lang)
+      fireAddToCart()
       setAdded(true)
       notifyCartUpdated()
       setTimeout(() => setAdded(false), 2000)
@@ -94,6 +105,7 @@ export default function QuickAddButton({ product, lang, soldOut }: Props) {
     if (!selectedId) return
     startTransition(async () => {
       await addToCart(selectedId, lang)
+      fireAddToCart()
       setAdded(true)
       setModalOpen(false)
       setSelectedId(null)

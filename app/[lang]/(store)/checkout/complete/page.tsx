@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { hasLocale } from '../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
+import PurchaseTracker from '@/components/analytics/PurchaseTracker'
 
 // 결제 완료 표시 페이지 — 부수효과 없음(순수 렌더). 새로고침해도 안전.
 // 실제 결제확인·주문생성은 /api/checkout/confirm 라우트 핸들러가 처리하고,
@@ -17,6 +18,7 @@ type ConfirmationPayload = {
   vbank: { bankName: string; accountNumber: string; dueDate: string } | null
   shipping: { name: string; address: string; addressDetail: string } | null
   items: { title: string; variantTitle: string; quantity: number; lineTotal: number }[]
+  pixelPurchase?: { eventId: string; value: number; currency: string; contentIds: string[] } | null
 }
 
 type Props = { params: Promise<{ lang: string }> }
@@ -116,7 +118,7 @@ export default async function CheckoutCompletePage({ params }: Props) {
   }
 
   const d = t[locale]
-  const { isVbank, vbank, shipping, items, amount, orderName, orderFailed, orderRef } = order!
+  const { isVbank, vbank, shipping, items, amount, orderName, orderFailed, orderRef, pixelPurchase } = order!
 
   // 배송비는 별도 필드로 넘어오지 않으므로 총 결제액 − 상품합계로 역산한다.
   // 제주/도서산간 추가비도 자연히 배송비에 포함되어 총액과 항상 일치한다.
@@ -148,6 +150,14 @@ export default async function CheckoutCompletePage({ params }: Props) {
 
   return (
     <section className="max-w-lg mx-auto px-4 py-16 sm:py-24 flex flex-col items-center gap-6">
+      {pixelPurchase && (
+        <PurchaseTracker
+          eventId={pixelPurchase.eventId}
+          value={pixelPurchase.value}
+          currency={pixelPurchase.currency}
+          contentIds={pixelPurchase.contentIds}
+        />
+      )}
       <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl ${isVbank ? 'bg-surface' : 'bg-citrus'}`}>
         {isVbank ? '💳' : '✓'}
       </div>

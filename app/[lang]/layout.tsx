@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { hasLocale } from './dictionaries'
 import { notFound } from 'next/navigation'
 import LangSetter from './LangSetter'
+import MetaPixel from '@/components/analytics/MetaPixel'
 
 const descriptions: Record<string, string> = {
   ko: '아이들을 위한 특별한 옷, applebuttercollege',
@@ -52,6 +53,7 @@ export default async function LangLayout({
 
   return (
     <>
+      <MetaPixel />
       <LangSetter lang={lang} />
       {children}
     </>

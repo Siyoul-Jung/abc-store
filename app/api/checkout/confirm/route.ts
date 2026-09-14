@@ -197,18 +197,27 @@ export async function GET(request: NextRequest) {
   }
 
   // Meta CAPI Purchase (가상계좌는 입금 후 웹훅에서 별도 전송, 주문 생성 실패 시 미전송)
+  // 서버가 Purchase를 보낸 경우에만 브라우저 픽셀도 같은 eventId로 발화(complete 페이지) → dedup.
+  let pixelPurchase: { eventId: string; value: number; currency: string; contentIds: string[] } | null = null
   if (!confirmed.virtualAccount && orderOk && cart && shipping) {
     const contents = cart.lines.nodes.map((line) => ({
       id: line.merchandise.product.id.split('/').pop() ?? '',
       quantity: line.quantity,
       item_price: Number(line.merchandise.price.amount),
     }))
+    pixelPurchase = {
+      eventId: `purchase_${orderId}`,
+      value: amount,
+      currency: 'KRW',
+      contentIds: contents.map((c) => c.id),
+    }
     sendCAPIEvent({
       eventName: 'Purchase',
       eventSourceUrl: `https://applebuttercollege.com/${lang}/checkout/complete`,
       value: amount,
       currency: 'KRW',
       orderId,
+      eventId: `purchase_${orderId}`, // 브라우저 픽셀(complete 페이지)과 동일 → dedup
       contents,
       userData: {
         email: shipping.email,
@@ -237,6 +246,7 @@ export async function GET(request: NextRequest) {
       ? { name: shipping.name, address: shipping.address, addressDetail: shipping.addressDetail }
       : null,
     items,
+    pixelPurchase, // 브라우저 Purchase 발화용(서버 CAPI와 dedup). 미발화 시 null.
   }
 
   const res = NextResponse.redirect(new URL(`/${lang}/checkout/complete`, request.url))

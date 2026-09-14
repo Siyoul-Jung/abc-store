@@ -6,7 +6,8 @@ import { addToCart } from '@/lib/actions/cart'
 import SizeGuideModal from '@/components/product/SizeGuideModal'
 import PolicyModal from '@/components/product/PolicyModal'
 import RestockNotify from '@/components/product/RestockNotify'
-import { formatPrice } from '@/lib/utils/format'
+import { formatPrice, gidToNumericId } from '@/lib/utils/format'
+import { trackPixel } from '@/lib/analytics/pixel'
 
 type Props = {
   variants: ProductVariant[]
@@ -90,6 +91,12 @@ export default function VariantSelector({ variants, locale, productId, productTi
     if (!selected?.availableForSale || isPending) return
     startTransition(async () => {
       await addToCart(selected.id, locale)
+      trackPixel('AddToCart', {
+        content_ids: [gidToNumericId(productId)],
+        content_type: 'product',
+        value: Number(selected.price.amount),
+        currency: selected.price.currencyCode,
+      })
       window.dispatchEvent(new Event('cart:updated'))
       setAdded(true)
       setTimeout(() => setAdded(false), 2000)

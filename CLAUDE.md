@@ -100,7 +100,7 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 
 ## 비즈니스 룰
 
-- **배송비**: 3,500원 / 80,000원 이상 무료 (`CheckoutForm.tsx`의 상수로 관리)
+- **배송비**: 3,500원 / 80,000원 이상 무료 (`lib/utils/shipping.ts`에서 상수·계산 단일 관리 — 클라이언트·서버 공유)
 - **제주 추가**: +3,000원 (우편번호 63xxx 자동 감지) / 도서산간 +4,000원 (체크박스) — 결제금액·Shopify shipping_lines 모두 반영
 - **가격 표시**: 숫자 + 접미사 방식 — 한국: `원`, 일본: `엔` (`lib/utils/format.ts`)
 - **PolicyModal**: 배송·교환·결제 안내 통합 모달. 상품 상세 VariantSelector 내 "안내 →" 버튼으로 트리거. 한국 locale에서만 렌더링.
@@ -137,7 +137,8 @@ TOSS_SECRET_KEY=                    # 테스트 키 등록됨 — 실 계약 후
 TOSS_WEBHOOK_SECRET=                # 웹훅 서명검증용 보안키(지급대행 설정 발급, API 시크릿과 별개) — 미등록 시 웹훅 401 거부. 운영 전 등록 필수
 INSTAGRAM_ACCESS_TOKEN=             # 등록 완료
 INSTAGRAM_USER_ID=17841436592849949
-META_PIXEL_ID=                      # 등록 완료
+META_PIXEL_ID=                      # 등록 완료 (서버 CAPI용)
+NEXT_PUBLIC_META_PIXEL_ID=          # 브라우저 픽셀용(공개값, =META_PIXEL_ID). 미등록 시 픽셀 미발화(서버 CAPI는 동작). Vercel 등록 필요
 META_CAPI_ACCESS_TOKEN=             # 등록 완료
 NEXT_PUBLIC_SUPABASE_URL=           # 등록 완료 (Q&A 게시판)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=      # 등록 완료
@@ -231,6 +232,7 @@ app/
 - 404 / 500 에러 페이지
 - SEO — sitemap.xml, robots.txt, Product JSON-LD (`app/[lang]/(store)/products/[id]/page.tsx`)
 - Meta Conversions API — `lib/meta-capi.ts`, Purchase 이벤트 (`app/api/checkout/confirm`)
+- Meta 브라우저 픽셀 — `components/analytics/`(MetaPixel/ProductViewTracker/PurchaseTracker), `lib/analytics/pixel.ts`. PageView·ViewContent·AddToCart 발화, Purchase는 CAPI와 `event_id`로 dedup. `NEXT_PUBLIC_META_PIXEL_ID` 필요
 - OIDC 로그인 (`app/api/auth/`) — Shopify Customer Account API, JWT id_token 디코딩
 - 마이페이지 — 주문내역 (`/account/orders`), 주문 취소, 배송지 관리 (`/account/addresses`)
 - Q&A 게시판 (`/qa`) — Supabase 기반, 목록/상세/새 질문, 관리자 답변 (`/admin/qa`)
@@ -285,6 +287,6 @@ app/
 - `getProductById`에 locale 인자 필수 — Shopify 다국어 컨텍스트 전달용
 - 가격 표시 시 `Intl.NumberFormat` currency 스타일 사용 금지 — `formatPrice()` 사용
 - Admin API 호출 시 `storefront.ts`에 직접 작성하지 말 것 — `lib/shopify/admin.ts`의 `adminGql()` 사용
-- 배송비 상수는 `CheckoutForm.tsx`에서만 관리 (`SHIPPING_THRESHOLD = 80000`, `SHIPPING_FEE = 3500`)
+- 배송비 상수·계산은 `lib/utils/shipping.ts`에서만 관리 (`SHIPPING_THRESHOLD = 80000`, `SHIPPING_FEE = 3500`, `calcShipping()`) — 클라이언트(CheckoutForm)·서버(confirm 라우트)가 공유. `CheckoutForm.tsx`에 상수 재정의 금지
 - PolicyAccordion은 더 이상 상품 상세 페이지에서 사용하지 않음 — PolicyModal 사용
 - 홈 상품 정렬(`CREATED_AT`)과 추천 상품 쿼리(`GET_BEST_SELLING_QUERY`)는 분리된 쿼리 사용
