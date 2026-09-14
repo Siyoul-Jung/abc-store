@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { unstable_noStore } from 'next/cache'
 import type { Metadata } from 'next'
 import { hasLocale, getDictionary } from '../../../dictionaries'
-import { getProductById, getProductMetafields, numericIdToGid, getProducts } from '@/lib/shopify/storefront'
+import { getProductById, getProducts } from '@/lib/shopify/storefront'
 import { stripHtml, stripTitlePrefix, gidToNumericId } from '@/lib/utils/format'
 import ProductImageGallery from '@/components/product/ProductImageGallery'
 import VariantSelector from '@/components/product/VariantSelector'
@@ -10,6 +10,7 @@ import ProductDisclosure from '@/components/product/ProductDisclosure'
 import ProductGrid from '@/components/home/ProductGrid'
 import RecentlyViewed from '@/components/product/RecentlyViewed'
 import ShareButtons from '@/components/product/ShareButtons'
+import ProductViewTracker from '@/components/analytics/ProductViewTracker'
 import type { Locale, Product } from '@/lib/shopify/types'
 
 const BASE = 'https://applebuttercollege.com'
@@ -61,10 +62,9 @@ export default async function ProductPage({ params }: Props) {
   const { lang, id } = await params
   if (!hasLocale(lang)) notFound()
 
-  const [product, dict, metafields, allProducts] = await Promise.all([
+  const [product, dict, allProducts] = await Promise.all([
     getProductById(id, lang as Locale),
     getDictionary(lang as Locale),
-    getProductMetafields(numericIdToGid(id)),
     getProducts(lang as Locale, 20),
   ])
 
@@ -83,6 +83,12 @@ export default async function ProductPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <ProductViewTracker
+        productId={gidToNumericId(product.id)}
+        value={Number(firstVariant.price.amount)}
+        currency={firstVariant.price.currencyCode}
       />
 
       {/* 상단: 이미지 좌 | 제목+가격+사이즈 우
@@ -108,8 +114,8 @@ export default async function ProductPage({ params }: Props) {
             sizeGuideLabel={dict.product.sizeGuide}
             freeShippingNotice={dict.product.freeShippingNotice}
             descriptionHtml={product.descriptionHtml ? stripHtml(product.descriptionHtml) : undefined}
-            careInstructions={metafields.careInstructions ?? undefined}
-            shippingNotice={metafields.shippingNotice ?? undefined}
+            careInstructions={product.careInstructions?.value ?? undefined}
+            shippingNotice={product.shippingNotice?.value ?? undefined}
             initialPrice={firstVariant.price}
             initialCompareAtPrice={firstVariant.compareAtPrice}
           />

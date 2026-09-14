@@ -9,26 +9,10 @@ import {
   GET_PRODUCTS_BY_TAG_QUERY,
   GET_PRODUCTS_BY_TAG_SORTED_QUERY,
 } from './queries/products'
-import { adminGql } from './admin'
 import type { Locale, Product, Collection } from './types'
 
-export async function getProductMetafields(
-  gid: string,
-): Promise<{ careInstructions: string | null; shippingNotice: string | null }> {
-  const { data } = await adminGql(
-    `query($id: ID!) {
-      product(id: $id) {
-        careInstructions: metafield(namespace: "custom", key: "care_instructions") { value }
-        shippingNotice: metafield(namespace: "custom", key: "shipping_notice") { value }
-      }
-    }`,
-    { id: gid },
-  )
-  return {
-    careInstructions: data?.product?.careInstructions?.value ?? null,
-    shippingNotice: data?.product?.shippingNotice?.value ?? null,
-  }
-}
+// 상품 metafield(care_instructions·shipping_notice)는 GET_PRODUCT_BY_ID_QUERY(PRODUCT_FRAGMENT)가
+// Storefront로 직접 가져온다(정의가 storefront=PUBLIC_READ). 별도 Admin fetch는 중복이라 제거함.
 
 export async function getProducts(locale: Locale, first = 20): Promise<Product[]> {
   const ctx = getShopifyContext(locale)

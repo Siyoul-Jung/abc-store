@@ -20,6 +20,7 @@ export type CAPIEventPayload = {
   value: number
   currency: string
   orderId?: string
+  eventId?: string // 브라우저 픽셀과 dedup 키. 같은 (event_name, event_id)면 Meta가 하나로 합침.
   contents: { id: string; quantity: number; item_price: number }[]
   userData: {
     email?: string
@@ -36,7 +37,7 @@ export type CAPIEventPayload = {
 export async function sendCAPIEvent(payload: CAPIEventPayload): Promise<void> {
   if (!PIXEL_ID || !ACCESS_TOKEN) return
 
-  const { eventName, eventSourceUrl, value, currency, orderId, contents, userData } = payload
+  const { eventName, eventSourceUrl, value, currency, orderId, eventId, contents, userData } = payload
 
   const user_data: Record<string, string> = {
     country: sha256('kr'),
@@ -55,6 +56,7 @@ export async function sendCAPIEvent(payload: CAPIEventPayload): Promise<void> {
     event_time: Math.floor(Date.now() / 1000),
     event_source_url: eventSourceUrl,
     action_source: 'website',
+    ...(eventId ? { event_id: eventId } : {}),
     user_data,
     custom_data: {
       value,
