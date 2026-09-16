@@ -1,5 +1,7 @@
 'use server'
 
+import type { Locale } from '@/lib/shopify/types'
+
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE_DOMAIN!
 const SHOPIFY_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN!
 const API_VERSION   = process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'
@@ -45,9 +47,10 @@ export async function createShopifyOrder(params: {
   paymentKey: string
   shipping: ShippingData
   lineItems: { variantGid: string; quantity: number }[]
+  locale?: Locale // 주문확인 메일 언어(customer_locale). 상점 primary_locale이 en이라 명시 필요.
   vbankDueDate?: string // 가상계좌 입금 마감(ISO) — 만료 스윕이 미입금 주문 판정에 사용
 }): Promise<{ ok: boolean; shopifyOrderId?: string; shopifyOrderName?: string }> {
-  const { orderId, amount, paymentKey, shipping, lineItems } = params
+  const { orderId, amount, paymentKey, shipping, lineItems, locale } = params
 
   // 이중 호출 방어: 같은 토스 주문ID의 주문이 이미 있으면 재생성하지 않고 그대로 반환.
   // (confirm 라우트가 어쩌다 두 번 실행돼도 중복 주문이 생기지 않게.)
@@ -88,6 +91,9 @@ export async function createShopifyOrder(params: {
       // send_receipt: 이메일이 있으면 Shopify 주문확인 메일 발송(한국어 템플릿은 Shopify Admin>알림).
       //   카드 = 결제완료 영수증 / 무통장 = 주문접수+입금대기 안내. 이메일 없으면 발송 생략.
       ...(shipping.email && { email: shipping.email, send_receipt: true }),
+      // 주문확인 메일을 고객 언어로 발송. 상점 primary_locale=en이라 미지정 시 영어로 나감.
+      // (실제 한국어/일본어 발송은 Shopify Admin>알림에 해당 언어 템플릿이 게시돼 있어야 함)
+      customer_locale: locale ?? 'ko',
       financial_status: 'paid',
       fulfillment_status: null,
       // 재고 차감: REST orders.json 기본값은 'bypass'(차감 안 함)이므로 명시 필요.
