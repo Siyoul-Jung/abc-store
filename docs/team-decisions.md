@@ -15,9 +15,10 @@
 |---|---|---|
 | 전환 목표일 | 메이크샵 운영 종료 → Shopify 전환 일정 확정 | ⬜ |
 | 기존 고객 공지 | 사이트 이전 안내 방법 및 시점 (이메일, SNS 등) | ⬜ |
-| 병행 운영 여부 | **✅ 병행운영 확정(2026-07-22)** — `applebuttercollege.com`은 메이크샵 유지, 쇼피파이는 별도 URL(현 vercel, 추후 서브도메인). 도메인 전환·301·회원이전을 런칭 경로에서 제외 | ✅ |
-| ⚠️ 재고 싱크 | 병행운영 핵심 리스크=같은 상품 동시판매 시 오버셀. 대응 A안(쇼피파이엔 전용/신상만 배치, 겹침 차단) 추천 — **미확정** | ⬜ |
-| ⚠️ 도메인 등록처 | `applebuttercollege.com` 관리처(가비아/후이즈/Cloudflare 등) **미확인** — 서브도메인 DNS 연결 시 필요 | ⬜ |
+| 병행 운영 여부 | **✅ 병행운영 확정(2026-07-22)** — `applebuttercollege.com`은 메이크샵 유지, 쇼피파이는 **`shop.applebuttercollege.com` 서브도메인**(현 vercel, 추후 연결). 도메인 전환·301·회원이전을 런칭 경로에서 제외 | ✅ |
+| 재고 싱크 | **✅ 확정(2026-08): 상품 분리(A안).** 두 몰이 서로 다른 상품을 판다(겹침 금지) → 실시간 양방향 싱크 불필요. 재고 진실 소스 = "그 상품을 지금 파는 몰"(이전 전=메이크샵, 이전 후=Shopify). **이전 규칙: Shopify에서 active로 켜는 순간 메이크샵에서 내린다(동시 판매 금지).** 이전 전 상품은 sync.py가 메이크샵→Shopify(draft) 미러만. 오픈(active) 대상 상품은 내부회의 후 결정 | ✅ |
+| 도메인 DNS/서브도메인 | **✅ 확정(2026-09-15, DNS 실조회):** NS = **메이크샵**(ns3/ns4.makeshop.com/.kr) → **모든 DNS 레코드는 메이크샵 DNS에서 편집**(등록처 Cafe24/가비아는 갱신·NS변경용일 뿐). apex `applebuttercollege.com`·www = 14.129.117.247(메이크샵 자사몰, **절대 유지**). 쇼피파이 스토어 도메인 = **`shop.applebuttercollege.com` → Vercel CNAME**. 실행: ① Vercel 프로젝트에 shop. 추가→CNAME 대상값 획득 ② 메이크샵 DNS에 `shop` CNAME 추가 ③ Shopify Domains의 en./apex/www 3줄 제거(헤드리스라 불필요) ④ 메이크샵 DNS의 en. 레코드 삭제. ⚠️ `en.applebuttercollege.com`은 실험 잔재(Shopify IP 23.227.38.65 가리켜 coming-soon만 뜸) → 폐기. **급하지 않음 — 오픈 임박 때 실행** | ⬜ 실행대기 |
+| ⚠️ 메이크샵 종료 시 DNS 이전 | **치명 위험 항목 — 계약 종료 전 반드시 선행.** 현재 도메인 NS = 메이크샵(DNS 호스팅도 메이크샵). 계약 종료 = 메이크샵 DNS 응답 중단 → apex·www·`shop.`·**회사 이메일(MX `mail.applebuttercollege.com`)·SPF** 전부 즉시 다운. 순서: ① 새 DNS 호스트(등록처 Cafe24/가비아 DNS 또는 Cloudflare)에 기존 레코드 **전부 복제(특히 MX/이메일 보존)** → apex·www·shop = Vercel ② 등록처에서 NS를 메이크샵→새 호스트로 변경 ③ apex를 Vercel(헤드리스)로 + 메이크샵 URL→Shopify URL **301 리다이렉트**(SEO 승계) ④ 메이크샵 스토어 종료. `shop.` 서브도메인 선행 덕분에 apex 전환은 빅뱅 아닌 컷오버. **지금은 실행 금지**(라이브 자사몰 9.3억 파손 리스크) — 오프보딩 계획 확정 시 실행 | ⬜ |
 | 기존 주문/고객 데이터 | 메이크샵 주문 이력, 회원 데이터 Shopify 이전 여부 (병행운영이라 런칭 후로 미룸) | ⬜ |
 
 ### 1-2. Shopify 운영 세팅

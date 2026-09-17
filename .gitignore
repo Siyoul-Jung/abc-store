@@ -50,3 +50,8 @@ scripts/.test-data-manifest.json
 
 # Pinterest 발행 job (런타임, 핀 내용)
 marketing/.publish-job.json
+
+# 고객 개인정보 포함 — 절대 커밋/푸시 금지 (배송 명단·엑셀 등)
+docs/deliveryfiles.xls
+docs/*.xls
+docs/*.xlsx
