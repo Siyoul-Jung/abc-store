@@ -3,6 +3,17 @@
 > 매번 "뭘 어떻게 올리지" 고민하지 않도록 정해둔 **운영 원칙 + 발행 리듬 + 대기열**.
 > 핀 만드는 법·유형은 [marketing-content-roadmap.md](marketing-content-roadmap.md), 발행 절차는 [marketing-pinterest-pipeline.md](marketing-pinterest-pipeline.md).
 
+## ⏸ 능동 발행 보류 (2026-08 결정) — 런칭+도메인 클레임 후 재개
+
+**결정: 수동 발행을 중단하고, 쇼피파이 런칭 + 도메인 클레임 이후 제대로 재시작한다.**
+
+- **근거**: 지난 1개월 성과 = **아웃바운드 클릭 0** (노출 500 ↓24%, 저장 4). 트래픽 목표엔 성과 없음.
+- **왜 지금 접나**: ① 목적지 링크가 메이크샵이라 런칭 시 어차피 전면 교체 ② 클릭 0인데 수동 발행에 매주 손이 감 ③ 급한 건 토스·상품이전 등 런칭 블로커 ④ 도메인 클레임 안 된 상태라 분배·클릭추적이 약함(가장 큰 레버).
+- **자산은 보존**: 카드 엔진·발행기·덱·Standard 승격 준비는 그대로 자산으로 남김(버리는 것 아님).
+- **재개 조건(제대로 시작)**: (1) 쇼피파이 런칭 + 도메인 확정, (2) **핀터레스트 도메인 클레임/인증**(분배·추적 부스트), (3) 목적지 링크를 쇼피파이 상품 URL로 교체, (4) 주 2~3회 8주 꾸준히 → 아웃바운드 클릭으로 판단. 이때 Standard 승격(영상 데모)도 함께 처리해 자동발행 전환.
+
+---
+
 **Pinterest API 발행기 완성 — 단, 앱이 Trial access라 production 발행 불가(2026-07-13 확인).** 발행기 `marketing/publish-pinterest.mjs` 구축 — `.publish-job.json`(imagePath·title·description·link·altText) + access token으로 **여름 아동복 보드**(`PINTEREST_BOARD_ID`)에 `POST /v5/pins` 발행. access token 30일·refresh 60일, 401 시 자동 갱신.
 >
 > ⚠️ **블로커: 앱 등급 = Trial access.** 07-13 실발행 시도 → `403 code 29: Apps with Trial access may not create Pins in production`. 스코프(boards:write·pins:write·user_accounts:read)·토큰·payload 전부 정상, dry-run도 통과 — **마지막 게이트는 앱 등급.** 정식 발행은 **Standard access 승격 심사** 필요(developers.pinterest.com → App 1582194 → Upgrade). 승격 전까지는 **수동 업로드로 발행 지속.** 승격되면 동일 코드로 즉시 자동발행 개방.
@@ -57,7 +68,7 @@
 | — | 06-30(수) | 큐레이션·콜라주 (피그 패밀리) | `pinterest/curation/collage/pig-family-2x3-01` | `pig-family.mjs` | ✅ 발행됨(수동, API 이전 마지막) |
 | — | 07-02~07-20 | 발행 공백 | — | — | ⏭ 건너뜀 |
 | — | 07-22(수) | 큐레이션·콜라주 (동물 친구 모음) | `pinterest/curation/collage/animal-friends-0715-2x3-01` | 문어·악어·달팽이·풍선공룡, KIDS 컬렉션 utm=animal-friends-0715 | ✅ 발행됨(수동) |
-| 1 | 07-25(금) or 07-27(월) | 단일 상품핀 (병아리 튜브 — 뱅킹됨) | `pinterest/product/product-spotlight-0713-2x3-01` | 물놀이룩, KIDS 컬렉션 utm=chick-tube-0713 | ⬜ 다음 단일핀 슬롯 |
+| — | 07월 하순 | 단일 상품핀 (병아리 튜브) | `pinterest/product/product-spotlight-0713-2x3-01` | 물놀이룩, KIDS 컬렉션 utm=chick-tube-0713 | ✅ 발행됨(수동) |
 
 > ⚠️ `summer-mesh-set` 덱은 **폐기**(발행 안 함) — 이미 올린 `mesh-summer`와 상품 3/4 중복이라 near-duplicate. 삭제함.
 > 🔁 **발행 전 필수 대조**: 새 콜라주 소재는 이미 발행된 덱(mesh-summer·new-abc-skin·pig-family·summer-*)과 상품·테마가 겹치지 않는지 확인할 것.

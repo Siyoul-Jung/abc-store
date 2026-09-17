@@ -163,6 +163,7 @@ export async function GET(request: NextRequest) {
         paymentKey,
         shipping: { ...shipping, shippingFee: verified.shippingFee, surcharge: verified.surcharge, surchargeLabel: verified.surchargeLabel },
         lineItems,
+        locale: lang,
         vbankDueDate: confirmed.virtualAccount?.dueDate,
       })
       if (result.ok) {
