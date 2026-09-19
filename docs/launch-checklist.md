@@ -11,12 +11,12 @@
 | 상태 | 항목 | 비고 |
 |---|---|---|
 | [x] | Toss Payments 계약 완료 | ✅ 2026-08-31 계약완료. MID `vabcsty4go`(독립몰), 카드 9개사 전부 승인, 계좌이체 활성(에스크로 사용) |
-| [ ] | `NEXT_PUBLIC_TOSS_CLIENT_KEY` 등록 | Vercel 환경변수 — **live 키는 온보딩팀 안내(차주) 후 확보** |
-| [ ] | `TOSS_SECRET_KEY` 등록 | Vercel 환경변수 — live 키 확보 후 |
+| [x] | `NEXT_PUBLIC_TOSS_CLIENT_KEY` 등록 | ✅ Vercel 프로덕션에 **live 키(`live_ck_`, API 개별연동 타입) 등록·재배포 완료(2026-09-09)**. 로컬 `.env.local`은 테스트키 유지(정상 — 실결제는 프로덕션에서). 월요일(2026-09-21) 회사폰 2FA로 대시보드 키 **재확인 예정**. 최종 증명 = 런칭당일 실결제 1건(Vercel Sensitive라 값 재열람 불가) |
+| [x] | `TOSS_SECRET_KEY` 등록 | ✅ Vercel 프로덕션에 **live 키(`live_sk_`) 등록 완료(2026-09-09)**. 위와 동일 — 실결제로만 검증 가능 |
 | [x] | Shopify Admin API 토큰 확보 (`shpat_`) | 결제 성공 → 주문 생성에 필수 |
 | [x] | `SHOPIFY_ADMIN_API_TOKEN` Vercel 등록 | Production 등록 확인 완료 (`vercel env ls`) |
 | [x] | 토스 웹훅 서명검증 구현 | `app/api/toss/webhook/route.ts` — fail-closed, 테스트 통과 |
-| [~] | `TOSS_WEBHOOK_SECRET` 등록 (`.env.local` + Vercel) | ⚠️ **블로커 완화 가능**: 웹훅(`VIRTUAL_ACCOUNT.DONE`)은 가상계좌 전용. **가상계좌→계좌이체 전환 시 웹훅 미사용** → 이 시크릿 불필요해질 수 있음. 온보딩팀에 "계좌이체 실시간이라 입금 웹훅 없음" 확인 후 확정 (`docs/toss-quick-transfer-migration.md`) |
+| [x] | ~~`TOSS_WEBHOOK_SECRET` 등록~~ | ✅ **불필요 확정** — 가상계좌→**계좌이체(TRANSFER) 전환 완료(2026-09-08)**. 계좌이체는 실시간 이체라 입금 웹훅(`VIRTUAL_ACCOUNT.DONE`) 미사용 → 이 시크릿 등록 불필요. 웹훅 라우트는 죽은 코드로 잔존(제거는 선택) |
 | [ ] | Vercel 환경변수 전체 점검 | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `INSTAGRAM_ACCESS_TOKEN` 포함 |
 | [x] | Supabase 정지/백업 대응 | keep-alive 핑 구현 완료(`app/api/cron/keep-alive` + vercel.json cron 매일 03:00 UTC, answer_templates head count). 무료 플랜 7일 무활동 정지 방지. 백업이 필요하면 추후 Pro($25/월) 별도 검토 |
 | [x] | **Supabase 테이블 DDL 전체 실행** | 운영 Supabase 실행 완료(2026-06-23): `qa-guest`·`restock-subscriptions`·`answer-templates`·`return-requests`·`refund-requests` 5종 + `seed-templates.mjs` 18종 시드. 반품·환불·재입고·비회원Q&A 전부 운영에서 동작 가능 상태 |
@@ -70,6 +70,7 @@
 | [ ] | 재고 부족 알림 임계값 설정 | **결정: 3개**. Shopify Admin>설정>알림 또는 재고에서 적용 필요(코드 아님) |
 | [x] | 품절 상품 처리 정책 결정 | **표시 유지 확정** — 재입고 알림(RestockNotify) 활용. 메인/컬렉션 목록은 품절을 안 거름(품절 배지). `available_for_sale:true` 필터는 추천 쿼리에만(의도) |
 | [x] | 반품 목록 CSV 다운로드 | `/admin/returns` → 배송팀 전달용. 현재 필터 그대로 내보내기 (UTF-8 BOM) |
+| [x] | 출고 운송장 일괄반영 도구 | ✅ `abc-migration/fulfill_tracking.py`(2026-09-19) — 배송팀 3컬럼 파일(주문번호·운송장·택배사)→Shopify 일괄 **fulfill+운송장+배송추적링크+고객알림**. 담당자용 드래그앤드롭 런처(`발송반영_1_미리보기`/`_2_실제반영`) + `FULFILL_SETUP.md`. #1042로 E2E 검증. 택배사별 추적URL 자동생성(우체국/CJ/한진/롯데/로젠) |
 
 ---
 

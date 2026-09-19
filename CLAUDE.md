@@ -68,7 +68,7 @@ app/
 
 ## 다국어 (i18n)
 
-- URL 구조: `/{lang}/...` — `ko`, `ja` 두 locale만 유효
+- URL 구조: `/{lang}/...` — **운영은 `ko`, `ja`만** (proxy.ts `locales`). `en`은 사전(en.json)·Locale 타입은 보존하되 **라우팅 차단**: `/en/*`는 감지 로케일로 307 리다이렉트(영어권 진출 시 proxy.ts에 're-enable). VariantSelector 등 일부 라벨이 `locale==='ko' ? 한 : 일` 2분기라 en 재개 시 3분기로 고쳐야 함
 - 번역 파일: `dictionaries/ko.json`, `dictionaries/ja.json`
 - 서버 컴포넌트에서 `getDictionary(locale)` 호출, props로 전달
 - **locale 추가 시**: `lib/shopify/types.ts`의 `Locale` 타입, `dictionaries.ts`, `SizeGuide.tsx` 내부 `t` 객체 모두 수정 필요
