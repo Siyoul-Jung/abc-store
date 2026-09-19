@@ -11,6 +11,16 @@ import {
 } from '@/lib/utils/qa-auth'
 import { QUESTION_CATEGORIES, type QuestionCategory } from '@/lib/supabase/types'
 
+// ─── 어드민 인증 가드 ──────────────────────────────────────────
+// 서버 액션은 사실상 공개 POST 엔드포인트라, 페이지 가드만으로는 부족하다.
+// 관리자 전용 쓰기 액션은 액션 내부에서도 admin_auth 쿠키를 직접 검증한다(페이지와 동일 기준).
+async function requireAdmin() {
+  const cookieStore = await cookies()
+  if (cookieStore.get('admin_auth')?.value !== process.env.ADMIN_SECRET) {
+    throw new Error('관리자 인증이 필요합니다.')
+  }
+}
+
 // ─── 고객: 질문 작성 ───────────────────────────────────────────
 // 하이브리드: 로그인 고객은 계정 신원으로, 비회원은 이름+이메일+글비밀번호로.
 export async function createQuestion(formData: FormData) {
@@ -191,6 +201,7 @@ export async function sendQuestionAccessLink(
 
 // ─── 어드민: 답변 작성 ─────────────────────────────────────────
 export async function submitAnswer(questionId: string, content: string, lang: string) {
+  await requireAdmin()
   const { error: ansErr } = await supabaseAdmin.from('answers').insert({
     question_id: questionId,
     content,
@@ -225,6 +236,7 @@ export async function getAnswerTemplates() {
 
 // ─── 환불 요청 저장 ────────────────────────────────────────────
 export async function createRefundRequest(questionId: string, formData: FormData) {
+  await requireAdmin()
   const paymentType = String(formData.get('payment_type') || 'bank_transfer')
   const bankName = String(formData.get('bank_name') || '').trim()
   const accountNumber = String(formData.get('account_number') || '').trim()
@@ -256,6 +268,7 @@ export async function updateRefundStatus(
   status: 'processing' | 'completed',
   adminNote?: string,
 ) {
+  await requireAdmin()
   const { error } = await supabaseAdmin
     .from('refund_requests')
     .update({ status, admin_note: adminNote ?? null, updated_at: new Date().toISOString() })
