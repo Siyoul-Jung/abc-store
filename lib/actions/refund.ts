@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { updateReturnStatus } from './returns'
+import { requireAdmin } from '@/lib/utils/admin-auth'
 
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE_DOMAIN!
 const SHOPIFY_TOKEN = process.env.SHOPIFY_ADMIN_API_TOKEN!
@@ -40,6 +41,7 @@ export async function getRefundPreview(
   orderName: string,
   reason: string,
 ): Promise<RefundPreview | null> {
+  await requireAdmin()
   const res = await fetch(
     `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}/orders.json?name=${encodeURIComponent(orderName)}&status=any&fields=total_price,note_attributes`,
     { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN }, cache: 'no-store' },
@@ -70,6 +72,7 @@ export async function getRefundPreview(
 }
 
 export async function processCardRefund(returnId: string, paymentKey: string, amount: number) {
+  await requireAdmin()
   const tossSecret = process.env.TOSS_SECRET_KEY!
   const res = await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
     method: 'POST',
@@ -106,10 +109,12 @@ async function markRefundCompleted(returnId: string, amount: number) {
 
 // 가상계좌: 관리자가 계좌로 직접 이체한 뒤 완료 처리.
 export async function completeBankRefund(returnId: string, amount: number) {
+  await requireAdmin()
   await markRefundCompleted(returnId, amount)
 }
 
 // 카드인데 paymentKey가 없어 자동 환불 불가한 경우 — Toss 대시보드에서 수동 환불 후 완료 처리.
 export async function completeManualRefund(returnId: string, amount: number) {
+  await requireAdmin()
   await markRefundCompleted(returnId, amount)
 }
