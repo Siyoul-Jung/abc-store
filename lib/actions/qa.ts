@@ -10,16 +10,7 @@ import {
   makeAccessToken, UNLOCK_TTL_MS, EMAIL_LINK_TTL_MS,
 } from '@/lib/utils/qa-auth'
 import { QUESTION_CATEGORIES, type QuestionCategory } from '@/lib/supabase/types'
-
-// ─── 어드민 인증 가드 ──────────────────────────────────────────
-// 서버 액션은 사실상 공개 POST 엔드포인트라, 페이지 가드만으로는 부족하다.
-// 관리자 전용 쓰기 액션은 액션 내부에서도 admin_auth 쿠키를 직접 검증한다(페이지와 동일 기준).
-async function requireAdmin() {
-  const cookieStore = await cookies()
-  if (cookieStore.get('admin_auth')?.value !== process.env.ADMIN_SECRET) {
-    throw new Error('관리자 인증이 필요합니다.')
-  }
-}
+import { requireAdmin } from '@/lib/utils/admin-auth'
 
 // ─── 고객: 질문 작성 ───────────────────────────────────────────
 // 하이브리드: 로그인 고객은 계정 신원으로, 비회원은 이름+이메일+글비밀번호로.
@@ -32,9 +23,17 @@ export async function createQuestion(formData: FormData) {
   const category: QuestionCategory = (QUESTION_CATEGORIES as readonly string[]).includes(rawCategory)
     ? (rawCategory as QuestionCategory)
     : 'other'
-  const title = String(formData.get('title')).trim()
-  const content = String(formData.get('content')).trim()
+  const title = String(formData.get('title') || '').trim()
+  const content = String(formData.get('content') || '').trim()
   const orderNumber = String(formData.get('order_number') || '').trim() || null
+
+  // 서버측 필수/길이 검증 — 폼 required에만 의존하지 않음(액션 직접 호출 방어).
+  if (!title || !content) {
+    throw new Error('제목과 내용을 입력해주세요.')
+  }
+  if (title.length > 200 || content.length > 5000) {
+    throw new Error('제목은 200자, 내용은 5000자 이내로 입력해주세요.')
+  }
 
   // 공통 신원 필드 — 로그인이면 계정에서, 비회원이면 폼에서
   let customerId: string | null = null

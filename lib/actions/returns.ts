@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { adminGql } from '@/lib/shopify/admin'
 import { supabaseAdmin } from '@/lib/supabase/client'
+import { requireAdmin } from '@/lib/utils/admin-auth'
 
 export type OrderLineItem = {
   lineItemId: string
@@ -216,6 +217,7 @@ export async function updateReturnStatus(
   returnId: string,
   status: Exclude<ReturnStatus, 'pending'>,
 ) {
+  await requireAdmin()
   await supabaseAdmin
     .from('return_requests')
     .update({ status, updated_at: new Date().toISOString() })
