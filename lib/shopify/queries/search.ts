@@ -10,7 +10,16 @@ export const SEARCH_QUERY = `
           images(first: 2) { nodes { url altText } }
           priceRange { minVariantPrice { amount currencyCode } }
           compareAtPriceRange { maxVariantPrice { amount currencyCode } }
-          variants(first: 1) { nodes { id availableForSale } }
+          variants(first: 100) {
+            nodes {
+              id
+              title
+              availableForSale
+              price { amount currencyCode }
+              compareAtPrice { amount currencyCode }
+              selectedOptions { name value }
+            }
+          }
         }
       }
     }
