@@ -94,10 +94,10 @@ export async function cancelOrder(orderId: string) {
   const customerId = caData?.customer?.id?.split('/').pop()
   if (!customerId) return { error: 'unauthorized' }
 
-  // Shopify Admin에서 결제·소유자 정보 조회 (Toss paymentKey, 환불 계좌, 입금상태 등)
+  // Shopify Admin에서 결제·소유자·상태 정보 조회 (Toss paymentKey, 환불 계좌, 입금상태, 출고·취소 상태 등)
   const numericId = orderId.split('/').pop()
   const orderRes = await fetch(
-    `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/${process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'}/orders/${numericId}.json?fields=total_price,note_attributes,customer,financial_status`,
+    `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/${process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'}/orders/${numericId}.json?fields=total_price,note_attributes,customer,financial_status,fulfillment_status,cancelled_at,tags`,
     { headers: { 'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_TOKEN! }, cache: 'no-store' }
   )
   // 조회 실패면 결제정보를 모른 채 환불을 건너뛰고 Shopify만 취소되는 불일치가 생긴다 → 즉시 중단.
@@ -111,6 +111,22 @@ export async function cancelOrder(orderId: string) {
   // IDOR 방어: 주문 소유자 != 로그인 고객이면 거부.
   if (String(o?.customer?.id ?? '') !== customerId) {
     return { error: 'forbidden' }
+  }
+
+  // 상태 재검증(서버 신뢰경계): 클라이언트 canCancel 게이트(UNFULFILLED·미취소·비packing)를
+  // 우회한 직접 호출 방어. Toss 환불이 실행되기 전에 차단하지 않으면,
+  // 이미 출고된 주문에 환불만 나가거나(배송 완료 + 환불) 취소된 주문이 중복 환불된다.
+  if (o?.cancelled_at) {
+    return { error: '이미 취소된 주문입니다' }
+  }
+  // fulfillment_status: null=미출고(취소 가능), 'partial'|'fulfilled'|'restocked'=출고분 존재 → 반품으로.
+  if (o?.fulfillment_status) {
+    return { error: '이미 출고된 주문은 취소할 수 없습니다 — 반품 신청을 이용해 주세요' }
+  }
+  // 출고 준비(packing) 태그가 붙은 주문은 상세 페이지 canCancel과 동일 기준으로 차단.
+  const orderTags = String(o?.tags ?? '').split(',').map((s) => s.trim())
+  if (orderTags.includes('packing')) {
+    return { error: '출고 준비 중인 주문은 취소할 수 없습니다 — 고객센터로 문의해 주세요' }
   }
 
   const attrs: { name: string; value: string }[] = o?.note_attributes ?? []
