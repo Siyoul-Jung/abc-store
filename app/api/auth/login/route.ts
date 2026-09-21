@@ -11,7 +11,10 @@ function base64url(buf: Buffer) {
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
-  const redirectTo = searchParams.get('redirect') ?? '/'
+  // 오픈 리다이렉트 방어: 내부 경로(/로 시작, 프로토콜상대 //aaa 아님)만 허용.
+  // new URL(redirectTo, origin)은 절대·프로토콜상대 URL이면 origin을 무시해 외부로 튕길 수 있다.
+  const rawRedirect = searchParams.get('redirect') ?? '/'
+  const redirectTo = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/'
 
   const state = crypto.randomBytes(16).toString('hex')
   const nonce = crypto.randomBytes(16).toString('hex')

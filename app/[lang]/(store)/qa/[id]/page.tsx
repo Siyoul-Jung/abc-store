@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { hasLocale } from '../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
 import { caQuery } from '@/lib/shopify/customer-account'
-import { getQuestion } from '@/lib/actions/qa'
+import { getQuestion } from '@/lib/data/qa'
 import { verifyAccessToken } from '@/lib/utils/qa-auth'
 import GuestAccessGate from './_components/GuestAccessGate'
 

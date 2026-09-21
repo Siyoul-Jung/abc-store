@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { getAdminQuestions } from '@/lib/actions/qa'
+import { getAdminQuestions } from '@/lib/data/qa'
 
 export default async function AdminQaPage({
   searchParams,

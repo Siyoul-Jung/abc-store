@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { hasLocale } from '../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
 import { caQuery } from '@/lib/shopify/customer-account'
-import { getMyQuestions } from '@/lib/actions/qa'
+import { getMyQuestions } from '@/lib/data/qa'
 
 type Customer = {
   id: string

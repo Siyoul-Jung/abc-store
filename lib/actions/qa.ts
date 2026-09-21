@@ -85,57 +85,10 @@ export async function createQuestion(formData: FormData) {
   redirect(`/${lang}/qa`)
 }
 
-// ─── 고객: 내 질문 목록 ────────────────────────────────────────
-export async function getMyQuestions(customerId: string) {
-  const { data } = await supabaseAdmin
-    .from('questions')
-    .select('*, answers(*)')
-    .eq('customer_id', customerId)
-    .order('created_at', { ascending: false })
-  return data ?? []
-}
-
-// ─── 공개 답변완료 질문 목록 ────────────────────────────────────
-export async function getPublicQuestions(category?: string) {
-  let query = supabaseAdmin
-    .from('questions')
-    .select('*, answers(*)')
-    .eq('is_private', false)
-    .eq('status', 'answered')
-    .order('created_at', { ascending: false })
-    .limit(30)
-
-  if (category && category !== 'all') {
-    query = query.eq('category', category)
-  }
-
-  const { data } = await query
-  return data ?? []
-}
-
-// ─── 어드민: 전체 질문 목록 ─────────────────────────────────────
-export async function getAdminQuestions(status?: string, category?: string) {
-  let query = supabaseAdmin
-    .from('questions')
-    .select('*, answers(*), refund_requests(*)')
-    .order('created_at', { ascending: false })
-
-  if (status && status !== 'all') query = query.eq('status', status)
-  if (category && category !== 'all') query = query.eq('category', category)
-
-  const { data } = await query
-  return data ?? []
-}
-
-// ─── 질문 상세 ─────────────────────────────────────────────────
-export async function getQuestion(id: string) {
-  const { data } = await supabaseAdmin
-    .from('questions')
-    .select('*, answers(*), refund_requests(*)')
-    .eq('id', id)
-    .single()
-  return data
-}
+// ─── 조회(읽기) 함수는 lib/data/qa.ts로 분리 ───────────────────
+// getMyQuestions·getPublicQuestions·getAdminQuestions·getQuestion·getAnswerTemplates는
+// 서버 컴포넌트 전용 조회 함수라 'use server' 모듈에 두면 안 된다(공개 엔드포인트화 위험).
+// → lib/data/qa.ts 참조.
 
 // ─── 비회원: 글 비밀번호 검증 → unlock 쿠키 발급 ─────────────────
 // 성공 시 30분짜리 서명 쿠키를 심어 상세페이지가 본문을 렌더하게 한다.
@@ -222,15 +175,6 @@ export async function submitAnswer(questionId: string, content: string, lang: st
 
   revalidatePath('/admin/qa')
   revalidatePath(`/admin/qa/${questionId}`)
-}
-
-// ─── 답변 템플릿 조회 ──────────────────────────────────────────
-export async function getAnswerTemplates() {
-  const { data } = await supabaseAdmin
-    .from('answer_templates')
-    .select('*')
-    .order('sort_order', { ascending: true })
-  return data ?? []
 }
 
 // ─── 환불 요청 저장 ────────────────────────────────────────────

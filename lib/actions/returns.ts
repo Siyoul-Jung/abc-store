@@ -1,9 +1,22 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { adminGql } from '@/lib/shopify/admin'
+import { caQuery } from '@/lib/shopify/customer-account'
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { requireAdmin } from '@/lib/utils/admin-auth'
+
+// 로그인 고객의 numeric customer id — 고객대면 반품 액션의 소유권 검증용.
+// lookupOrder·submitReturnRequest는 'use server' 공개 엔드포인트라 UI 게이트(로그인+본인주문)만으론
+// 부족하다. 주문번호가 순번이라 추측 가능 → 서버에서 "로그인 고객 == 주문 소유자"를 한 번 더 강제한다.
+async function getCustomerId(): Promise<string | null> {
+  const store = await cookies()
+  const token = store.get('customer_token')?.value
+  if (!token) return null
+  const data = await caQuery<{ customer: { id: string } }>(token, `{ customer { id } }`)
+  return data?.customer?.id?.split('/').pop() ?? null
+}
 
 export type OrderLineItem = {
   lineItemId: string
@@ -32,7 +45,7 @@ const LOOKUP_ORDER_QUERY = `
           createdAt
           paymentGatewayNames
           shippingAddress { name firstName lastName }
-          customer { displayName firstName lastName }
+          customer { id displayName firstName lastName }
           lineItems(first: 20) {
             edges {
               node {
@@ -90,6 +103,17 @@ export async function lookupOrder(
   if (!node) {
     console.error('[lookupOrder] not found. query:', `name:#${num}`, 'response:', JSON.stringify(data))
     return { error: 'ORDER_NOT_FOUND' }
+  }
+
+  // 소유권 검증(공개 서버액션 방어): 로그인 고객이 '자기 주문'을 조회할 때만 내용을 반환.
+  // 비소유자에겐 존재 여부도 흘리지 않도록 ORDER_NOT_FOUND로 통일. (dev는 로컬 OIDC 불가라 통과)
+  const isDev = process.env.NODE_ENV === 'development'
+  if (!isDev) {
+    const customerId = await getCustomerId()
+    const ownerId = node.customer?.id?.split('/').pop()
+    if (!customerId || !ownerId || ownerId !== customerId) {
+      return { error: 'ORDER_NOT_FOUND' }
+    }
   }
 
   const nameCandidates = [
@@ -171,6 +195,22 @@ export type ReturnRequestInput = {
 export async function submitReturnRequest(
   input: ReturnRequestInput,
 ): Promise<{ success: true; returnName: string } | { error: string }> {
+  // 소유권 검증(공개 서버액션 방어): orderId만 주면 남의 주문에 반품(환불계좌 포함)을 생성할 수
+  // 있는 엔드포인트다 → 로그인 고객이 '자기 주문'에만 신청하도록 서버에서 강제. (dev는 통과)
+  const isDev = process.env.NODE_ENV === 'development'
+  if (!isDev) {
+    const customerId = await getCustomerId()
+    if (!customerId) return { error: 'UNAUTHORIZED' }
+    const numericId = input.orderId.split('/').pop()
+    const ownerRes = await fetch(
+      `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/${process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'}/orders/${numericId}.json?fields=customer`,
+      { headers: { 'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_TOKEN! }, cache: 'no-store' }
+    )
+    if (!ownerRes.ok) return { error: 'LOOKUP_FAILED' }
+    const { order: owner } = await ownerRes.json()
+    if (String(owner?.customer?.id ?? '') !== customerId) return { error: 'FORBIDDEN' }
+  }
+
   const returnInput = {
     orderId: input.orderId,
     notifyCustomer: true,

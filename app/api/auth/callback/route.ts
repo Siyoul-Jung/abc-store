@@ -14,7 +14,9 @@ export async function GET(request: Request) {
   const savedState = cookieStore.get('_auth_state')?.value
   const savedNonce = cookieStore.get('_auth_nonce')?.value
   const verifier = cookieStore.get('_auth_verifier')?.value
-  const redirectTo = cookieStore.get('_auth_redirect')?.value ?? '/'
+  // 오픈 리다이렉트 방어(심층): 쿠키 값도 내부 경로만 허용 (login에서 이미 걸렀으나 이중 방어).
+  const rawRedirect = cookieStore.get('_auth_redirect')?.value ?? '/'
+  const redirectTo = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/'
 
   if (!code || !state || state !== savedState || !verifier) {
     return NextResponse.redirect(new URL('/?auth_error=invalid', origin))
