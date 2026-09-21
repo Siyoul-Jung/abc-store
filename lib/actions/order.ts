@@ -1,5 +1,8 @@
-'use server'
-
+// ⚠️ 'use server' 없음 — 의도적. createShopifyOrder/markShopifyOrderPaid는 route handler
+// (app/api/checkout/confirm, app/api/toss/webhook)에서만 서버→서버로 호출되는 일반 서버 함수다.
+// 'use server'를 붙이면 export가 서버 액션이 되어 공개 POST 엔드포인트(action ID)가 생길 수 있고,
+// 그러면 "결제 검증 없이 financial_status:paid 주문 생성 + 재고 차감"이 외부에서 가능해진다.
+// 결제 검증은 confirm 라우트가 담당하고, 이 파일은 그 뒤에서만 불린다. 클라이언트에서 임포트 금지.
 import type { Locale } from '@/lib/shopify/types'
 
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE_DOMAIN!

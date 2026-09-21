@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { getQuestion, getAnswerTemplates } from '@/lib/actions/qa'
+import { getQuestion, getAnswerTemplates } from '@/lib/data/qa'
 import { adminGql } from '@/lib/shopify/admin'
 import AdminAnswerForm from './_components/AdminAnswerForm'
 import AdminRefundPanel from './_components/AdminRefundPanel'
