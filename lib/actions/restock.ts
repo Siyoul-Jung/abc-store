@@ -1,6 +1,16 @@
 'use server'
 
 import { supabaseAdmin } from '@/lib/supabase/client'
+import { shopifyClient } from '@/lib/shopify/client'
+
+// variant 실존+품절 확인용 최소 쿼리. availableForSale=false 여야 '품절'이라 구독을 받는다.
+const VARIANT_STOCK_QUERY = `
+  query($id: ID!) {
+    node(id: $id) {
+      ... on ProductVariant { id availableForSale }
+    }
+  }
+`
 
 // 품절 variant 재입고 알림 신청.
 // Supabase `restock_subscriptions`에 (variant_id, email) 단위로 저장한다.
@@ -25,6 +35,20 @@ export async function subscribeRestock(
   const email = input.email.trim().toLowerCase()
   if (!EMAIL_RE.test(email)) return { error: 'invalid_email' }
   if (!input.variantId || !input.productId) return { error: 'missing_variant' }
+
+  // 악용 방어: 실존하는 ProductVariant이고 '지금 품절'일 때만 구독을 받는다.
+  // 재입고 폼은 품절 variant에서만 노출되므로 정상 사용자 UX엔 영향이 없다.
+  // 임의 id로 쓰레기 행을 쌓거나, id를 바꿔가며 임의 이메일로 확인메일을 폭탄 발송하는 것을 차단.
+  try {
+    const { data, errors } = await shopifyClient.request(VARIANT_STOCK_QUERY, {
+      variables: { id: input.variantId },
+    })
+    const variant = (data as { node?: { id?: string; availableForSale?: boolean } | null })?.node
+    if (errors || !variant?.id) return { error: 'invalid_variant' }
+    if (variant.availableForSale) return { error: 'in_stock' } // 조회~제출 사이 재입고된 레이스
+  } catch {
+    return { error: 'server_error' }
+  }
 
   const { error } = await supabaseAdmin.from('restock_subscriptions').insert({
     product_id: input.productId,
