@@ -218,7 +218,10 @@ export async function submitReturnRequest(
       fulfillmentLineItemId: item.fulfillmentLineItemId,
       quantity: item.quantity,
       returnReason: input.reason,
-      customerNote: input.note || undefined,
+      // ReturnLineItemInput의 메모 필드는 returnReasonNote. customerNote는 존재하지 않는
+      // 필드라, 값이 들어가면 mutation 전체가 INVALID_VARIABLE로 실패한다(빈 메모는 undefined라
+      // JSON에서 빠져 통과 → 메모 채운 반품만 깨지던 잠복 버그). 실 API 검증으로 발견.
+      returnReasonNote: input.note || undefined,
     })),
   }
 
