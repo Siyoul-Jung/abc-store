@@ -6,6 +6,7 @@ import { adminGql } from '@/lib/shopify/admin'
 import { caQuery } from '@/lib/shopify/customer-account'
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { requireAdmin } from '@/lib/utils/admin-auth'
+import { sendEmail } from '@/lib/email'
 
 // 로그인 고객의 numeric customer id — 고객대면 반품 액션의 소유권 검증용.
 // lookupOrder·submitReturnRequest는 'use server' 공개 엔드포인트라 UI 게이트(로그인+본인주문)만으론
@@ -308,14 +309,10 @@ export async function updateReturnStatus(
             html: `<p>${r.customer_name}님의 ${r.order_number} 반품 환불이 완료 처리되었습니다.</p><p>⚠️ 주문에 고객 이메일이 없어 고객 알림이 발송되지 않았습니다. Q&A 답변 등으로 별도 안내가 필요합니다.</p>`,
           }
 
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'applebuttercollege Support <support@applebuttercollege.com>',
-          ...mail,
-        }),
-      })
+      await sendEmail(
+        { from: 'applebuttercollege Support <support@applebuttercollege.com>', ...mail },
+        'return-completed',
+      )
     }
   }
 

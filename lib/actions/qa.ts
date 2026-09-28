@@ -10,6 +10,7 @@ import {
   makeAccessToken, UNLOCK_TTL_MS, EMAIL_LINK_TTL_MS,
 } from '@/lib/utils/qa-auth'
 import { QUESTION_CATEGORIES, type QuestionCategory } from '@/lib/supabase/types'
+import { sendEmail } from '@/lib/email'
 import { requireAdmin } from '@/lib/utils/admin-auth'
 
 // ─── 고객: 질문 작성 ───────────────────────────────────────────
@@ -134,18 +135,14 @@ export async function sendQuestionAccessLink(
     const resendKey = process.env.RESEND_API_KEY
     if (resendKey) {
       const isJa = lang === 'ja'
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'applebuttercollege <no-reply@applebuttercollege.com>',
-          to: q.customer_email,
-          subject: isJa ? '【applebuttercollege】お問い合わせ閲覧リンク' : '[applebuttercollege] 문의 열람 링크',
-          html: isJa
-            ? `<p>「<b>${q.title}</b>」の閲覧リンクです（24時間有効）。</p><p><a href="${url}">お問い合わせを開く →</a></p>`
-            : `<p>"<b>${q.title}</b>" 문의 열람 링크입니다 (24시간 유효).</p><p><a href="${url}">문의 열어보기 →</a></p>`,
-        }),
-      })
+      await sendEmail({
+        from: 'applebuttercollege <no-reply@applebuttercollege.com>',
+        to: q.customer_email,
+        subject: isJa ? '【applebuttercollege】お問い合わせ閲覧リンク' : '[applebuttercollege] 문의 열람 링크',
+        html: isJa
+          ? `<p>「<b>${q.title}</b>」の閲覧リンクです（24時間有効）。</p><p><a href="${url}">お問い合わせを開く →</a></p>`
+          : `<p>"<b>${q.title}</b>" 문의 열람 링크입니다 (24시간 유효).</p><p><a href="${url}">문의 열어보기 →</a></p>`,
+      }, 'qa-access-link')
     }
   }
   return { ok: true }
@@ -252,16 +249,12 @@ async function notifyAdminNewQuestion({
   const resendKey = process.env.RESEND_API_KEY
   if (!adminEmail || !resendKey) return
 
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: `applebuttercollege <no-reply@applebuttercollege.com>`,
-      to: adminEmail,
-      subject: `[새 문의] ${title}`,
-      html: `<p><b>${customerName}</b>님이 새 문의를 남겼습니다.</p><p>분류: ${category}</p><p>제목: ${title}</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/qa">어드민에서 확인하기 →</a></p>`,
-    }),
-  })
+  await sendEmail({
+    from: `applebuttercollege <no-reply@applebuttercollege.com>`,
+    to: adminEmail,
+    subject: `[새 문의] ${title}`,
+    html: `<p><b>${customerName}</b>님이 새 문의를 남겼습니다.</p><p>분류: ${category}</p><p>제목: ${title}</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/qa">어드민에서 확인하기 →</a></p>`,
+  }, 'qa-new-question')
 }
 
 async function notifyCustomerAnswered({
@@ -290,16 +283,12 @@ async function notifyCustomerAnswered({
     ? `<p>「<b>${title}</b>」へのご回答が届きました。</p><p>下記リンクよりご確認ください（非会員の方は投稿時のパスワードが必要です）。</p><p><a href="${qUrl}">回答を確認する →</a></p>${notice}`
     : `<p>문의하신 "<b>${title}</b>"에 답변이 등록되었습니다.</p><p>아래 링크에서 확인해 주세요 (비회원은 작성 시 비밀번호가 필요합니다).</p><p><a href="${qUrl}">답변 확인하기 →</a></p>${notice}`
 
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: `applebuttercollege <no-reply@applebuttercollege.com>`,
-      to: email,
-      subject,
-      html: body,
-    }),
-  })
+  await sendEmail({
+    from: `applebuttercollege <no-reply@applebuttercollege.com>`,
+    to: email,
+    subject,
+    html: body,
+  }, 'qa-answered')
 }
 
 async function notifyCustomerRefundComplete({
@@ -316,14 +305,10 @@ async function notifyCustomerRefundComplete({
   const resendKey = process.env.RESEND_API_KEY
   if (!resendKey) return
 
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: `applebuttercollege <no-reply@applebuttercollege.com>`,
-      to: email,
-      subject: `[applebuttercollege] 환불이 완료되었습니다`,
-      html: `<p>주문번호 <b>${orderNumber}</b>의 환불 처리가 완료되었습니다.</p><p>환불 금액: <b>${amount.toLocaleString()}원</b></p><p>영업일 기준 1~2일 내 입금됩니다.</p><p style="color:#9A8F88;font-size:12px;margin-top:16px">본 메일은 발신전용입니다. 추가 문의는 고객센터 게시판을 이용해 주세요.</p>`,
-    }),
-  })
+  await sendEmail({
+    from: `applebuttercollege <no-reply@applebuttercollege.com>`,
+    to: email,
+    subject: `[applebuttercollege] 환불이 완료되었습니다`,
+    html: `<p>주문번호 <b>${orderNumber}</b>의 환불 처리가 완료되었습니다.</p><p>환불 금액: <b>${amount.toLocaleString()}원</b></p><p>영업일 기준 1~2일 내 입금됩니다.</p><p style="color:#9A8F88;font-size:12px;margin-top:16px">본 메일은 발신전용입니다. 추가 문의는 고객센터 게시판을 이용해 주세요.</p>`,
+  }, 'qa-refund-complete')
 }

@@ -16,7 +16,7 @@
 | 0-4 | **`TOSS_WEBHOOK_SECRET` 실제 보안 키 등록** | 토스 지급대행 설정에서 발급 → `.env.local` + Vercel. ⚠️ 로컬엔 테스트용 placeholder가 있음 — 반드시 교체 |
 | 0-5 | 토스 웹훅 URL 등록: `https://applebuttercollege.com/api/toss/webhook` | 토스 상점관리자 > 웹훅 |
 | 0-6 | Vercel 환경변수 전체 점검 (Shopify Admin 토큰 포함) | Vercel 대시보드 |
-| 0-7 | (메일 점검 포함 시) `RESEND_API_KEY` + 도메인 DKIM/SPF 인증 | Resend 대시보드 |
+| 0-7 | **Resend 도메인 `applebuttercollege.com` 상태 = verified** (DKIM/SPF) + `RESEND_API_KEY` | Resend 대시보드 > Domains. ⚠️ 2026-09-28 기준 `failed` → 환불완료·Q&A답변·재입고·주문실패 알림 메일 **전부 403 거부 중**. 화면엔 성공으로 보이니 Vercel 로그 `[email:*] 발송 실패`로 확인 |
 
 > ⚠️ Vercel 환경변수는 변경 전 반드시 현재 값을 확인할 것 (덮어쓰기 금지).
 
