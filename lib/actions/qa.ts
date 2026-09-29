@@ -11,6 +11,7 @@ import {
 } from '@/lib/utils/qa-auth'
 import { QUESTION_CATEGORIES, type QuestionCategory } from '@/lib/supabase/types'
 import { sendEmail } from '@/lib/email'
+import { SITE_URL } from '@/lib/utils/site'
 import { requireAdmin } from '@/lib/utils/admin-auth'
 
 // ─── 고객: 질문 작성 ───────────────────────────────────────────
@@ -131,7 +132,7 @@ export async function sendQuestionAccessLink(
   // 비회원 글(비번 있음)만 대상. 결과는 항상 ok로 응답해 이메일 존재 여부를 노출하지 않음.
   if (q?.password_hash && q.customer_email) {
     const token = makeAccessToken(questionId, EMAIL_LINK_TTL_MS)
-    const url = `${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/qa/${questionId}?token=${token}`
+    const url = `${SITE_URL}/${lang}/qa/${questionId}?token=${token}`
     const resendKey = process.env.RESEND_API_KEY
     if (resendKey) {
       const isJa = lang === 'ja'
@@ -253,7 +254,7 @@ async function notifyAdminNewQuestion({
     from: `applebuttercollege <no-reply@applebuttercollege.com>`,
     to: adminEmail,
     subject: `[새 문의] ${title}`,
-    html: `<p><b>${customerName}</b>님이 새 문의를 남겼습니다.</p><p>분류: ${category}</p><p>제목: ${title}</p><p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/qa">어드민에서 확인하기 →</a></p>`,
+    html: `<p><b>${customerName}</b>님이 새 문의를 남겼습니다.</p><p>분류: ${category}</p><p>제목: ${title}</p><p><a href="${SITE_URL}/admin/qa">어드민에서 확인하기 →</a></p>`,
   }, 'qa-new-question')
 }
 
@@ -278,7 +279,7 @@ async function notifyCustomerAnswered({
   const notice = isJa
     ? `<p style="color:#9A8F88;font-size:12px;margin-top:16px">本メールは送信専用です。追加のお問い合わせはマイお問い合わせページよりお願いいたします。</p>`
     : `<p style="color:#9A8F88;font-size:12px;margin-top:16px">본 메일은 발신전용입니다. 추가 문의는 내 문의 페이지에서 남겨주세요.</p>`
-  const qUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/qa/${questionId}`
+  const qUrl = `${SITE_URL}/${lang}/qa/${questionId}`
   const body = isJa
     ? `<p>「<b>${title}</b>」へのご回答が届きました。</p><p>下記リンクよりご確認ください（非会員の方は投稿時のパスワードが必要です）。</p><p><a href="${qUrl}">回答を確認する →</a></p>${notice}`
     : `<p>문의하신 "<b>${title}</b>"에 답변이 등록되었습니다.</p><p>아래 링크에서 확인해 주세요 (비회원은 작성 시 비밀번호가 필요합니다).</p><p><a href="${qUrl}">답변 확인하기 →</a></p>${notice}`

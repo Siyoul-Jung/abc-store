@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'node:crypto'
 import { markShopifyOrderPaid } from '@/lib/actions/order'
 import { sendCAPIEvent } from '@/lib/meta-capi'
+import { SITE_URL } from '@/lib/utils/site'
 
 // 토스 웹훅 서명 검증.
 // 토스가 보낸 진짜 웹훅인지 확인 — 위조된 입금신호로 미결제 주문이 paid 전환되는 것을 차단한다.
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
     const { capiData } = result
     sendCAPIEvent({
       eventName: 'Purchase',
-      eventSourceUrl: 'https://applebuttercollege.com/ko/checkout/complete',
+      eventSourceUrl: `${SITE_URL}/ko/checkout/complete`,
       value: amount,
       currency: 'KRW',
       orderId,
