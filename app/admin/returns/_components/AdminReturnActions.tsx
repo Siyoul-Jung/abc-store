@@ -3,7 +3,13 @@
 import { useTransition } from 'react'
 import { updateReturnStatus } from '@/lib/actions/returns'
 import { processCardRefund, completeBankRefund, completeManualRefund } from '@/lib/actions/refund'
-import type { RefundPreview } from '@/lib/actions/refund'
+import type { RefundPreview, RefundResult } from '@/lib/actions/refund'
+
+// 환불 액션 결과 표시: 실패(error)는 환불 안 됨, 경고(warning)는 환불 완료됐지만 Shopify 반영에 문제.
+function report(r: RefundResult) {
+  if ('error' in r) alert(`환불 실패: ${r.error}`)
+  else if (r.warning) alert(`환불은 완료됐습니다. 다만 확인이 필요합니다:\n${r.warning}`)
+}
 
 export default function AdminReturnActions({
   returnId,
@@ -29,7 +35,7 @@ export default function AdminReturnActions({
           <p className="text-xs text-ink-muted">Shopify 주문 정보를 불러올 수 없습니다.</p>
           {hasBankInfo && (
             <button
-              onClick={() => startTransition(() => completeBankRefund(returnId, 0))}
+              onClick={() => startTransition(async () => report(await completeBankRefund(returnId, 0)))}
               disabled={pending}
               className="text-xs px-4 py-2 bg-green-600 text-white rounded-lg hover:opacity-80 disabled:opacity-40">
               {pending ? '처리 중...' : '이체 완료 → 환불완료'}
@@ -69,13 +75,9 @@ export default function AdminReturnActions({
           refundPreview.paymentKey ? (
             <button
               onClick={() =>
-                startTransition(async () => {
-                  try {
-                    await processCardRefund(returnId, refundPreview.paymentKey!, refundPreview.refundAmount)
-                  } catch (e) {
-                    alert((e as Error).message)
-                  }
-                })
+                startTransition(async () =>
+                  report(await processCardRefund(returnId, refundPreview.paymentKey!, refundPreview.refundAmount)),
+                )
               }
               disabled={pending}
               className="text-xs px-4 py-2.5 bg-coral text-white rounded-lg hover:opacity-80 disabled:opacity-40 font-medium">
@@ -89,7 +91,7 @@ export default function AdminReturnActions({
                 자동 환불 불가 (paymentKey 없음) — Toss 대시보드에서 직접 환불한 뒤 아래 버튼으로 완료 처리하세요.
               </p>
               <button
-                onClick={() => startTransition(() => completeManualRefund(returnId, refundPreview.refundAmount))}
+                onClick={() => startTransition(async () => report(await completeManualRefund(returnId, refundPreview.refundAmount)))}
                 disabled={pending}
                 className="text-xs px-4 py-2.5 bg-green-600 text-white rounded-lg hover:opacity-80 disabled:opacity-40 font-medium">
                 {pending ? '처리 중...' : `수동 환불 완료 처리 ${refundPreview.refundAmount.toLocaleString()}원`}
@@ -105,7 +107,7 @@ export default function AdminReturnActions({
               <p className="text-ink font-semibold">이체 금액: {refundPreview.refundAmount.toLocaleString()}원</p>
             </div>
             <button
-              onClick={() => startTransition(() => completeBankRefund(returnId, refundPreview.refundAmount))}
+              onClick={() => startTransition(async () => report(await completeBankRefund(returnId, refundPreview.refundAmount)))}
               disabled={pending}
               className="text-xs px-4 py-2.5 bg-green-600 text-white rounded-lg hover:opacity-80 disabled:opacity-40 font-medium">
               {pending ? '처리 중...' : '이체 완료 → 환불완료'}
