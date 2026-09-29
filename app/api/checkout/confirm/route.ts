@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getCart } from '@/lib/actions/cart'
 import { createShopifyOrder, type ShippingData } from '@/lib/actions/order'
 import { sendCAPIEvent } from '@/lib/meta-capi'
+import { sendEmail } from '@/lib/email'
 import { calcShipping, ISLAND_SURCHARGE, type ShippingCalc } from '@/lib/utils/shipping'
 import type { Locale } from '@/lib/shopify/types'
 
@@ -37,18 +38,14 @@ async function alertAdminOrderCreationFailed(info: {
   ]
     .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#9A8F88">${k}</td><td style="padding:4px 0"><b>${v}</b></td></tr>`)
     .join('')
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: 'applebuttercollege Support <support@applebuttercollege.com>',
-      to: adminEmail,
-      subject: `[⚠️ 결제완료·주문생성 실패] toss-${info.orderId}`,
-      html: `<p><b>결제는 완료되었으나 Shopify 주문이 생성되지 않았습니다.</b> 수동 처리가 필요합니다.</p>`
-        + `<table style="font-size:14px;border-collapse:collapse">${rows}</table>`
-        + `<p style="margin-top:16px">조치: ① Shopify Admin에서 주문 수동 생성, 또는 ② 토스 대시보드에서 결제 취소(환불). 고객 화면에는 "주문 처리 지연" 안내가 표시되었습니다.</p>`,
-    }),
-  })
+  await sendEmail({
+    from: 'applebuttercollege Support <support@applebuttercollege.com>',
+    to: adminEmail,
+    subject: `[⚠️ 결제완료·주문생성 실패] toss-${info.orderId}`,
+    html: `<p><b>결제는 완료되었으나 Shopify 주문이 생성되지 않았습니다.</b> 수동 처리가 필요합니다.</p>`
+      + `<table style="font-size:14px;border-collapse:collapse">${rows}</table>`
+      + `<p style="margin-top:16px">조치: ① Shopify Admin에서 주문 수동 생성, 또는 ② 토스 대시보드에서 결제 취소(환불). 고객 화면에는 "주문 처리 지연" 안내가 표시되었습니다.</p>`,
+  }, 'order-create-failed')
 }
 
 async function confirmTossPayment(

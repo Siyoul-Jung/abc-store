@@ -67,6 +67,7 @@
 | 상태 | 항목 | 비고 |
 |---|---|---|
 | [x] | Shopify 주문 확인 이메일 (send_receipt) | `order.ts`에서 활성화 완료 — 이메일 수집 주문에 발송(카드=영수증/무통장=주문접수). ⚠️ 한국어 템플릿 커스터마이징은 Shopify Admin>설정>알림 (미적용 시 Shopify 기본 템플릿으로 발송) |
+| [ ] | **Resend 도메인 인증 (verified)** | 현재 `failed` → 모든 알림 메일(환불완료·Q&A답변·재입고·주문실패 관리자알림) 403 거부. DNS 이전 때 DKIM/SPF 등록 후 Resend 대시보드에서 verified 확인. 발송 실패는 `lib/email.ts`가 로그로 남김(`[email:태그] 발송 실패`) |
 | [ ] | 재고 부족 알림 임계값 설정 | **결정: 3개**. Shopify Admin>설정>알림 또는 재고에서 적용 필요(코드 아님) |
 | [x] | 품절 상품 처리 정책 결정 | **표시 유지 확정** — 재입고 알림(RestockNotify) 활용. 메인/컬렉션 목록은 품절을 안 거름(품절 배지). `available_for_sale:true` 필터는 추천 쿼리에만(의도) |
 | [x] | 반품 목록 CSV 다운로드 | `/admin/returns` → 배송팀 전달용. 현재 필터 그대로 내보내기 (UTF-8 BOM) |

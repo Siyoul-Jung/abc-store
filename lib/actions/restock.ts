@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { shopifyClient } from '@/lib/shopify/client'
+import { sendEmail } from '@/lib/email'
 
 // variant 실존+품절 확인용 최소 쿼리. availableForSale=false 여야 '품절'이라 구독을 받는다.
 const VARIANT_STOCK_QUERY = `
@@ -81,14 +82,10 @@ async function sendRestockConfirmation(email: string, input: SubscribeInput) {
   const body = isJa
     ? `<p><b>${name}</b> の再入荷通知をお申し込みいただきました。</p><p>入荷次第、このメールアドレスにお知らせします。</p>`
     : `<p><b>${name}</b> 재입고 알림을 신청해 주셨습니다.</p><p>재입고되는 대로 이 이메일로 알려드리겠습니다.</p>`
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: 'applebuttercollege <support@applebuttercollege.com>',
-      to: email,
-      subject,
-      html: `${body}<p style="color:#9A8F88;font-size:12px;margin-top:16px">applebuttercollege</p>`,
-    }),
-  })
+  await sendEmail({
+    from: 'applebuttercollege <support@applebuttercollege.com>',
+    to: email,
+    subject,
+    html: `${body}<p style="color:#9A8F88;font-size:12px;margin-top:16px">applebuttercollege</p>`,
+  }, 'restock-confirm')
 }

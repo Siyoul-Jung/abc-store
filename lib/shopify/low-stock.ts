@@ -8,6 +8,8 @@ import { adminGql } from './admin'
 // 임계값: LOW_STOCK_THRESHOLD env (기본 3). 0·음수(오버셀)도 포함해 보고한다.
 // 발신: 도메인 미인증 동안은 실제 전송이 안 될 수 있음(다른 메일과 동일 제약). 인증 후 자동 동작.
 
+import { sendEmail } from '@/lib/email'
+
 // 카탈로그 규모가 작아(수십 개) Shopify 최대치인 250개 1페이지로 전수 조회한다.
 // 향후 250개를 넘기면 hasNextPage가 true가 되며, 그 경우 점검 누락을 로그로 남긴다(조용한 누락 방지).
 const LOW_STOCK_QUERY = `
@@ -88,19 +90,15 @@ export async function checkLowStockAndAlert(): Promise<{ threshold: number; coun
       )
       .join('')
 
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'applebuttercollege <no-reply@applebuttercollege.com>',
-        to: adminEmail,
-        subject: `[재고 부족] ${items.length}개 품목 (임계 ${threshold}개 이하)`,
-        html:
-          `<p>재고 ${threshold}개 이하 품목입니다. 재입고/발주를 검토해 주세요.</p>` +
-          `<table style="border-collapse:collapse;font-size:14px"><thead><tr style="border-bottom:1px solid #E8E3DC"><th style="text-align:left;padding:4px 12px 4px 0">상품</th><th style="text-align:left;padding:4px 12px 4px 0">옵션</th><th style="text-align:right;padding:4px 0">재고</th></tr></thead><tbody>${rows}</tbody></table>` +
-          `<p style="color:#736E66;font-size:12px;margin-top:16px">applebuttercollege 자동 재고 점검 (매일 1회)</p>`,
-      }),
-    })
+    await sendEmail({
+      from: 'applebuttercollege <no-reply@applebuttercollege.com>',
+      to: adminEmail,
+      subject: `[재고 부족] ${items.length}개 품목 (임계 ${threshold}개 이하)`,
+      html:
+        `<p>재고 ${threshold}개 이하 품목입니다. 재입고/발주를 검토해 주세요.</p>` +
+        `<table style="border-collapse:collapse;font-size:14px"><thead><tr style="border-bottom:1px solid #E8E3DC"><th style="text-align:left;padding:4px 12px 4px 0">상품</th><th style="text-align:left;padding:4px 12px 4px 0">옵션</th><th style="text-align:right;padding:4px 0">재고</th></tr></thead><tbody>${rows}</tbody></table>` +
+        `<p style="color:#736E66;font-size:12px;margin-top:16px">applebuttercollege 자동 재고 점검 (매일 1회)</p>`,
+    }, 'low-stock')
   }
 
   return { threshold, count: items.length }
