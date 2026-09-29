@@ -12,8 +12,7 @@ import RecentlyViewed from '@/components/product/RecentlyViewed'
 import ShareButtons from '@/components/product/ShareButtons'
 import ProductViewTracker from '@/components/analytics/ProductViewTracker'
 import type { Locale, Product } from '@/lib/shopify/types'
-
-const BASE = 'https://applebuttercollege.com'
+import { SITE_URL as BASE } from '@/lib/utils/site'
 
 function buildProductJsonLd(product: Product, lang: Locale, id: string) {
   const numId = gidToNumericId(product.id)

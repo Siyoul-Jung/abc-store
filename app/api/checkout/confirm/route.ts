@@ -4,6 +4,7 @@ import { createShopifyOrder, type ShippingData } from '@/lib/actions/order'
 import { sendCAPIEvent } from '@/lib/meta-capi'
 import { sendEmail } from '@/lib/email'
 import { calcShipping, ISLAND_SURCHARGE, type ShippingCalc } from '@/lib/utils/shipping'
+import { SITE_URL } from '@/lib/utils/site'
 import type { Locale } from '@/lib/shopify/types'
 
 const LOCALES: Locale[] = ['ko', 'ja', 'en']
@@ -211,7 +212,7 @@ export async function GET(request: NextRequest) {
     }
     sendCAPIEvent({
       eventName: 'Purchase',
-      eventSourceUrl: `https://applebuttercollege.com/${lang}/checkout/complete`,
+      eventSourceUrl: `${SITE_URL}/${lang}/checkout/complete`,
       value: amount,
       currency: 'KRW',
       orderId,

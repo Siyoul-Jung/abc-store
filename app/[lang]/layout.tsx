@@ -3,6 +3,7 @@ import { hasLocale } from './dictionaries'
 import { notFound } from 'next/navigation'
 import LangSetter from './LangSetter'
 import MetaPixel from '@/components/analytics/MetaPixel'
+import { SITE_URL } from '@/lib/utils/site'
 
 const descriptions: Record<string, string> = {
   ko: '아이들을 위한 특별한 옷, applebuttercollege',
@@ -24,7 +25,7 @@ export async function generateMetadata({
       template: '%s — applebuttercollege',
     },
     description,
-    metadataBase: new URL('https://applebuttercollege.com'),
+    metadataBase: new URL(SITE_URL),
     openGraph: {
       siteName: 'applebuttercollege',
       description,

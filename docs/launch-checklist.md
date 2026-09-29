@@ -20,7 +20,7 @@
 | [ ] | Vercel 환경변수 전체 점검 | `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `INSTAGRAM_ACCESS_TOKEN` 포함 |
 | [x] | Supabase 정지/백업 대응 | keep-alive 핑 구현 완료(`app/api/cron/keep-alive` + vercel.json cron 매일 03:00 UTC, answer_templates head count). 무료 플랜 7일 무활동 정지 방지. 백업이 필요하면 추후 Pro($25/월) 별도 검토 |
 | [x] | **Supabase 테이블 DDL 전체 실행** | 운영 Supabase 실행 완료(2026-06-23): `qa-guest`·`restock-subscriptions`·`answer-templates`·`return-requests`·`refund-requests` 5종 + `seed-templates.mjs` 18종 시드. 반품·환불·재입고·비회원Q&A 전부 운영에서 동작 가능 상태 |
-| [ ] | 도메인 연결 (applebuttercollege.com → Vercel) | DNS 변경 + SSL 확인 |
+| [ ] | 도메인 연결 (**shop.applebuttercollege.com** → Vercel. apex는 메이크샵 자사몰 유지) | ✅ Vercel 프로젝트에 추가됨(2026-09-28, CNAME `f205da290b533ca7.vercel-dns-017.com`). ⏳ 메이크샵 고객센터에 CNAME 요청 접수(메이크샵은 DNS 직접 편집 불가 — 동의서 접수로만). 반영 후 전환 순서: ① `https://shop.applebuttercollege.com` 접속·SSL 확인 ② Vercel `NEXT_PUBLIC_SITE_URL`=`https://shop.applebuttercollege.com` + 재배포(sitemap·robots·canonical·OG·CAPI·메일링크가 `lib/utils/site.ts` 한 곳에서 읽음) ③ **Shopify 고객 로그인 콜백**에 `https://shop.applebuttercollege.com/api/auth/callback` 등록(안 하면 새 주소에서 로그인 실패) ④ 토스 실거래 URL 변경 알림 |
 
 ### 법적 표시 (아동복 이커머스 의무사항)
 | 상태 | 항목 | 비고 |
@@ -67,7 +67,7 @@
 | 상태 | 항목 | 비고 |
 |---|---|---|
 | [x] | Shopify 주문 확인 이메일 (send_receipt) | `order.ts`에서 활성화 완료 — 이메일 수집 주문에 발송(카드=영수증/무통장=주문접수). ⚠️ 한국어 템플릿 커스터마이징은 Shopify Admin>설정>알림 (미적용 시 Shopify 기본 템플릿으로 발송) |
-| [ ] | **Resend 도메인 인증 (verified)** | 현재 `failed` → 모든 알림 메일(환불완료·Q&A답변·재입고·주문실패 관리자알림) 403 거부. DNS 이전 때 DKIM/SPF 등록 후 Resend 대시보드에서 verified 확인. 발송 실패는 `lib/email.ts`가 로그로 남김(`[email:태그] 발송 실패`) |
+| [ ] | **Resend 도메인 인증 (verified)** | 현재 `failed` → 모든 알림 메일(환불완료·Q&A답변·재입고·주문실패 관리자알림) 403 거부. 원인: DKIM TXT 값 `l`↔`I` 두 글자 오타 + `send` MX 누락 → 2026-09-28 메이크샵에 수정 요청 접수. 반영 후 dns.google로 글자 대조 → Resend 재인증 → verified 확인. 발송 실패는 `lib/email.ts`가 로그로 남김(`[email:태그] 발송 실패`) |
 | [ ] | 재고 부족 알림 임계값 설정 | **결정: 3개**. Shopify Admin>설정>알림 또는 재고에서 적용 필요(코드 아님) |
 | [x] | 품절 상품 처리 정책 결정 | **표시 유지 확정** — 재입고 알림(RestockNotify) 활용. 메인/컬렉션 목록은 품절을 안 거름(품절 배지). `available_for_sale:true` 필터는 추천 쿼리에만(의도) |
 | [x] | 반품 목록 CSV 다운로드 | `/admin/returns` → 배송팀 전달용. 현재 필터 그대로 내보내기 (UTF-8 BOM) |
