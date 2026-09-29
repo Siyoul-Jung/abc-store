@@ -70,11 +70,8 @@ export default function AdminReturnActions({
             <button
               onClick={() =>
                 startTransition(async () => {
-                  try {
-                    await processCardRefund(returnId, refundPreview.paymentKey!, refundPreview.refundAmount)
-                  } catch (e) {
-                    alert((e as Error).message)
-                  }
+                  const r = await processCardRefund(returnId, refundPreview.paymentKey!, refundPreview.refundAmount)
+                  if ('error' in r) alert(`환불 실패: ${r.error}`)
                 })
               }
               disabled={pending}

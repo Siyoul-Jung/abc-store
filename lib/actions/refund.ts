@@ -71,21 +71,35 @@ export async function getRefundPreview(
   }
 }
 
-export async function processCardRefund(returnId: string, paymentKey: string, amount: number) {
+// 실패는 throw하지 않고 { error }로 반환한다. 운영 빌드에서 서버 액션이 던진 에러는 Next가
+// 메시지를 가려("An error occurred in the Server Components render…") 관리자가 Toss 거절 사유를
+// 볼 수 없었다(2026-09 카드 자동환불 실측에서 발견). 반환값은 가려지지 않는다.
+export async function processCardRefund(
+  returnId: string,
+  paymentKey: string,
+  amount: number,
+): Promise<{ ok: true } | { error: string }> {
   await requireAdmin()
   const tossSecret = process.env.TOSS_SECRET_KEY!
-  const res = await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Basic ' + Buffer.from(tossSecret + ':').toString('base64'),
-    },
-    body: JSON.stringify({ cancelReason: '반품 환불', cancelAmount: amount }),
-  })
+  let res: Response
+  try {
+    res = await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Basic ' + Buffer.from(tossSecret + ':').toString('base64'),
+      },
+      body: JSON.stringify({ cancelReason: '반품 환불', cancelAmount: amount }),
+    })
+  } catch (e) {
+    console.error('[processCardRefund] Toss 호출 예외:', e)
+    return { error: 'Toss 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
+  }
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error((err as { message?: string }).message ?? 'Toss 환불 실패')
+    const { code, message } = (await res.json().catch(() => ({}))) as { code?: string; message?: string }
+    console.error('[processCardRefund] Toss 취소 거절:', res.status, code, message)
+    return { error: `${message ?? 'Toss 환불 실패'}${code ? ` (${code})` : ''}` }
   }
 
   await supabaseAdmin
@@ -94,6 +108,7 @@ export async function processCardRefund(returnId: string, paymentKey: string, am
     .eq('id', returnId)
 
   await updateReturnStatus(returnId, 'completed')
+  return { ok: true }
 }
 
 // 금액 기록 + 완료 처리(고객 완료메일 발송). Toss API는 호출하지 않는다 —
