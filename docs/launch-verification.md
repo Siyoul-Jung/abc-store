@@ -12,7 +12,7 @@
 |---|---|---|
 | 0-1 | 토스 MID(`vabcstnvcf`) 심사 통과 | 토스 상점관리자 |
 | 0-2 | `NEXT_PUBLIC_TOSS_CLIENT_KEY` 실 키 교체 | `.env.local` + Vercel |
-| 0-3 | `TOSS_SECRET_KEY` 실 키 교체 — **0-2와 같은 MID의 짝**이어야 함 | `.env.local` + Vercel. ⚠️ 짝이 다르면 결제는 되는데 환불·취소가 Toss 404로 전부 실패(2026-09-28 실측: 운영 Vercel 키 ≠ 로컬 키) |
+| 0-3 | `TOSS_SECRET_KEY` 실 키 교체 — 0-2와 **같은 화면("API 개별 연동 키")에서 복사한 짝** | `.env.local` + Vercel. ✅ Vercel은 2026-09-09 live 짝으로 등록 완료. ℹ️ Toss 테스트/라이브 환경은 분리 — 로컬 테스트키로 만든 결제는 운영(라이브키)에서 조회·취소 불가(404, 정상) |
 | 0-4 | **`TOSS_WEBHOOK_SECRET` 실제 보안 키 등록** | 토스 지급대행 설정에서 발급 → `.env.local` + Vercel. ⚠️ 로컬엔 테스트용 placeholder가 있음 — 반드시 교체 |
 | 0-5 | 토스 웹훅 URL 등록: `https://applebuttercollege.com/api/toss/webhook` | 토스 상점관리자 > 웹훅 |
 | 0-6 | Vercel 환경변수 전체 점검 (Shopify Admin 토큰 포함) | Vercel 대시보드 |
