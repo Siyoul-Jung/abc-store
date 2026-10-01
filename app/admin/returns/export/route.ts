@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/client'
+import { ADMIN_COOKIE, isValidAdminToken } from '@/lib/utils/admin-auth'
 
 // 반품 신청 목록 CSV 다운로드 — 배송팀/환불 담당에게 파일로 전달하기 위한 내보내기.
 // /admin/returns 의 현재 status 필터를 그대로 반영한다. 관리자 인증 필수.
@@ -22,7 +23,7 @@ function csvCell(value: unknown): string {
 
 export async function GET(req: NextRequest) {
   // 관리자 인증 (페이지와 동일한 쿠키 검증)
-  if (req.cookies.get('admin_auth')?.value !== process.env.ADMIN_SECRET) {
+  if (!isValidAdminToken(req.cookies.get(ADMIN_COOKIE)?.value)) {
     return new NextResponse('Unauthorized', { status: 401 })
   }
 

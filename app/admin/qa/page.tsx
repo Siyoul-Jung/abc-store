@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { isAdmin } from '@/lib/utils/admin-auth'
 import Link from 'next/link'
 import { getAdminQuestions } from '@/lib/data/qa'
 
@@ -9,9 +9,7 @@ export default async function AdminQaPage({
   searchParams: Promise<{ status?: string; category?: string }>
 }) {
   // 어드민 비밀번호 검증
-  const cookieStore = await cookies()
-  const adminAuth = cookieStore.get('admin_auth')?.value
-  if (adminAuth !== process.env.ADMIN_SECRET) redirect('/admin/login')
+  if (!(await isAdmin())) redirect('/admin/login')
 
   const { status = 'pending', category = 'all' } = await searchParams
   const questions = await getAdminQuestions(status, category)

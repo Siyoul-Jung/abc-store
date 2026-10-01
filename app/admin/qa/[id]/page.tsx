@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { isAdmin } from '@/lib/utils/admin-auth'
 import { getQuestion, getAnswerTemplates } from '@/lib/data/qa'
 import { adminGql } from '@/lib/shopify/admin'
 import AdminAnswerForm from './_components/AdminAnswerForm'
@@ -40,9 +40,7 @@ export default async function AdminQaDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const cookieStore = await cookies()
-  const adminAuth = cookieStore.get('admin_auth')?.value
-  if (adminAuth !== process.env.ADMIN_SECRET) redirect('/admin/login')
+  if (!(await isAdmin())) redirect('/admin/login')
 
   const { id } = await params
   const [question, templates] = await Promise.all([
