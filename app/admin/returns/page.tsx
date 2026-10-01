@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { isAdmin } from '@/lib/utils/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { getRefundPreview, type RefundPreview } from '@/lib/actions/refund'
 import AdminReturnActions from './_components/AdminReturnActions'
@@ -26,8 +26,7 @@ export default async function AdminReturnsPage({
 }: {
   searchParams: Promise<{ status?: string }>
 }) {
-  const cookieStore = await cookies()
-  if (cookieStore.get('admin_auth')?.value !== process.env.ADMIN_SECRET) {
+  if (!(await isAdmin())) {
     redirect('/admin/login')
   }
 
