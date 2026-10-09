@@ -1,6 +1,6 @@
 # 런칭 통합 점검 시나리오 (Launch Verification Runbook)
 
-> **토스 실 키 전환 직후, 이 문서를 위에서 아래로 그대로 따라 한다.**
+> **런칭 당일, 이 문서를 위에서 아래로 그대로 따라 한다.** (§0 사전조건 → §1 전환 순서 → 시나리오)
 > 전부 ✅면 런칭 가능. 하나라도 ❌면 해당 항목의 "실패 시" 참조.
 > 점검 대상은 기능이 아니라 **이음새(seam)** — 토스↔Shopify↔Supabase↔메일이 맞물리는 지점.
 
@@ -11,14 +11,34 @@
 | # | 항목 | 어디서 |
 |---|---|---|
 | 0-1 | 토스 MID(`vabcstnvcf`) 심사 통과 | 토스 상점관리자 |
-| 0-2 | `NEXT_PUBLIC_TOSS_CLIENT_KEY` 실 키 교체 | `.env.local` + Vercel |
+| 0-2 | `NEXT_PUBLIC_TOSS_CLIENT_KEY` 실 키 교체 | Vercel ✅ 2026-09-09 live 등록 |
 | 0-3 | `TOSS_SECRET_KEY` 실 키 교체 — 0-2와 **같은 화면("API 개별 연동 키")에서 복사한 짝** | `.env.local` + Vercel. ✅ Vercel은 2026-09-09 live 짝으로 등록 완료. ℹ️ Toss 테스트/라이브 환경은 분리 — 로컬 테스트키로 만든 결제는 운영(라이브키)에서 조회·취소 불가(404, 정상) |
-| 0-4 | **`TOSS_WEBHOOK_SECRET` 실제 보안 키 등록** | 토스 지급대행 설정에서 발급 → `.env.local` + Vercel. ⚠️ 로컬엔 테스트용 placeholder가 있음 — 반드시 교체 |
-| 0-5 | 토스 웹훅 URL 등록: `https://applebuttercollege.com/api/toss/webhook` | 토스 상점관리자 > 웹훅 |
-| 0-6 | Vercel 환경변수 전체 점검 (Shopify Admin 토큰 포함) | Vercel 대시보드 |
-| 0-7 | **Resend 도메인 `applebuttercollege.com` 상태 = verified** (DKIM/SPF) + `RESEND_API_KEY` | Resend 대시보드 > Domains. ⚠️ 2026-09-28 기준 `failed` → 환불완료·Q&A답변·재입고·주문실패 알림 메일 **전부 403 거부 중**. 화면엔 성공으로 보이니 Vercel 로그 `[email:*] 발송 실패`로 확인 |
+| ~~0-4~~ | ~~`TOSS_WEBHOOK_SECRET`~~ — **불필요**. 결제수단이 카드·계좌이체(퀵)라 confirm 시점에 즉시 paid. 가상계좌 웹훅은 레거시 | — |
+| ~~0-5~~ | ~~토스 웹훅 URL 등록~~ — 위와 같은 이유로 불필요 | — |
+| 0-6 | Vercel 환경변수 전체 점검 (Shopify Admin 토큰 포함) | ✅ 2026-09-29 전수 점검 (CRON_SECRET 등록) |
+| 0-7 | **Resend 도메인 `applebuttercollege.com` 상태 = verified** (DKIM/SPF) + `RESEND_API_KEY` | ✅ 2026-10-04 verified + 테스트메일 발송 확인. 발송 실패는 Vercel 로그 `[email:*] 발송 실패` |
+| 0-8 | `https://shop.applebuttercollege.com` 접속 + SSL | ✅ 2026-10-04 (메이크샵 CNAME 반영, 인증서 발급) |
+| 0-9 | Shopify 고객 로그인 콜백에 `https://shop.applebuttercollege.com/api/auth/callback` 등록 | ✅ Headless 앱 > Customer Account API (등록 완료, 새 주소 리다이렉트 수락 확인) |
+| 0-10 | Google Search Console `https://shop.applebuttercollege.com/` (URL 접두어) 소유권 확인 | ✅ 2026-10-04 (`public/google*.html` — **삭제 금지**) |
+| 0-11 | **런칭 상품 확정** — 신상 소량. 상품정보제공고시·KC 표시 + `kids`/`adult` 태그 | Shopify Admin. 현재 active 상품은 **예시용** → 런칭 전 비공개(draft) 처리 |
+| 0-12 | Shopify 주문 알림 메일(주문확인·발송) 한글 템플릿 | Shopify 설정 > 알림 |
 
 > ⚠️ Vercel 환경변수는 변경 전 반드시 현재 값을 확인할 것 (덮어쓰기 금지).
+
+---
+
+## 1. 런칭 당일 전환 순서
+
+> 순서대로. 각 단계 뒤 Vercel 재배포가 필요한 것은 `NEXT_PUBLIC_*`(빌드 시 박힘) 때문.
+
+1. **예시 상품 비공개 + 런칭 신상 공개** (0-11) — Shopify Admin
+2. Vercel `NEXT_PUBLIC_SITE_URL` = `https://shop.applebuttercollege.com` (현재 `abc-store-sigma.vercel.app` — 바꾸기 전 현재 값 확인)
+3. Vercel `CHECKOUT_PAUSED` = `false` (또는 삭제)
+4. **재배포** → `https://shop.applebuttercollege.com/robots.txt`의 Sitemap 줄이 shop 주소인지 확인
+5. 아래 시나리오 ⓢ~⑦ 실행 (실결제는 소액 → 확인 후 환불)
+6. 토스에 실거래 URL(`https://shop.applebuttercollege.com`) 변경 알림
+7. Search Console > Sitemaps에 `sitemap.xml` 제출 (2번 이후여야 URL이 shop 주소로 나옴)
+8. Meta 픽셀/이벤트 관리자 도메인에 shop 주소 추가
 
 ---
 
@@ -59,27 +79,21 @@
 
 ---
 
-## 시나리오 ② 가상계좌 — "입금하면 자동으로 paid가 되는가"
+## 시나리오 ② 계좌이체(퀵) — "이체하면 바로 주문이 꽂히는가"
 
-> 이음새: **토스 웹훅 ↔ Shopify paid 전환** (서명검증 포함)
+> 이음새: **토스 계좌이체 confirm ↔ Shopify 주문 생성** (가상계좌·웹훅 아님 — 이체 완료 시점에 즉시 paid)
 
-1. 무통장입금으로 주문 (환불계좌 입력 포함)
-2. Shopify 주문 확인: `pending` 상태 + 환불계좌가 note_attributes에 저장
-3. 발급된 가상계좌로 **실제 입금**
-4. 1~2분 내 Shopify 주문이 자동으로 `paid` 전환되는지 확인
+1. 결제수단 **계좌이체**로 주문 → 본인 계좌에서 이체 인증
+2. 완료 페이지 → 새로고침 (중복 주문 없어야 정상)
 
 **확인 포인트:**
-- [ ] 입금 전 `pending` / 입금 후 `paid` 자동 전환
-- [ ] 주문에 `toss-vbank` 트랜잭션 추가됨
+- [ ] Shopify 주문 1건, 바로 `paid`
+- [ ] 주문 총액 = 이체액
 - [ ] (Meta Events Manager) Purchase 이벤트 수신
 
-**실패 시 (paid 전환 안 됨):**
-- 토스 상점관리자 > 웹훅 발송 이력에서 응답코드 확인
-  - **401** → `TOSS_WEBHOOK_SECRET`이 토스 발급 값과 다름 (0-4 재확인)
-  - **500** → Vercel 로그 `[toss-webhook]` / `[markShopifyOrderPaid]` 확인
-  - **발송 이력 없음** → 웹훅 URL 미등록 (0-5)
+**실패 시:** Vercel 로그 `[checkout/confirm]` 확인.
 
-**정리:** 입금액은 토스 대시보드에서 환불, 주문은 취소(restock).
+**정리:** ③④로 반품·환불까지 이어서 테스트 (계좌이체도 원계좌로 자동 환불).
 
 ---
 
@@ -115,13 +129,16 @@
 > 이음새: **관리자 처리 ↔ Resend 메일 ↔ 고객**
 > 전제: 0-7 (Resend 인증 완료)
 
-1. `/admin/returns`에서 ③의 건을 `수거승인 → 수령완료 → 환불완료` 순서로 진행
-2. 환불완료 클릭 후 메일 확인
+1. `/admin/returns`에서 ③의 건을 `수거승인 → 수령완료` 순서로 진행
+2. 수령완료 카드의 **"카드 자동 환불 N원"** 버튼 클릭 (카드·계좌이체 공통 — Toss 부분취소 자동)
+3. 메일 확인
 
 **확인 포인트:**
+- [ ] 토스 상점관리자에서 해당 결제 **부분취소**(반품배송비 7,000원 차감액) 확인
+- [ ] Shopify 주문: `PARTIALLY_REFUNDED` + Return `CLOSED` + 반품 상품 재고 복원
 - [ ] **고객 이메일**로 "반품 환불 완료 안내" 수신 (체크아웃에 적은 주소)
 - [ ] 관리자(ADMIN_EMAIL)에도 BCC 사본 도착
-- [ ] 실제 환불 실행 잊지 말 것 — 카드: 토스 대시보드 결제취소 / 무통장: 계좌이체 (`docs/refund-operations.md` §7 체크리스트)
+- [ ] 경고 알림("환불은 완료됐습니다…")이 뜨면 Shopify 반영만 실패 → Shopify에서 수동 환불 기록 (`docs/refund-operations.md`)
 
 ---
 
@@ -192,14 +209,14 @@
 |---|---|
 | ⓢ 탐색 스모크 (홈~장바구니~ja) | [ ] |
 | ① 카드 결제 → 주문·재고·금액 일치 | [ ] |
-| ② 가상계좌 입금 → paid 자동 전환 | [ ] |
+| ② 계좌이체 → 즉시 paid 주문 | [ ] |
 | ③ 반품 신청 → 관리자 도달 + CSV | [ ] |
-| ④ 반품 환불완료 → 고객 메일 수신 | [ ] |
+| ④ 자동환불 → 토스취소·Shopify반영·고객 메일 | [ ] |
 | ⑤ Q&A 문의 → 인터셉트·답변·메일 3종 | [ ] |
 | ⑥ Q&A 단순환불 → 고객 환불완료 메일 | [ ] |
 | ⑦ 로그인 → 주문내역 연결·취소·배송지 | [ ] |
 
 **8개 전부 ✅ → 런칭 가능.**
 
-> 작성: 2026-06-11. 코드 기준: `a0d4a69` (웹훅 서명검증·이메일 수집 포함).
+> 작성: 2026-06-11. 갱신: 2026-10-04 (계좌이체 전환·자동환불·shop 도메인·런칭일 전환 순서 반영).
 > 흐름이 바뀌면(예: Stripe 추가) 이 문서도 갱신할 것.
