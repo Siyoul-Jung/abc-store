@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { shopifyClient } from '@/lib/shopify/client'
+import { after } from 'next/server'
 import { sendEmail } from '@/lib/email'
 
 // variant 실존+품절 확인용 최소 쿼리. availableForSale=false 여야 '품절'이라 구독을 받는다.
@@ -67,8 +68,9 @@ export async function subscribeRestock(
     return { error: 'server_error' }
   }
 
-  // 신청 확인 메일 — 베스트에포트(키 없거나 실패해도 신청 자체는 성공). 도메인 인증 후 운영에서 발송됨.
-  sendRestockConfirmation(email, input).catch(() => {})
+  // 신청 확인 메일 — 베스트에포트(실패해도 신청 자체는 성공). after()로 응답 후 실행을 보장한다
+  // (그냥 띄워두면 서버리스 함수가 응답 직후 멈춰 메일이 유실될 수 있음).
+  after(() => sendRestockConfirmation(email, input).catch(() => {}))
 
   return { success: true }
 }
