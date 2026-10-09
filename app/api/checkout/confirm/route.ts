@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { after, NextResponse, type NextRequest } from 'next/server'
 import { getCart } from '@/lib/actions/cart'
 import { createShopifyOrder, type ShippingData } from '@/lib/actions/order'
 import { sendCAPIEvent } from '@/lib/meta-capi'
@@ -184,7 +184,9 @@ export async function GET(request: NextRequest) {
   // 고객에겐 지연 안내를 띄우고(payload.orderFailed), 관리자에겐 즉시 알린다.
   if (!orderOk) {
     console.error('[checkout/confirm] paid but order NOT created', { orderId, paymentKey, amount })
-    alertAdminOrderCreationFailed({
+    // after(): 응답(redirect) 후에도 실행을 보장. 그냥 띄워두면(fire-and-forget) 서버리스 함수가
+    // 응답 직후 멈춰 메일이 안 나갈 수 있다 — 이 알림이 "돈은 받고 주문 없음"의 유일한 안전망.
+    after(() => alertAdminOrderCreationFailed({
       orderId,
       paymentKey,
       amount,
@@ -192,7 +194,7 @@ export async function GET(request: NextRequest) {
       email: shipping?.email,
       phone: shipping?.phone,
       name: shipping?.name,
-    }).catch(() => {})
+    }).catch(() => {}))
   }
 
   // Meta CAPI Purchase (가상계좌는 입금 후 웹훅에서 별도 전송, 주문 생성 실패 시 미전송)
@@ -210,8 +212,8 @@ export async function GET(request: NextRequest) {
       currency: 'KRW',
       contentIds: contents.map((c) => c.id),
     }
-    sendCAPIEvent({
-      eventName: 'Purchase',
+    const capiEvent = {
+      eventName: 'Purchase' as const,
       eventSourceUrl: `${SITE_URL}/${lang}/checkout/complete`,
       value: amount,
       currency: 'KRW',
@@ -228,7 +230,8 @@ export async function GET(request: NextRequest) {
         fbp: request.cookies.get('_fbp')?.value,
         fbc: request.cookies.get('_fbc')?.value,
       },
-    }).catch(() => {})
+    }
+    after(() => sendCAPIEvent(capiEvent).catch(() => {}))
   }
 
   const isVbank = confirmed.method === '가상계좌' || confirmed.method === 'VIRTUAL_ACCOUNT'
