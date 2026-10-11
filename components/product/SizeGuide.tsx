@@ -7,16 +7,25 @@ const t = {
     title: '사이즈 가이드',
     size: '사이즈', age: '나이', standard: '호수', height: '키', weight: '몸무게',
     note: '통상적인 연령별 사이즈입니다. 상세 치수는 상품 상세 이미지의 사이즈표를 참고해 주세요.',
+    adultNote: '단면 실측 기준(cm)이며, 측정 방법에 따라 1~2cm 오차가 있을 수 있습니다.',
+    adultEmpty: '실측 치수는 상품 상세 이미지의 사이즈표를 참고해 주세요.',
+    waist: '허리', hip: '엉덩이', thigh: '허벅지', rise: '밑위', length: '총장', hem: '밑단',
   },
   ja: {
     title: 'サイズガイド',
     size: 'サイズ', age: '年齢', standard: '号数', height: '身長', weight: '体重',
     note: '一般的な年齢別サイズです。詳細な寸法は商品詳細画像のサイズ表をご参照ください。',
+    adultNote: '平置き実寸(cm)です。測り方により1~2cmの誤差が生じる場合があります。',
+    adultEmpty: '実寸は商品詳細画像のサイズ表をご参照ください。',
+    waist: 'ウエスト', hip: 'ヒップ', thigh: 'わたり', rise: '股上', length: '総丈', hem: '裾幅',
   },
   en: {
     title: 'Size Guide',
     size: 'Size', age: 'Age', standard: 'Label', height: 'Height', weight: 'Weight',
     note: 'These are standard sizes by age. For detailed measurements, please refer to the size chart in the product images.',
+    adultNote: 'Flat measurements in cm. Allow 1–2 cm variance depending on how items are measured.',
+    adultEmpty: 'For measurements, please refer to the size chart in the product images.',
+    waist: 'Waist', hip: 'Hip', thigh: 'Thigh', rise: 'Rise', length: 'Length', hem: 'Hem',
   },
 }
 
@@ -30,10 +39,50 @@ const bodySizes = [
   { label: '3XL', age: { ko: '7~8세', ja: '7~8歳', en: '7–8 yrs' }, standard: '130호', height: '130cm', weight: '25kg' },
 ]
 
-type Props = { locale: Locale; hideHeader?: boolean }
+// 성인 팬츠 단면 실측(cm). 신상 실측이 나오면 여기만 채운다 — 비어 있으면 표 대신 안내 문구만 노출.
+// 상품마다 실측이 다르면 상품별 데이터(Shopify 메타필드)로 옮길 것.
+const adultPantsSizes: { label: string; waist: string; hip: string; thigh: string; rise: string; length: string; hem: string }[] = []
 
-export default function SizeGuide({ locale, hideHeader }: Props) {
+type Props = { locale: Locale; hideHeader?: boolean; adult?: boolean }
+
+export default function SizeGuide({ locale, hideHeader, adult }: Props) {
   const l = t[locale]
+
+  if (adult) {
+    return (
+      <div id="size-guide" className={hideHeader ? '' : 'pt-10 border-t border-border'}>
+        {!hideHeader && <h2 className="text-sm font-bold tracking-widest uppercase mb-6 break-keep">{l.title}</h2>}
+        {adultPantsSizes.length > 0 ? (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-center border-collapse min-w-[360px]">
+                <thead>
+                  <tr className="border-b border-border">
+                    {[l.size, l.waist, l.hip, l.thigh, l.rise, l.length, l.hem].map((h) => (
+                      <th key={h} className="py-3 font-medium text-ink-muted whitespace-nowrap px-2">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {adultPantsSizes.map((s) => (
+                    <tr key={s.label} className="border-b border-border last:border-0">
+                      <td className="py-3 font-semibold">{s.label}</td>
+                      {[s.waist, s.hip, s.thigh, s.rise, s.length, s.hem].map((v, i) => (
+                        <td key={i} className="py-3 text-ink-muted">{v}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-4 text-xs text-ink-muted leading-relaxed">{l.adultNote}</p>
+          </>
+        ) : (
+          <p className="text-sm text-ink-muted leading-relaxed break-keep">{l.adultEmpty}</p>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div id="size-guide" className={hideHeader ? '' : 'pt-10 border-t border-border'}>

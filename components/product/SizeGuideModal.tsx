@@ -4,9 +4,9 @@ import { useEffect } from 'react'
 import SizeGuide from '@/components/product/SizeGuide'
 import type { Locale } from '@/lib/shopify/types'
 
-type Props = { locale: Locale; onClose: () => void }
+type Props = { locale: Locale; adult?: boolean; onClose: () => void }
 
-export default function SizeGuideModal({ locale, onClose }: Props) {
+export default function SizeGuideModal({ locale, adult, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', onKey)
@@ -39,7 +39,7 @@ export default function SizeGuideModal({ locale, onClose }: Props) {
           </button>
         </div>
         <div className="overflow-y-auto px-6 pb-6">
-          <SizeGuide locale={locale} hideHeader />
+          <SizeGuide locale={locale} adult={adult} hideHeader />
         </div>
       </div>
     </div>

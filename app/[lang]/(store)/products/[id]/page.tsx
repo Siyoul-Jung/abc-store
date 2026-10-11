@@ -7,6 +7,7 @@ import { stripHtml, stripTitlePrefix, gidToNumericId } from '@/lib/utils/format'
 import ProductImageGallery from '@/components/product/ProductImageGallery'
 import VariantSelector from '@/components/product/VariantSelector'
 import ProductDisclosure from '@/components/product/ProductDisclosure'
+import { isAdultProduct } from '@/lib/utils/product'
 import ProductGrid from '@/components/home/ProductGrid'
 import RecentlyViewed from '@/components/product/RecentlyViewed'
 import ShareButtons from '@/components/product/ShareButtons'
@@ -70,6 +71,7 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound()
 
   const firstVariant = product.variants.nodes[0]
+  const adult = isAdultProduct(product.tags)
   const recommended = allProducts
     .filter((p) => p.id !== product.id && p.variants.nodes.some((v) => v.availableForSale))
     .sort(() => Math.random() - 0.5)
@@ -117,6 +119,7 @@ export default async function ProductPage({ params }: Props) {
             shippingNotice={product.shippingNotice?.value ?? undefined}
             initialPrice={firstVariant.price}
             initialCompareAtPrice={firstVariant.compareAtPrice}
+            adult={adult}
           />
 
           <ShareButtons
@@ -128,7 +131,7 @@ export default async function ProductPage({ params }: Props) {
           />
 
           {/* 상품정보제공고시 + KC 표시 — 한국 판매분 법적 고지 (ko 전용) */}
-          {lang === 'ko' && <ProductDisclosure />}
+          {lang === 'ko' && <ProductDisclosure adult={adult} />}
         </div>
 
       </div>

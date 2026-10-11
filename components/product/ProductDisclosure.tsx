@@ -19,7 +19,12 @@ const DISCLOSURE_ROWS: [string, string][] = [
   ['A/S 책임자와 전화번호', 'applebuttercollege · 010-2339-8492 (문의는 Q&A 게시판 이용)'],
 ]
 
-export default function ProductDisclosure() {
+// 성인 상품은 어린이제품 안전특별법 대상이 아니라 KC(어린이제품)·사용연령 행을 뺀다.
+const CHILD_ONLY_ROWS = new Set(['KC 인증정보', '사용연령'])
+
+export default function ProductDisclosure({ adult = false }: { adult?: boolean }) {
+  const rows = adult ? DISCLOSURE_ROWS.filter(([label]) => !CHILD_ONLY_ROWS.has(label)) : DISCLOSURE_ROWS
+
   return (
     <details className="group border-t border-border">
       <summary className="list-none flex items-center justify-between py-4 cursor-pointer select-none gap-6">
@@ -32,7 +37,7 @@ export default function ProductDisclosure() {
       <div className="pb-5">
         <table className="w-full text-xs">
           <tbody>
-            {DISCLOSURE_ROWS.map(([label, value]) => (
+            {rows.map(([label, value]) => (
               <tr key={label} className="border-b border-border last:border-b-0">
                 <th scope="row" className="text-left align-top font-normal text-ink-muted py-2 pr-3 w-32 break-keep">
                   {label}
