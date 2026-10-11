@@ -23,6 +23,7 @@ type Props = {
   shippingNotice?: string
   initialPrice: Money
   initialCompareAtPrice?: Money | null
+  adult?: boolean
 }
 
 function ShippingTimeline({ text }: { text: string }) {
@@ -74,7 +75,7 @@ function ShippingTimeline({ text }: { text: string }) {
   )
 }
 
-export default function VariantSelector({ variants, locale, productId, productTitle, addToCartLabel, soldOutLabel, sizeGuideLabel, freeShippingNotice, descriptionHtml, careInstructions, shippingNotice, initialPrice, initialCompareAtPrice }: Props) {
+export default function VariantSelector({ variants, locale, productId, productTitle, addToCartLabel, soldOutLabel, sizeGuideLabel, freeShippingNotice, descriptionHtml, careInstructions, shippingNotice, initialPrice, initialCompareAtPrice, adult }: Props) {
   const [selectedId, setSelectedId] = useState<string>(
     variants.find((v) => v.availableForSale)?.id ?? variants[0]?.id ?? '',
   )
@@ -109,7 +110,7 @@ export default function VariantSelector({ variants, locale, productId, productTi
 
   return (
     <>
-      {sizeGuideOpen && <SizeGuideModal locale={locale} onClose={() => setSizeGuideOpen(false)} />}
+      {sizeGuideOpen && <SizeGuideModal locale={locale} adult={adult} onClose={() => setSizeGuideOpen(false)} />}
       {policyOpen && <PolicyModal locale={locale} onClose={() => setPolicyOpen(false)} />}
       <div className="flex flex-col gap-5">
 
