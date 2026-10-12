@@ -30,6 +30,7 @@
 ## 1. 런칭 당일 전환 순서
 
 > 순서대로. 각 단계 뒤 Vercel 재배포가 필요한 것은 `NEXT_PUBLIC_*`(빌드 시 박힘) 때문.
+> **시작 전·4번 이후 `node scripts/launch-preflight.mjs`** — 운영 설정(SITE_URL·결제차단·토스 live·픽셀 ID·Resend·상품 태그·robots)을 읽기만 해서 ✅/❌ 표시. 전부 ✅면 시나리오로.
 
 1. **예시 상품 비공개 + 런칭 신상 공개** (0-11) — Shopify Admin
 2. Vercel `NEXT_PUBLIC_SITE_URL` = `https://shop.applebuttercollege.com` (현재 `abc-store-sigma.vercel.app` — 바꾸기 전 현재 값 확인)
