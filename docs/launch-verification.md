@@ -33,7 +33,7 @@
 > **시작 전·4번 이후 `node scripts/launch-preflight.mjs`** — 운영 설정(SITE_URL·결제차단·토스 live·픽셀 ID·Resend·상품 태그·robots)을 읽기만 해서 ✅/❌ 표시. 전부 ✅면 시나리오로.
 
 1. **예시 상품 비공개 + 런칭 신상 공개** (0-11) — Shopify Admin
-2. Vercel `NEXT_PUBLIC_SITE_URL` = `https://shop.applebuttercollege.com` (현재 `abc-store-sigma.vercel.app` — 바꾸기 전 현재 값 확인)
+2. ~~Vercel `NEXT_PUBLIC_SITE_URL` = `https://shop.applebuttercollege.com`~~ ✅ 2026-10-12 선반영(사이트가 이미 색인 허용 상태라 최종 주소로 잡히게 앞당김)
 3. Vercel `CHECKOUT_PAUSED` = `false` (또는 삭제)
 4. **재배포** → `https://shop.applebuttercollege.com/robots.txt`의 Sitemap 줄이 shop 주소인지 확인
 5. 아래 시나리오 ⓢ~⑦ 실행 (실결제는 소액 → 확인 후 환불)
