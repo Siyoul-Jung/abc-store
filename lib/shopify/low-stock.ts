@@ -12,9 +12,10 @@ import { sendEmail } from '@/lib/email'
 
 // 카탈로그 규모가 작아(수십 개) Shopify 최대치인 250개 1페이지로 전수 조회한다.
 // 향후 250개를 넘기면 hasNextPage가 true가 되며, 그 경우 점검 누락을 로그로 남긴다(조용한 누락 방지).
+// 판매중(active)만 — 초안·보관 상품은 팔리지 않으니 저재고 알림 대상이 아니다(포함 시 2026-10 기준 622건 중 445건이 초안 잡음).
 const LOW_STOCK_QUERY = `
   query LowStock {
-    products(first: 250) {
+    products(first: 250, query: "status:active") {
       pageInfo { hasNextPage }
       nodes {
         title
