@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { SITE_URL } from '@/lib/utils/site'
+import { ADMIN_COOKIE, isValidAdminToken } from '@/lib/utils/admin-auth'
 
 // 운영 로케일은 ko/ja만. en 사전·타입은 나중(영어권 진출) 위해 보존하되 라우팅에선 미노출.
 const locales = ['ko', 'ja'] as const
@@ -46,7 +47,8 @@ export function proxy(request: NextRequest) {
   }
 
   // 체크아웃 일시 중단: /ko/checkout, /ja/checkout → 카트로 리다이렉트
-  if (process.env.CHECKOUT_PAUSED === 'true') {
+  // 단, 관리자 로그인(서명 쿠키 검증) 상태면 통과 — 런칭 전 실키 소액 결제를 손님 노출 없이 확인하기 위함.
+  if (process.env.CHECKOUT_PAUSED === 'true' && !isValidAdminToken(request.cookies.get(ADMIN_COOKIE)?.value)) {
     if (/^\/[a-z]{2}\/checkout$/.test(pathname)) {
       const url = request.nextUrl.clone()
       url.pathname = pathname.replace('/checkout', '/cart')
