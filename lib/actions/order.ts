@@ -38,6 +38,10 @@ export type ShippingData = {
   address: string
   addressDetail: string
   memo: string
+  // 해외 배송 — 없으면 한국(KR). province = Shopify province_code(JP-13, CA 등)
+  country?: string
+  province?: string
+  city?: string
   paymentMethod?: 'card' | 'bank_transfer'
   shippingFee?: number
   surcharge?: number
@@ -108,8 +112,9 @@ export async function createShopifyOrder(params: {
         address1: shipping.address,
         address2: shipping.addressDetail,
         zip: shipping.zipcode,
-        city: '',
-        country_code: 'KR',
+        city: shipping.city ?? '',
+        ...(shipping.province && { province_code: shipping.province }),
+        country_code: shipping.country ?? 'KR',
       },
       note: shipping.memo || undefined,
       // toss-{orderId} 태그: 웹훅에서 주문 검색에 사용

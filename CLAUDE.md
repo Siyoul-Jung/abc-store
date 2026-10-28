@@ -103,7 +103,7 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 - **배송비**: 3,500원 / 80,000원 이상 무료 (`lib/utils/shipping.ts`에서 상수·계산 단일 관리 — 클라이언트·서버 공유)
 - **제주 추가**: +3,000원 (우편번호 63xxx 자동 감지) / 도서산간 +4,000원 (체크박스) — 결제금액·Shopify shipping_lines 모두 반영
 - **가격 표시**: `formatPrice()` (`lib/utils/format.ts`) — **locale이 아니라 실제 통화 기준**. KRW+ko `원`, JPY+ja `円`, 그 외 기호 접두(₩/¥/$). 소수 자리수는 통화별(`lib/utils/currency.ts`)
-- **결제 통화(다통화 뼈대)**: 결제 통화 = **Shopify 카트 통화**(Markets). 원화 하드코딩 금지 — `lib/utils/currency.ts`(최소단위 비교 `sameAmount`/`addMoney`), 토스 키는 통화별 MID(`lib/utils/toss-client-key.ts` 클라이언트, `lib/toss.ts` 서버 `tossAuthHeader(currency)`). 배송 규칙 없는 통화(`isShippingSupported`)나 키 없는 통화는 체크아웃이 결제를 막는다. 현재 Shopify엔 KR 마켓만 있어 전부 KRW. 미완: 주문 생성 통화(order.ts)·해외 주소(country_code KR 고정)·관리자 반품환불(7,000원 차감 KRW 전제)
+- **결제 통화(다통화 뼈대)**: 결제 통화 = **Shopify 카트 통화**(Markets). 원화 하드코딩 금지 — `lib/utils/currency.ts`(최소단위 비교 `sameAmount`/`addMoney`), 토스 키는 통화별 MID(`lib/utils/toss-client-key.ts` 클라이언트, `lib/toss.ts` 서버 `tossAuthHeader(currency)`). 배송 규칙 없는 통화(`isShippingSupported`)나 키 없는 통화는 체크아웃이 결제를 막는다. 현재 Shopify엔 KR 마켓만 있어 전부 KRW. 배송 국가 = 결제 통화의 마켓 국가(`lib/utils/address.ts` `shipCountryFor`: KRW→KR, JPY→JP, USD→US) — 해외는 `ForeignAddressFields`(JP: zipcloud 우편번호 자동입력+도도부현, US: State/ZIP), province는 Shopify province_code(JP-13/CA)로 주문 shipping_address에 전달, confirm이 국가 불일치 차단. 미완: Shopify 주문 통화(order.ts, 해외 마켓 생성 후 실측)·관리자 반품환불(7,000원 차감 KRW 전제)
 - **PolicyModal**: 배송·교환·결제 안내 통합 모달. 상품 상세 VariantSelector 내 "안내 →" 버튼으로 트리거. 한국 locale에서만 렌더링.
 - **PolicyAccordion**: 파일은 존재하나 상품 상세 페이지에서 더 이상 사용하지 않음 (PolicyModal로 대체)
 - **사이즈 가이드**: `SizeGuide.tsx`에 하드코딩 — 아동(XS~3XL 연령별) + 성인 팬츠 실측표(`adultPantsSizes`, 비어 있으면 안내문구만). 모바일 overflow-x-auto 적용.

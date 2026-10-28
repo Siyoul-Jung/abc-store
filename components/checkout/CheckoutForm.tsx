@@ -7,7 +7,9 @@ import { formatPrice } from '@/lib/utils/format'
 import { JEJU_SURCHARGE, ISLAND_SURCHARGE, isJejuZip, calcShipping } from '@/lib/utils/shipping'
 import { addMoney } from '@/lib/utils/currency'
 import { getTossClientKey } from '@/lib/utils/toss-client-key'
+import { shipCountryFor, isValidZip, needsRegion } from '@/lib/utils/address'
 import AddressSearchModal from './AddressSearchModal'
+import ForeignAddressFields from './ForeignAddressFields'
 import type { Cart, Locale } from '@/lib/shopify/types'
 
 type Dict = {
@@ -61,7 +63,12 @@ function normalizeKRMobile(raw: string): string {
 }
 
 export default function CheckoutForm({ cart, locale, dict, account }: Props) {
-  const savedAddresses = account?.addresses ?? []
+  // 결제 통화 = 카트 통화(Shopify Markets). 원화 고정 금지 — 통화에 따라 토스 MID 키·배송 규칙·배송 국가가 갈린다.
+  const currency = cart.cost.subtotalAmount.currencyCode
+  const isKRW = currency === 'KRW'
+  const country = shipCountryFor(currency)
+  // 저장 배송지는 한국 형식(도로명+상세)만 지원 — 해외 배송은 항상 직접 입력.
+  const savedAddresses = country === 'KR' ? account?.addresses ?? [] : []
   const initialAddr = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0]
 
   const [form, setForm] = useState({
@@ -71,6 +78,9 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
     zipcode: initialAddr?.zipcode ?? '',
     address: initialAddr?.address ?? '',
     addressDetail: initialAddr?.addressDetail ?? '',
+    // 해외 전용: province = Shopify province_code(JP-13, CA 등), city = 시구정촌/City
+    province: '',
+    city: '',
     memo: '',
   })
   // 저장된 배송지가 있으면 카드(선택)로 시작, 없으면 직접 입력 폼
@@ -90,14 +100,11 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
 
   const { checkout: d } = dict
   const subtotal = Number(cart.cost.subtotalAmount.amount)
-  // 결제 통화 = 카트 통화(Shopify Markets). 원화 고정 금지 — 통화에 따라 토스 MID 키·배송 규칙이 갈린다.
-  const currency = cart.cost.subtotalAmount.currencyCode
-  const isKRW = currency === 'KRW'
   const tossClientKey = getTossClientKey(currency)
-  const isJeju = isJejuZip(form.zipcode)
+  const isJeju = isKRW && isJejuZip(form.zipcode)
   const shippingCalc = calcShipping(subtotal, { zipcode: form.zipcode, isIsland, currency })
-  // 결제 키 또는 배송 규칙이 없는 통화(해외 마켓 계약·정책 확정 전)는 결제 불가.
-  const payable = !!tossClientKey && !!shippingCalc
+  // 결제 키·배송 규칙·배송 국가가 없는 통화(해외 마켓 계약·정책 확정 전)는 결제 불가.
+  const payable = !!tossClientKey && !!shippingCalc && !!country
   const { shippingFee, surcharge, surchargeLabel } = shippingCalc ?? { shippingFee: 0, surcharge: 0, surchargeLabel: '' }
   const total = addMoney(currency, subtotal, shippingFee, surcharge)
 
@@ -123,16 +130,22 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
 
   // "새 배송지 입력" → 배송지 필드 비우고 직접 입력 폼으로 (이메일·메모는 유지)
   function enterNewAddress() {
-    setForm((prev) => ({ ...prev, name: '', phone: '', zipcode: '', address: '', addressDetail: '' }))
+    setForm((prev) => ({ ...prev, name: '', phone: '', zipcode: '', address: '', addressDetail: '', province: '', city: '' }))
     setSelectedId(null)
     setAddrMode('form')
   }
 
   async function handlePay(e: React.FormEvent) {
     e.preventDefault()
-    // 우편번호 필수 + 5자리 숫자 — 제주/도서산간 추가배송비 감지와 택배 발송 모두 우편번호에 의존
+    // 우편번호 필수 + 국가별 형식(한국 5자리) — 제주/도서산간 추가배송비 감지와 택배 발송 모두 우편번호에 의존
+    // 해외는 도도부현/주·시구정촌/City까지 필수 (국제 배송 라벨 요건)
     // 이메일 필수 — 주문확인·환불완료 알림의 유일한 발송 채널 (Shopify 주문에 저장됨)
-    if (!form.name || !form.phone || !form.address || !/^\d{5}$/.test(form.zipcode) || !/^\S+@\S+\.\S+$/.test(form.email)) {
+    if (
+      !country || !form.name || !form.phone || !form.address ||
+      !isValidZip(country, form.zipcode) ||
+      (needsRegion(country) && (!form.province || !form.city)) ||
+      !/^\S+@\S+\.\S+$/.test(form.email)
+    ) {
       setError(d.required)
       return
     }
@@ -149,6 +162,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
     try {
       const cookiePayload = {
         ...form,
+        country,
         paymentMethod,
         // 배송비 내역 — 주문 생성 시 shipping_lines로 분리 반영 (order.ts)
         shippingFee,
@@ -218,13 +232,15 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
         src="https://js.tosspayments.com/v2/standard"
         onLoad={() => setTossReady(true)}
       />
-      {/* 다음(카카오) 우편번호 검색 — 무료, 키 불필요 */}
-      <Script
-        src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-        strategy="afterInteractive"
-        onReady={() => setDaumReady(true)}
-        onError={() => setDaumFailed(true)}
-      />
+      {/* 다음(카카오) 우편번호 검색 — 무료, 키 불필요. 한국 배송에만 로드 */}
+      {country === 'KR' && (
+        <Script
+          src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+          strategy="afterInteractive"
+          onReady={() => setDaumReady(true)}
+          onError={() => setDaumFailed(true)}
+        />
+      )}
 
       {addressSearchOpen && (
         <AddressSearchModal
@@ -239,7 +255,9 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
       <form onSubmit={handlePay} className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-10">
         {/* Shipping form */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold break-keep">{locale === 'ja' ? '配送先' : '배송지'}</h2>
+          <h2 className="text-sm font-semibold break-keep">
+            {locale === 'ja' ? '配送先' : locale === 'en' ? 'Shipping address' : '배송지'}
+          </h2>
 
           <div className="flex flex-col gap-3">
             {/* 주문자 이메일 — 주문확인·환불완료 알림 발송 주소 */}
@@ -310,6 +328,13 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                   </button>
                 </div>
               </div>
+            ) : country === 'JP' || country === 'US' ? (
+              <ForeignAddressFields
+                country={country}
+                values={form}
+                onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
+                inputCls={inputCls}
+              />
             ) : (
               <>
                 <input
@@ -383,8 +408,8 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
               </>
             )}
 
-            {/* 추가배송비 — 목적지 기준 (카드·입력 모드 공통) */}
-            {isJeju ? (
+            {/* 추가배송비 — 목적지 기준 (카드·입력 모드 공통). 제주·도서산간은 한국 배송 전용 */}
+            {country !== 'KR' ? null : isJeju ? (
               <p className="text-xs text-coral">
                 {locale === 'ja'
                   ? `済州 追加配送料 +${JEJU_SURCHARGE.toLocaleString()}円`

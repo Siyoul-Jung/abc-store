@@ -6,6 +6,7 @@ import { sendEmail } from '@/lib/email'
 import { calcShipping, ISLAND_SURCHARGE, type ShippingCalc } from '@/lib/utils/shipping'
 import { addMoney, isCurrency, sameAmount } from '@/lib/utils/currency'
 import { formatPrice } from '@/lib/utils/format'
+import { shipCountryFor } from '@/lib/utils/address'
 import { tossAuthHeader } from '@/lib/toss'
 import { SITE_URL } from '@/lib/utils/site'
 import type { Locale } from '@/lib/shopify/types'
@@ -142,6 +143,12 @@ export async function GET(request: NextRequest) {
     const cartCurrency = cart!.cost.subtotalAmount.currencyCode
     if (cartCurrency !== currency) {
       console.error('[checkout/confirm] 결제 통화 불일치 — 승인 중단', { currency, cartCurrency })
+      return NextResponse.redirect(failUrl)
+    }
+
+    // 🔒 배송 국가 = 결제 통화의 마켓 국가. 쿠키를 고쳐 다른 나라(다른 배송비 규칙)로 보내는 것 차단.
+    if ((shipping.country ?? 'KR') !== shipCountryFor(currency)) {
+      console.error('[checkout/confirm] 배송 국가 불일치 — 승인 중단', { currency, country: shipping.country })
       return NextResponse.redirect(failUrl)
     }
 
