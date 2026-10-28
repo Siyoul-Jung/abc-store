@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { caQuery } from '@/lib/shopify/customer-account'
 import { adminGql } from '@/lib/shopify/admin'
 import { bankNameToCode } from '@/lib/utils/toss-bank'
+import { tossAuthHeader } from '@/lib/toss'
 
 async function getToken() {
   const store = await cookies()
@@ -97,7 +98,7 @@ export async function cancelOrder(orderId: string) {
   // Shopify Admin에서 결제·소유자·상태 정보 조회 (Toss paymentKey, 환불 계좌, 입금상태, 출고·취소 상태 등)
   const numericId = orderId.split('/').pop()
   const orderRes = await fetch(
-    `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/${process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'}/orders/${numericId}.json?fields=total_price,note_attributes,customer,financial_status,fulfillment_status,cancelled_at,tags`,
+    `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/${process.env.SHOPIFY_STOREFRONT_API_VERSION ?? '2026-04'}/orders/${numericId}.json?fields=total_price,currency,note_attributes,customer,financial_status,fulfillment_status,cancelled_at,tags`,
     { headers: { 'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_TOKEN! }, cache: 'no-store' }
   )
   // 조회 실패면 결제정보를 모른 채 환불을 건너뛰고 Shopify만 취소되는 불일치가 생긴다 → 즉시 중단.
@@ -165,11 +166,14 @@ export async function cancelOrder(orderId: string) {
       }
     }
 
+    // 결제한 통화의 MID 키로만 취소 가능 — 주문 통화로 키를 고른다.
+    const auth = tossAuthHeader(o?.currency ?? 'KRW')
+    if (!auth) return { error: '결제 취소 설정이 없는 통화입니다 — 고객센터로 문의해 주세요' }
     const tossRes = await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: 'Basic ' + Buffer.from(process.env.TOSS_SECRET_KEY! + ':').toString('base64'),
+        Authorization: auth,
       },
       body: JSON.stringify(cancelBody),
     })
