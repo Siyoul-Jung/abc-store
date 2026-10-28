@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { hasLocale } from '../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
+import { formatPrice } from '@/lib/utils/format'
 import { caQuery, gidToId } from '@/lib/shopify/customer-account'
 import CancelOrderModal from '@/components/account/CancelOrderModal'
 
@@ -72,13 +73,6 @@ const t: Record<Locale, {
   },
 }
 
-function formatPrice(amount: string, currency: string) {
-  const n = Number(amount).toLocaleString()
-  if (currency === 'KRW') return `${n}원`
-  if (currency === 'JPY') return `${n}엔`
-  return `${n} ${currency}`
-}
-
 export default async function OrdersPage({
   params,
 }: {
@@ -145,7 +139,7 @@ export default async function OrdersPage({
                 ))}
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">{formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode)}</p>
+                <p className="text-sm font-medium">{formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode, locale)}</p>
                 <div className="flex items-center gap-2">
                   {order.cancelledAt ? (
                     <span className="text-[11px] text-ink-muted">{labels.cancelled}</span>

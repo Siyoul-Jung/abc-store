@@ -4,6 +4,10 @@ import { createShopifyOrder, type ShippingData } from '@/lib/actions/order'
 import { sendCAPIEvent } from '@/lib/meta-capi'
 import { sendEmail } from '@/lib/email'
 import { calcShipping, ISLAND_SURCHARGE, type ShippingCalc } from '@/lib/utils/shipping'
+import { addMoney, isCurrency, sameAmount } from '@/lib/utils/currency'
+import { formatPrice } from '@/lib/utils/format'
+import { shipCountryFor } from '@/lib/utils/address'
+import { tossAuthHeader } from '@/lib/toss'
 import { SITE_URL } from '@/lib/utils/site'
 import type { Locale } from '@/lib/shopify/types'
 
@@ -22,7 +26,7 @@ type TossVirtualAccount = {
 // 결제는 성공했는데 Shopify 주문이 생성되지 않은 경우(카트 누락·생성 실패) 관리자에게 즉시 알림.
 // 돈은 빠져나갔으나 주문 기록이 없는 "무음 실패"를 운영자가 곧바로 인지·수동처리하도록.
 async function alertAdminOrderCreationFailed(info: {
-  orderId: string; paymentKey: string; amount: number; method: string
+  orderId: string; paymentKey: string; amount: number; currency: string; method: string
   email?: string; phone?: string; name?: string
 }) {
   const resendKey = process.env.RESEND_API_KEY
@@ -32,7 +36,7 @@ async function alertAdminOrderCreationFailed(info: {
     ['토스 주문ID', info.orderId],
     ['paymentKey', info.paymentKey],
     ['결제수단', info.method || '-'],
-    ['결제금액', `${info.amount.toLocaleString()}원`],
+    ['결제금액', formatPrice(String(info.amount), info.currency, 'ko')],
     ['고객명', info.name ?? '-'],
     ['이메일', info.email ?? '-'],
     ['전화', info.phone ?? '-'],
@@ -53,16 +57,21 @@ async function confirmTossPayment(
   paymentKey: string,
   orderId: string,
   amount: number,
+  currency: string,
 ): Promise<
   | { ok: false }
   | { ok: true; method: string; virtualAccount?: TossVirtualAccount }
 > {
-  const secretKey = process.env.TOSS_SECRET_KEY!
-  const encoded = Buffer.from(`${secretKey}:`).toString('base64')
+  // 통화별 MID — 결제창을 연 MID의 시크릿 키로만 승인된다.
+  const auth = tossAuthHeader(currency)
+  if (!auth) {
+    console.error('[checkout/confirm] 토스 시크릿 키 없음 — 통화:', currency)
+    return { ok: false }
+  }
 
   const res = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
     method: 'POST',
-    headers: { Authorization: `Basic ${encoded}`, 'Content-Type': 'application/json' },
+    headers: { Authorization: auth, 'Content-Type': 'application/json' },
     body: JSON.stringify({ paymentKey, orderId, amount }),
     cache: 'no-store',
   })
@@ -97,6 +106,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(cartUrl)
   }
   const amount = Number(amountStr)
+  // 결제 통화 — CheckoutForm이 successUrl에 실어 보낸 값. 아래에서 카트 통화와 대조한다.
+  const currencyParam = searchParams.get('currency') ?? 'KRW'
+  if (!isCurrency(currencyParam)) return NextResponse.redirect(failUrl)
+  const currency = currencyParam
 
   // 결제 승인(캡처) 전에 카트를 확보해 금액을 서버에서 검증한다.
   // amount는 클라이언트가 requestPayment로 보낸 값이라 그대로 신뢰하지 않고,
@@ -126,21 +139,41 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL(`/${lang}/cart?notice=out_of_stock`, request.url))
     }
 
+    // 🔒 통화 위변조 차단: 결제 통화가 카트 통화(Shopify 원천)와 다르면 승인하지 않는다.
+    const cartCurrency = cart!.cost.subtotalAmount.currencyCode
+    if (cartCurrency !== currency) {
+      console.error('[checkout/confirm] 결제 통화 불일치 — 승인 중단', { currency, cartCurrency })
+      return NextResponse.redirect(failUrl)
+    }
+
+    // 🔒 배송 국가 = 결제 통화의 마켓 국가. 쿠키를 고쳐 다른 나라(다른 배송비 규칙)로 보내는 것 차단.
+    if ((shipping.country ?? 'KR') !== shipCountryFor(currency)) {
+      console.error('[checkout/confirm] 배송 국가 불일치 — 승인 중단', { currency, country: shipping.country })
+      return NextResponse.redirect(failUrl)
+    }
+
     const serverSubtotal = Number(cart!.cost.subtotalAmount.amount)
-    verified = calcShipping(serverSubtotal, {
+    const calc = calcShipping(serverSubtotal, {
       zipcode: shipping.zipcode ?? '',
       // 도서·산간은 사용자 체크박스(선언값) — 결제액을 늘리는 방향이라 값 자체를 인정.
       isIsland: shipping.surcharge === ISLAND_SURCHARGE,
+      currency,
     })
-    const expected = serverSubtotal + verified.shippingFee + verified.surcharge
+    if (!calc) {
+      console.error('[checkout/confirm] 배송 규칙 없는 통화 — 승인 중단', { currency })
+      return NextResponse.redirect(failUrl)
+    }
+    verified = calc
+    const expected = addMoney(currency, serverSubtotal, verified.shippingFee, verified.surcharge)
     // 🔒 금액 위변조 차단: 서버 재계산값과 다르면 결제를 승인하지 않고 실패 처리.
-    if (amount !== expected) {
+    // 최소 단위(원·엔·센트) 정수로 비교 — USD 소수 금액의 부동소수 오차로 정상 결제가 막히지 않게.
+    if (!sameAmount(amount, expected, currency)) {
       console.error('[checkout/confirm] 결제금액 불일치 — 위변조 의심, 승인 중단', { amount, expected, serverSubtotal })
       return NextResponse.redirect(failUrl)
     }
   }
 
-  const confirmed = await confirmTossPayment(paymentKey, orderId, amount)
+  const confirmed = await confirmTossPayment(paymentKey, orderId, amount, currency)
   if (!confirmed.ok) return NextResponse.redirect(failUrl)
 
   let orderName: string | undefined
@@ -190,6 +223,7 @@ export async function GET(request: NextRequest) {
       orderId,
       paymentKey,
       amount,
+      currency,
       method: confirmed.method,
       email: shipping?.email,
       phone: shipping?.phone,
@@ -209,14 +243,14 @@ export async function GET(request: NextRequest) {
     pixelPurchase = {
       eventId: `purchase_${orderId}`,
       value: amount,
-      currency: 'KRW',
+      currency,
       contentIds: contents.map((c) => c.id),
     }
     const capiEvent = {
       eventName: 'Purchase' as const,
       eventSourceUrl: `${SITE_URL}/${lang}/checkout/complete`,
       value: amount,
-      currency: 'KRW',
+      currency,
       orderId,
       eventId: `purchase_${orderId}`, // 브라우저 픽셀(complete 페이지)과 동일 → dedup
       contents,

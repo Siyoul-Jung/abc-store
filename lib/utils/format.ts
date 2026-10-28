@@ -1,4 +1,5 @@
 import type { Locale } from '@/lib/shopify/types'
+import { fractionDigits } from './currency'
 
 export function stripHtml(html: string): string {
   return html
@@ -28,13 +29,15 @@ export function stripTitlePrefix(title: string): string {
 
 export function formatPrice(amount: string, currencyCode: string, locale: Locale): string {
   const localeTag = locale === 'ko' ? 'ko-KR' : locale === 'ja' ? 'ja-JP' : 'en-US'
+  const digits = fractionDigits(currencyCode)
   const number = new Intl.NumberFormat(localeTag, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(Number(amount))
-  // ko/ja는 접미사(원/엔). en은 통화코드 기반 기호 접두 — Intl currency 스타일 금지 규칙 준수 위해 수동 매핑.
-  if (locale === 'ko') return `${number}원`
-  if (locale === 'ja') return `${number}엔`
-  const symbol = currencyCode === 'KRW' ? '₩' : currencyCode === 'JPY' ? '¥' : ''
-  return symbol ? `${symbol}${number}` : `${number} ${currencyCode}`
+  // 표기는 locale이 아니라 실제 통화 기준(Shopify Markets 통화). 자국어 관용 표기는 접미사(원/円/엔),
+  // 그 외는 기호 접두 — Intl currency 스타일 금지 규칙 준수 위해 수동 매핑.
+  if (currencyCode === 'KRW') return locale === 'ko' ? `${number}원` : `₩${number}`
+  if (currencyCode === 'JPY') return locale === 'ja' ? `${number}円` : locale === 'ko' ? `${number}엔` : `¥${number}`
+  if (currencyCode === 'USD') return `$${number}`
+  return `${number} ${currencyCode}`
 }

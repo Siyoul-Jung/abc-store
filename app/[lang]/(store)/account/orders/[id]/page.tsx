@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { hasLocale } from '../../../../dictionaries'
 import type { Locale } from '@/lib/shopify/types'
+import { formatPrice } from '@/lib/utils/format'
 import { caQuery } from '@/lib/shopify/customer-account'
 import CancelOrderModal from '@/components/account/CancelOrderModal'
 
@@ -74,13 +75,6 @@ const t: Record<Locale, { back: string; items: string; shipping: string; subtota
   en: { back: '← Orders', items: 'Items', shipping: 'Shipping', subtotal: 'Subtotal', shippingFee: 'Shipping fee', total: 'Total', address: 'Shipping address', returns: 'Request return', contact: 'Contact Us', cancel: 'Cancel order', cancelConfirm: 'Cancel this order? Your payment will be refunded automatically.' },
 }
 
-function formatPrice(amount: string, currency: string) {
-  const n = Number(amount).toLocaleString()
-  if (currency === 'KRW') return `${n}원`
-  if (currency === 'JPY') return `${n}엔`
-  return `${n} ${currency}`
-}
-
 export default async function OrderDetailPage({
   params,
 }: {
@@ -129,7 +123,7 @@ export default async function OrderDetailPage({
                 <p className="text-xs text-ink-muted mt-0.5">× {item.quantity}</p>
               </div>
               <p className="text-sm font-medium shrink-0 ml-4">
-                {formatPrice(String(Number(item.price.amount) * item.quantity), item.price.currencyCode)}
+                {formatPrice(String(Number(item.price.amount) * item.quantity), item.price.currencyCode, locale)}
               </p>
             </div>
           ))}
@@ -140,15 +134,15 @@ export default async function OrderDetailPage({
       <div className="bg-surface rounded-xl p-5 flex flex-col gap-2">
         <div className="flex justify-between text-sm">
           <span className="text-ink-muted">{labels.subtotal}</span>
-          <span>{formatPrice(order.subtotalPrice.amount, order.subtotalPrice.currencyCode)}</span>
+          <span>{formatPrice(order.subtotalPrice.amount, order.subtotalPrice.currencyCode, locale)}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-ink-muted">{labels.shippingFee}</span>
-          <span>{Number(order.totalShippingPrice.amount) === 0 ? (locale === 'ko' ? '무료' : locale === 'ja' ? '無料' : 'Free') : formatPrice(order.totalShippingPrice.amount, order.totalShippingPrice.currencyCode)}</span>
+          <span>{Number(order.totalShippingPrice.amount) === 0 ? (locale === 'ko' ? '무료' : locale === 'ja' ? '無料' : 'Free') : formatPrice(order.totalShippingPrice.amount, order.totalShippingPrice.currencyCode, locale)}</span>
         </div>
         <div className="flex justify-between text-sm font-semibold pt-2 border-t border-border mt-1">
           <span>{labels.total}</span>
-          <span>{formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode)}</span>
+          <span>{formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode, locale)}</span>
         </div>
       </div>
 

@@ -4,8 +4,12 @@ import { useState } from 'react'
 import Script from 'next/script'
 import Image from 'next/image'
 import { formatPrice } from '@/lib/utils/format'
-import { SHIPPING_FEE, JEJU_SURCHARGE, ISLAND_SURCHARGE, isJejuZip, calcShipping } from '@/lib/utils/shipping'
+import { JEJU_SURCHARGE, ISLAND_SURCHARGE, isJejuZip, calcShipping } from '@/lib/utils/shipping'
+import { addMoney } from '@/lib/utils/currency'
+import { getTossClientKey } from '@/lib/utils/toss-client-key'
+import { shipCountryFor, isValidZip, needsRegion } from '@/lib/utils/address'
 import AddressSearchModal from './AddressSearchModal'
+import ForeignAddressFields from './ForeignAddressFields'
 import type { Cart, Locale } from '@/lib/shopify/types'
 
 type Dict = {
@@ -59,7 +63,12 @@ function normalizeKRMobile(raw: string): string {
 }
 
 export default function CheckoutForm({ cart, locale, dict, account }: Props) {
-  const savedAddresses = account?.addresses ?? []
+  // 결제 통화 = 카트 통화(Shopify Markets). 원화 고정 금지 — 통화에 따라 토스 MID 키·배송 규칙·배송 국가가 갈린다.
+  const currency = cart.cost.subtotalAmount.currencyCode
+  const isKRW = currency === 'KRW'
+  const country = shipCountryFor(currency)
+  // 저장 배송지는 한국 형식(도로명+상세)만 지원 — 해외 배송은 항상 직접 입력.
+  const savedAddresses = country === 'KR' ? account?.addresses ?? [] : []
   const initialAddr = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0]
 
   const [form, setForm] = useState({
@@ -69,6 +78,9 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
     zipcode: initialAddr?.zipcode ?? '',
     address: initialAddr?.address ?? '',
     addressDetail: initialAddr?.addressDetail ?? '',
+    // 해외 전용: province = Shopify province_code(JP-13, CA 등), city = 시구정촌/City
+    province: '',
+    city: '',
     memo: '',
   })
   // 저장된 배송지가 있으면 카드(선택)로 시작, 없으면 직접 입력 폼
@@ -88,9 +100,13 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
 
   const { checkout: d } = dict
   const subtotal = Number(cart.cost.subtotalAmount.amount)
-  const isJeju = isJejuZip(form.zipcode)
-  const { shippingFee, surcharge, surchargeLabel } = calcShipping(subtotal, { zipcode: form.zipcode, isIsland })
-  const total = subtotal + shippingFee + surcharge
+  const tossClientKey = getTossClientKey(currency)
+  const isJeju = isKRW && isJejuZip(form.zipcode)
+  const shippingCalc = calcShipping(subtotal, { zipcode: form.zipcode, isIsland, currency })
+  // 결제 키·배송 규칙·배송 국가가 없는 통화(해외 마켓 계약·정책 확정 전)는 결제 불가.
+  const payable = !!tossClientKey && !!shippingCalc && !!country
+  const { shippingFee, surcharge, surchargeLabel } = shippingCalc ?? { shippingFee: 0, surcharge: 0, surchargeLabel: '' }
+  const total = addMoney(currency, subtotal, shippingFee, surcharge)
 
   const orderName =
     cart.lines.nodes[0]?.merchandise.product.title +
@@ -114,16 +130,22 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
 
   // "새 배송지 입력" → 배송지 필드 비우고 직접 입력 폼으로 (이메일·메모는 유지)
   function enterNewAddress() {
-    setForm((prev) => ({ ...prev, name: '', phone: '', zipcode: '', address: '', addressDetail: '' }))
+    setForm((prev) => ({ ...prev, name: '', phone: '', zipcode: '', address: '', addressDetail: '', province: '', city: '' }))
     setSelectedId(null)
     setAddrMode('form')
   }
 
   async function handlePay(e: React.FormEvent) {
     e.preventDefault()
-    // 우편번호 필수 + 5자리 숫자 — 제주/도서산간 추가배송비 감지와 택배 발송 모두 우편번호에 의존
+    // 우편번호 필수 + 국가별 형식(한국 5자리) — 제주/도서산간 추가배송비 감지와 택배 발송 모두 우편번호에 의존
+    // 해외는 도도부현/주·시구정촌/City까지 필수 (국제 배송 라벨 요건)
     // 이메일 필수 — 주문확인·환불완료 알림의 유일한 발송 채널 (Shopify 주문에 저장됨)
-    if (!form.name || !form.phone || !form.address || !/^\d{5}$/.test(form.zipcode) || !/^\S+@\S+\.\S+$/.test(form.email)) {
+    if (
+      !country || !form.name || !form.phone || !form.address ||
+      !isValidZip(country, form.zipcode) ||
+      (needsRegion(country) && (!form.province || !form.city)) ||
+      !/^\S+@\S+\.\S+$/.test(form.email)
+    ) {
       setError(d.required)
       return
     }
@@ -131,7 +153,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
       setError('주문 내용 확인 및 약관 동의에 체크해 주세요.')
       return
     }
-    if (!tossReady || isPaying) return
+    if (!tossReady || isPaying || !payable) return
     setError('')
     setIsPaying(true)
 
@@ -140,6 +162,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
     try {
       const cookiePayload = {
         ...form,
+        country,
         paymentMethod,
         // 배송비 내역 — 주문 생성 시 shipping_lines로 분리 반영 (order.ts)
         shippingFee,
@@ -148,27 +171,33 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
       }
       document.cookie = `checkout_shipping=${encodeURIComponent(JSON.stringify(cookiePayload))};path=/;max-age=600;samesite=lax`
 
-      const tossPayments = window.TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!)
+      const tossPayments = window.TossPayments(tossClientKey!)
       const payment = tossPayments.payment({ customerKey: 'ANONYMOUS' })
+      // currency를 successUrl에 실어 confirm 라우트가 같은 MID의 시크릿 키로 승인하게 한다(카트 통화와 대조됨).
+      const successUrl = `${window.location.origin}/api/checkout/confirm?lang=${locale}&currency=${currency}`
 
-      if (paymentMethod === 'card') {
+      if (paymentMethod === 'card' || !isKRW) {
         await payment.requestPayment({
           method: 'CARD',
-          amount: { currency: 'KRW', value: total },
+          amount: { currency, value: total },
           orderId,
           orderName,
-          successUrl: `${window.location.origin}/api/checkout/confirm?lang=${locale}`,
+          successUrl,
           failUrl: `${window.location.origin}/${locale}/checkout/fail`,
           customerName: form.name,
-          customerMobilePhone: normalizeKRMobile(form.phone),
+          // 국내 PG는 국내 휴대폰 형식만 허용 — 외화(해외카드) 결제엔 보내지 않는다.
+          ...(isKRW
+            ? { customerMobilePhone: normalizeKRMobile(form.phone) }
+            // 토스 규약: USD·JPY 결제는 해외카드 전용 플래그 필수.
+            : { card: { useInternationalCardOnly: true } }),
         })
       } else {
         await payment.requestPayment({
           method: 'TRANSFER',
-          amount: { currency: 'KRW', value: total },
+          amount: { currency, value: total },
           orderId,
           orderName,
-          successUrl: `${window.location.origin}/api/checkout/confirm?lang=${locale}`,
+          successUrl,
           failUrl: `${window.location.origin}/${locale}/checkout/fail`,
           customerName: form.name,
           customerMobilePhone: normalizeKRMobile(form.phone),
@@ -203,13 +232,15 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
         src="https://js.tosspayments.com/v2/standard"
         onLoad={() => setTossReady(true)}
       />
-      {/* 다음(카카오) 우편번호 검색 — 무료, 키 불필요 */}
-      <Script
-        src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-        strategy="afterInteractive"
-        onReady={() => setDaumReady(true)}
-        onError={() => setDaumFailed(true)}
-      />
+      {/* 다음(카카오) 우편번호 검색 — 무료, 키 불필요. 한국 배송에만 로드 */}
+      {country === 'KR' && (
+        <Script
+          src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+          strategy="afterInteractive"
+          onReady={() => setDaumReady(true)}
+          onError={() => setDaumFailed(true)}
+        />
+      )}
 
       {addressSearchOpen && (
         <AddressSearchModal
@@ -224,7 +255,9 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
       <form onSubmit={handlePay} className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-10">
         {/* Shipping form */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold break-keep">{locale === 'ja' ? '配送先' : '배송지'}</h2>
+          <h2 className="text-sm font-semibold break-keep">
+            {locale === 'ja' ? '配送先' : locale === 'en' ? 'Shipping address' : '배송지'}
+          </h2>
 
           <div className="flex flex-col gap-3">
             {/* 주문자 이메일 — 주문확인·환불완료 알림 발송 주소 */}
@@ -295,6 +328,13 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                   </button>
                 </div>
               </div>
+            ) : country === 'JP' || country === 'US' ? (
+              <ForeignAddressFields
+                country={country}
+                values={form}
+                onChange={(patch) => setForm((prev) => ({ ...prev, ...patch }))}
+                inputCls={inputCls}
+              />
             ) : (
               <>
                 <input
@@ -368,8 +408,8 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
               </>
             )}
 
-            {/* 추가배송비 — 목적지 기준 (카드·입력 모드 공통) */}
-            {isJeju ? (
+            {/* 추가배송비 — 목적지 기준 (카드·입력 모드 공통). 제주·도서산간은 한국 배송 전용 */}
+            {country !== 'KR' ? null : isJeju ? (
               <p className="text-xs text-coral">
                 {locale === 'ja'
                   ? `済州 追加配送料 +${JEJU_SURCHARGE.toLocaleString()}円`
@@ -403,7 +443,8 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           <div className="flex flex-col gap-3 pt-2">
             <h2 className="text-sm font-semibold break-keep">{d.paymentMethod}</h2>
             <div className="flex gap-2">
-              {(['card', 'bank_transfer'] as const).map((method) => (
+              {/* 계좌이체는 국내 은행 전용 — 외화 결제는 해외카드만 */}
+              {(isKRW ? (['card', 'bank_transfer'] as const) : (['card'] as const)).map((method) => (
                 <button
                   key={method}
                   type="button"
@@ -469,18 +510,18 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
             <div className="flex justify-between text-ink-muted">
               <span>{d.shippingFee}</span>
               <span>
-                {shippingFee === 0 ? d.freeShipping : formatPrice(String(SHIPPING_FEE), 'KRW', locale)}
+                {shippingFee === 0 ? d.freeShipping : formatPrice(String(shippingFee), currency, locale)}
               </span>
             </div>
             {surcharge > 0 && (
               <div className="flex justify-between text-ink-muted">
                 <span>{isJeju ? '제주 추가배송비' : '도서·산간 추가배송비'}</span>
-                <span>+{formatPrice(String(surcharge), 'KRW', locale)}</span>
+                <span>+{formatPrice(String(surcharge), currency, locale)}</span>
               </div>
             )}
             <div className="flex justify-between font-semibold">
               <span>{d.total}</span>
-              <span>{formatPrice(String(total), 'KRW', locale)}</span>
+              <span>{formatPrice(String(total), currency, locale)}</span>
             </div>
           </div>
 
@@ -506,10 +547,19 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           </label>
 
           {error && <p className="text-xs text-coral">{error}</p>}
+          {!payable && (
+            <p className="text-xs text-coral break-keep">
+              {locale === 'ko'
+                ? '현재 이 지역은 결제를 준비 중입니다.'
+                : locale === 'ja'
+                  ? 'この地域でのお支払いは現在準備中です。'
+                  : 'Checkout for this region is coming soon.'}
+            </p>
+          )}
 
           <button
             type="submit"
-            disabled={isPaying || !tossReady}
+            disabled={isPaying || !tossReady || !payable}
             className="w-full bg-coral text-white text-sm font-medium tracking-widest uppercase py-4 hover:opacity-90 transition-opacity disabled:opacity-40"
           >
             {isPaying ? '···' : d.pay}
