@@ -10,13 +10,14 @@ type Dict = {
 
 type Props = { lang: string; dict: Dict }
 
-const bizInfo = [
+// [라벨, 한국어 값, 해외(ja/en) 값 — 생략 시 한국어 값 그대로]
+const bizInfo: [string, string, string?][] = [
   ['Company',          'HFFF Co., Ltd.'],
-  ['CEO',              '구승범'],
-  ['Privacy Officer',  '구승범'],
-  ['Address',          '경기도 남양주시 다산순환로 20, 10층'],
+  ['CEO',              '구승범', 'Koo Seungbum'],
+  ['Privacy Officer',  '구승범', 'Koo Seungbum'],
+  ['Address',          '경기도 남양주시 다산순환로 20, 10층', '10F, 20 Dasansunhwan-ro, Namyangju-si, Gyeonggi-do, Republic of Korea'],
   ['Business Reg.',    '846-81-02489'],
-  ['E-commerce Reg.',  '2022-다산-1147'],
+  ['E-commerce Reg.',  '2022-다산-1147', '2022-Dasan-1147'],
   ['Escrow',           'Toss Payments · A08-260827-0001'],
   ['Hosting',          'Vercel'],
 ]
@@ -99,10 +100,10 @@ export default function Footer({ lang, dict }: Props) {
             <span className="text-[10px] transition-transform duration-200 group-open:rotate-180 inline-block">▾</span>
           </summary>
           <div className="mt-3 flex flex-col gap-1.5">
-            {bizInfo.map(([label, value]) => (
+            {bizInfo.map(([label, value, intl]) => (
               <div key={label} className="flex gap-3 text-xs text-ink-muted">
                 <span className="shrink-0 w-24 text-ink-muted/70">{label}</span>
-                <span>{value}</span>
+                <span>{lang === 'ko' ? value : intl ?? value}</span>
               </div>
             ))}
             {/* 구매안전서비스(에스크로) 가입사실 확인 — 한국 계좌이체 전용 법적 표시 */}

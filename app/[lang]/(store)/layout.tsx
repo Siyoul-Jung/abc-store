@@ -19,7 +19,7 @@ export default async function StoreLayout({
   const dict = await getDictionary(lang)
 
   // 공지 문구는 환경변수로 관리 (코드 수정 없이 교체). 비어 있으면 배너 미노출.
-  const notice = lang === 'ja' ? process.env.NEXT_PUBLIC_NOTICE_JA : process.env.NEXT_PUBLIC_NOTICE_KO
+  const notice = lang === 'ja' ? process.env.NEXT_PUBLIC_NOTICE_JA : lang === 'en' ? process.env.NEXT_PUBLIC_NOTICE_EN : process.env.NEXT_PUBLIC_NOTICE_KO
   const noticeHref = process.env.NEXT_PUBLIC_NOTICE_LINK
 
   return (

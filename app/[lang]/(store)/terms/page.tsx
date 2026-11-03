@@ -93,18 +93,68 @@ const content = {
 本規約は2025年1月1日より施行します。
     `,
   },
+  en: {
+    title: 'Terms of Service',
+    body: `
+## Article 1 (Purpose)
+These Terms set out the conditions and procedures for using the services provided by the applebuttercollege online store operated by HFFF Co., Ltd. (the "Company"), as well as the rights, obligations, and responsibilities of the Company and its users.
+
+## Article 2 (Business Information)
+- Company name: HFFF Co., Ltd.
+- CEO: Koo Seungbum
+- Business registration number: 846-81-02489
+- Mail-order business registration number: 2022-Dasan-1147
+- Address: Room 10-006, Jebiei, 10F, 20 Dasansunhwan-ro, Namyangju-si, Gyeonggi-do (Dasan-dong), Republic of Korea
+- Email: applebuttercollege.official@gmail.com
+- Phone: 010-2339-8492
+
+## Article 3 (Definitions)
+- "User" means any person who uses the services provided by the Company under these Terms.
+- "Products" means the children's clothing and related products sold by the Company.
+
+## Article 4 (Formation of Purchase Contract)
+A purchase contract is formed when the user completes an order and the Company sends an order confirmation email. If the Company is unable to fulfill an order for reasons such as insufficient stock, the Company will cancel the contract and refund the payment amount.
+
+## Article 5 (Payment)
+Users may pay using the payment methods designated by the Company (credit card, bank transfer, etc.). Payments are processed through Toss Payments.
+
+## Article 6 (Shipping)
+- Orders are shipped within 1–3 business days after payment is completed.
+- Delivery takes 1–3 business days after shipment; remote and island areas may take longer.
+- Standard shipping fee: KRW 3,500 / free shipping on orders of KRW 80,000 or more
+- Jeju Island: additional KRW 3,000 / remote and island areas: additional KRW 4,000
+
+## Article 7 (Withdrawal of Offer and Returns)
+Users may withdraw their offer (cancel their purchase) within 7 days of receiving the product (Article 17 of Korea's Act on Consumer Protection in Electronic Commerce). Exchanges are not processed separately; instead, we ask that you return the item and place a new order. However, withdrawal is restricted in the following cases.
+- The value of the product has been diminished by wearing, washing, alteration, etc.
+- The product has been damaged due to the user's fault
+- Components (tags, accessories) are missing or the packaging has been damaged
+
+## Article 8 (Customer Service)
+Customer inquiries can be submitted through the 1:1 inquiry board on our website.
+
+## Article 9 (Disclaimer)
+The Company is not liable when it is unable to provide services due to force majeure, such as natural disasters or telecommunications failures.
+
+## Article 10 (Governing Law and Jurisdiction)
+These Terms are governed by the laws of the Republic of Korea, and the Seoul Central District Court shall have exclusive jurisdiction over any disputes.
+
+## Addendum
+These Terms take effect on January 1, 2025.
+    `,
+  },
 }
 
 export async function generateMetadata({ params }: Props) {
   const { lang } = await params
-  return { title: content[(lang as 'ko' | 'ja')]?.title ?? content.ko.title }
+  return { title: hasLocale(lang) ? content[lang].title : content.ko.title }
 }
 
 export default async function TermsPage({ params }: Props) {
   const { lang } = await params
   if (!hasLocale(lang)) notFound()
 
-  const c = content[lang as 'ko' | 'ja']
+  const c = content[lang]
 
   return (
     <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">

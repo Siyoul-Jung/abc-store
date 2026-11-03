@@ -39,7 +39,7 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  return [{ lang: 'ko' }, { lang: 'ja' }]
+  return [{ lang: 'ko' }, { lang: 'ja' }, { lang: 'en' }]
 }
 
 export default async function LangLayout({

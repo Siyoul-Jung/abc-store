@@ -52,9 +52,9 @@ app/
       returns/          ← 교환·반품 신청 폼 (2단계: 주문조회 → 신청)
       qa/               ← Q&A 게시판 (목록, 상세, 새 질문) — Supabase
       about/            ← 브랜드 소개 페이지 (ko/ja)
-      privacy/          ← 개인정보처리방침 (ko/ja 작성 완료)
-      terms/            ← 이용약관 (ko/ja 작성 완료)
-      refund/           ← 환불정책 (ko/ja 작성 완료)
+      privacy/          ← 개인정보처리방침 (ko/ja/en)
+      terms/            ← 이용약관 (ko/ja/en)
+      refund/           ← 환불정책 (ko/ja/en)
       escrow/           ← 구매안전서비스 이용 확인증 (토스 A08-260827-0001, 계좌이체 법적표시, 푸터 링크는 ko 전용)
   admin/
     qa/                 ← 관리자 Q&A 답변 페이지
@@ -68,7 +68,7 @@ app/
 
 ## 다국어 (i18n)
 
-- URL 구조: `/{lang}/...` — **운영은 `ko`, `ja`만** (proxy.ts `locales`). `en`은 사전(en.json)·Locale 타입은 보존하되 **라우팅 차단**: `/en/*`는 감지 로케일로 307 리다이렉트(영어권 진출 시 proxy.ts에 're-enable). VariantSelector 등 일부 라벨이 `locale==='ko' ? 한 : 일` 2분기라 en 재개 시 3분기로 고쳐야 함
+- URL 구조: `/{lang}/...` — 운영 `ko`, `ja`, `en` (en은 2026-11 해외몰 준비로 재개방, proxy.ts `locales`). UI 문구 분기는 반드시 ko/ja/en 3분기. 상품명·설명은 Shopify 번역(Translate & Adapt 또는 Admin API `translationsRegister`)으로 관리
 - 번역 파일: `dictionaries/ko.json`, `dictionaries/ja.json`
 - 서버 컴포넌트에서 `getDictionary(locale)` 호출, props로 전달
 - **locale 추가 시**: `lib/shopify/types.ts`의 `Locale` 타입, `dictionaries.ts`, `SizeGuide.tsx` 내부 `t` 객체 모두 수정 필요
@@ -157,6 +157,7 @@ RESEND_API_KEY=                     # 등록 완료 (.env.local) — Q&A 답변/
 NEXT_PUBLIC_KAKAO_JS_KEY=           # (선택) 카카오톡 공유용 JS 키 — 없으면 공유 버튼은 네이티브공유/링크복사만 동작
 NEXT_PUBLIC_NOTICE_KO=              # (선택) 상단 공지 배너 문구(한국) — 비면 배너 미노출
 NEXT_PUBLIC_NOTICE_JA=              # (선택) 상단 공지 배너 문구(일본)
+NEXT_PUBLIC_NOTICE_EN=              # (선택) 상단 공지 배너 문구(영어)
 NEXT_PUBLIC_NOTICE_LINK=            # (선택) 공지 배너 클릭 시 이동 링크
 ```
 

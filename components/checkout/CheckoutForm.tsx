@@ -289,13 +289,13 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                   onClick={() => setAddrMode('picker')}
                   className="shrink-0 text-xs border border-border rounded-full px-3 py-1 hover:bg-surface transition-colors"
                 >
-                  {locale === 'ja' ? '変更' : '변경'}
+                  {locale === 'ja' ? '変更' : locale === 'en' ? 'Change' : '변경'}
                 </button>
               </div>
             ) : addrMode === 'picker' ? (
               <div className="flex flex-col gap-2">
                 <p className="text-xs font-semibold tracking-wide text-ink-muted">
-                  {locale === 'ja' ? '配送先を選択' : '배송지 선택'}
+                  {locale === 'ja' ? '配送先を選択' : locale === 'en' ? 'Select address' : '배송지 선택'}
                 </p>
                 <div className="border border-border rounded-xl divide-y divide-border overflow-hidden">
                   {savedAddresses.map((a) => (
@@ -314,7 +314,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                       </span>
                       {a.isDefault && (
                         <span className="shrink-0 text-[10px] font-semibold tracking-wider uppercase border border-ink rounded-full px-2 py-0.5">
-                          {locale === 'ja' ? '基本' : '기본'}
+                          {locale === 'ja' ? '基本' : locale === 'en' ? 'Default' : '기본'}
                         </span>
                       )}
                     </button>
@@ -324,7 +324,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                     onClick={enterNewAddress}
                     className="w-full text-left px-4 py-3 text-sm text-ink-muted hover:bg-surface hover:text-ink transition-colors"
                   >
-                    + {locale === 'ja' ? '新しい住所を入力' : '새 배송지 입력'}
+                    + {locale === 'ja' ? '新しい住所を入力' : locale === 'en' ? 'Enter new address' : '새 배송지 입력'}
                   </button>
                 </div>
               </div>
@@ -368,7 +368,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                     disabled={daumFailed}
                     className="shrink-0 border border-ink text-ink text-sm px-4 py-2.5 hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink"
                   >
-                    {locale === 'ja' ? '住所検索' : '주소 검색'}
+                    {locale === 'ja' ? '住所検索' : locale === 'en' ? 'Search address' : '주소 검색'}
                   </button>
                   {savedAddresses.length > 0 && (
                     <button
@@ -376,7 +376,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                       onClick={() => setAddrMode('picker')}
                       className="shrink-0 text-xs text-ink-muted underline underline-offset-2 hover:text-ink"
                     >
-                      {locale === 'ja' ? '一覧' : '목록'}
+                      {locale === 'ja' ? '一覧' : locale === 'en' ? 'List' : '목록'}
                     </button>
                   )}
                 </div>
@@ -384,7 +384,9 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                   <p className="text-xs text-coral break-keep">
                     {locale === 'ja'
                       ? '住所検索を読み込めませんでした。郵便番号と住所を直接入力してください。'
-                      : '주소 검색을 불러오지 못했습니다. 우편번호와 주소를 직접 입력해 주세요.'}
+                      : locale === 'en'
+                        ? 'Address search failed to load. Please enter your postcode and address manually.'
+                        : '주소 검색을 불러오지 못했습니다. 우편번호와 주소를 직접 입력해 주세요.'}
                   </p>
                 )}
                 {/* 도로명주소 — 정상 시 주소 검색으로만 채워짐. 스크립트 실패 시 직접 입력 폴백 */}
@@ -413,7 +415,9 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
               <p className="text-xs text-coral">
                 {locale === 'ja'
                   ? `済州 追加配送料 +${JEJU_SURCHARGE.toLocaleString()}円`
-                  : `제주 추가배송비 +${JEJU_SURCHARGE.toLocaleString()}원`}
+                  : locale === 'en'
+                    ? `Jeju surcharge +₩${JEJU_SURCHARGE.toLocaleString()}`
+                    : `제주 추가배송비 +${JEJU_SURCHARGE.toLocaleString()}원`}
               </p>
             ) : (
               <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -426,7 +430,9 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
                 <span className="text-sm text-ink-muted">
                   {locale === 'ja'
                     ? `離島・山間部 (+${ISLAND_SURCHARGE.toLocaleString()}円)`
-                    : `도서·산간 지역 (+${ISLAND_SURCHARGE.toLocaleString()}원)`}
+                    : locale === 'en'
+                      ? `Remote island / mountain area (+₩${ISLAND_SURCHARGE.toLocaleString()})`
+                      : `도서·산간 지역 (+${ISLAND_SURCHARGE.toLocaleString()}원)`}
                 </span>
               </label>
             )}
