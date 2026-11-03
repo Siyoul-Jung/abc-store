@@ -54,7 +54,7 @@ export default function ShareButtons({ url, title, description, imageUrl, locale
         imageUrl: imageUrl ?? '',
         link: { mobileWebUrl: url, webUrl: url },
       },
-      buttons: [{ title: locale === 'ja' ? '商品を見る' : '상품 보기', link: { mobileWebUrl: url, webUrl: url } }],
+      buttons: [{ title: locale === 'ja' ? '商品を見る' : locale === 'en' ? 'View product' : '상품 보기', link: { mobileWebUrl: url, webUrl: url } }],
     })
   }
 

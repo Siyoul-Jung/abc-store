@@ -95,18 +95,73 @@ const content = {
 本ポリシーは2025年1月1日より施行します。
     `,
   },
+  en: {
+    title: 'Privacy Policy',
+    body: `
+HFFF Co., Ltd. (the "Company") values the personal information of its users and operates this Privacy Policy in accordance with Korea's Personal Information Protection Act and the Act on Consumer Protection in Electronic Commerce.
+
+## 1. Personal Information We Collect
+To process orders, payments, and deliveries, the Company collects the following personal information.
+- Required: name, contact information (phone number), shipping address, email address
+- Payment information: type of payment method, transaction ID (sensitive information such as card numbers is processed directly by the payment gateway and is not stored by the Company)
+
+## 2. Purposes of Collection and Use
+- Receiving orders and processing payments
+- Delivering products and providing delivery status updates
+- Processing exchanges, returns, and refunds
+- Responding to customer inquiries
+
+## 3. Retention Period
+- Order information: **5 years** after the contract has been fulfilled (Article 6 of the Act on Consumer Protection in Electronic Commerce)
+- Records of consumer complaints or dispute resolution: **3 years**
+- Information is retained from the date the user consents to its collection and use until the end of the periods above, and is destroyed without delay once the period has passed.
+
+## 4. Provision to Third Parties
+As a rule, the Company does not provide users' personal information to third parties. However, the minimum information necessary is provided as follows to carry out deliveries.
+- Recipient: courier companies (CJ Logistics, Korea Post, etc.)
+- Information provided: recipient's name, shipping address, contact information
+- Retention period: destroyed immediately after delivery is completed
+
+## 5. Outsourcing of Personal Information Processing
+The Company outsources the processing of personal information as follows to provide its services.
+- Contractor: Toss Payments Co., Ltd. / Outsourced task: payment processing
+- Contractor: Shopify Inc. / Outsourced task: order and inventory management
+
+## 6. Rights of Data Subjects
+Users may exercise the following rights at any time.
+- Request access to, correction of, or deletion of personal information
+- Request suspension of personal information processing
+
+Requests can be submitted through the customer board on our website and will be processed within 10 days.
+
+## 7. Chief Privacy Officer
+- Name: Koo Seungbum
+- Email: applebuttercollege.official@gmail.com
+- Phone: 010-2339-8492
+
+## 8. Business Information
+- Company name: HFFF Co., Ltd.
+- CEO: Koo Seungbum
+- Business registration number: 846-81-02489
+- Mail-order business registration number: 2022-Dasan-1147
+- Address: Room 10-006, Jebiei, 10F, 20 Dasansunhwan-ro, Namyangju-si, Gyeonggi-do (Dasan-dong), Republic of Korea
+
+## 9. Effective Date
+This policy takes effect on January 1, 2025.
+    `,
+  },
 }
 
 export async function generateMetadata({ params }: Props) {
   const { lang } = await params
-  return { title: content[(lang as 'ko' | 'ja')]?.title ?? content.ko.title }
+  return { title: hasLocale(lang) ? content[lang].title : content.ko.title }
 }
 
 export default async function PrivacyPage({ params }: Props) {
   const { lang } = await params
   if (!hasLocale(lang)) notFound()
 
-  const c = content[lang as 'ko' | 'ja']
+  const c = content[lang]
 
   return (
     <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">

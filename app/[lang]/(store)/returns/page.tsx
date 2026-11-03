@@ -14,7 +14,7 @@ type Props = { params: Promise<{ lang: string }> }
 
 export async function generateMetadata({ params }: Props) {
   const { lang } = await params
-  const titles: Record<string, string> = { ko: '교환·반품 신청', ja: '返品・交換申請' }
+  const titles: Record<string, string> = { ko: '교환·반품 신청', ja: '返品・交換申請', en: 'Return request' }
   return { title: titles[lang] ?? titles.ko }
 }
 

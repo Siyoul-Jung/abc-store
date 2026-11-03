@@ -3,8 +3,8 @@ import type { NextRequest } from 'next/server'
 import { SITE_URL } from '@/lib/utils/site'
 import { ADMIN_COOKIE, isValidAdminToken } from '@/lib/utils/admin-auth'
 
-// 운영 로케일은 ko/ja만. en 사전·타입은 나중(영어권 진출) 위해 보존하되 라우팅에선 미노출.
-const locales = ['ko', 'ja'] as const
+// 운영 로케일 ko/ja/en (en은 2026-11 해외몰 준비로 재개방).
+const locales = ['ko', 'ja', 'en'] as const
 const defaultLocale = 'ko'
 const COOKIE_NAME = 'lang'
 
@@ -59,13 +59,6 @@ export function proxy(request: NextRequest) {
 
   // /admin 경로는 로케일 라우팅 제외
   if (pathname.startsWith('/admin')) return
-
-  // en 미운영(ko/ja만) — /en/* 는 감지 로케일로 정규화. 깨진 영어 페이지(라벨 일부 일본어) 노출 차단.
-  if (pathname === '/en' || pathname.startsWith('/en/')) {
-    const url = request.nextUrl.clone()
-    url.pathname = `/${getLocale(request)}${pathname.slice(3)}`  // '/en' 이후 경로 유지
-    return NextResponse.redirect(url)
-  }
 
   const hasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,

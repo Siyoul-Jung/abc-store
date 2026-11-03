@@ -53,7 +53,7 @@ export default async function CollectionPage({
 
       {products.length === 0 ? (
         <p className="text-ink-muted text-sm">
-          {locale === 'ko' ? '상품이 없어요.' : '商品がありません。'}
+          {locale === 'ko' ? '상품이 없어요.' : locale === 'ja' ? '商品がありません。' : 'No products yet.'}
         </p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-0.5 gap-y-8 sm:gap-x-4 sm:gap-y-10">
