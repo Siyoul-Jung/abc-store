@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import type { ProductVariant, Locale, Money } from '@/lib/shopify/types'
 import { addToCart } from '@/lib/actions/cart'
 import SizeGuideModal from '@/components/product/SizeGuideModal'
@@ -24,6 +25,7 @@ type Props = {
   initialPrice: Money
   initialCompareAtPrice?: Money | null
   adult?: boolean
+  buyNowLabel: string
 }
 
 function ShippingTimeline({ text }: { text: string }) {
@@ -75,12 +77,13 @@ function ShippingTimeline({ text }: { text: string }) {
   )
 }
 
-export default function VariantSelector({ variants, locale, productId, productTitle, addToCartLabel, soldOutLabel, sizeGuideLabel, freeShippingNotice, descriptionHtml, careInstructions, shippingNotice, initialPrice, initialCompareAtPrice, adult }: Props) {
+export default function VariantSelector({ variants, locale, productId, productTitle, addToCartLabel, soldOutLabel, sizeGuideLabel, freeShippingNotice, descriptionHtml, careInstructions, shippingNotice, initialPrice, initialCompareAtPrice, adult, buyNowLabel }: Props) {
   const [selectedId, setSelectedId] = useState<string>(
     variants.find((v) => v.availableForSale)?.id ?? variants[0]?.id ?? '',
   )
   const [added, setAdded] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const [policyOpen, setPolicyOpen] = useState(false)
   const [openSection, setOpenSection] = useState<'description' | 'care' | null>(null)
@@ -88,7 +91,8 @@ export default function VariantSelector({ variants, locale, productId, productTi
   const selected = variants.find((v) => v.id === selectedId)
   const hasOptions = variants.some((v) => v.selectedOptions.some((o) => o.name !== 'Title'))
 
-  function handleAddToCart() {
+  // goCheckout: '바로 구매' — 담은 뒤 체크아웃으로 이동(토스트·✓ 표시 생략)
+  function handleAddToCart(goCheckout = false) {
     if (!selected?.availableForSale || isPending) return
     startTransition(async () => {
       await addToCart(selected.id, locale)
@@ -98,6 +102,10 @@ export default function VariantSelector({ variants, locale, productId, productTi
         value: Number(selected.price.amount),
         currency: selected.price.currencyCode,
       })
+      if (goCheckout) {
+        router.push(`/${locale}/checkout`)
+        return
+      }
       window.dispatchEvent(new Event('cart:updated'))
       setAdded(true)
       setTimeout(() => setAdded(false), 2000)
@@ -146,7 +154,7 @@ export default function VariantSelector({ variants, locale, productId, productTi
                   disabled={!v.availableForSale}
                   className={`w-full py-2.5 text-sm border transition-colors ${
                     v.id === selectedId
-                      ? 'border-ink bg-ink text-white font-medium'
+                      ? 'border-forest bg-forest text-white font-medium'
                       : v.availableForSale
                         ? 'border-border hover:border-ink'
                         : 'border-border text-ink-muted line-through cursor-not-allowed opacity-40'
@@ -161,19 +169,28 @@ export default function VariantSelector({ variants, locale, productId, productTi
 
         {shippingNotice && <ShippingTimeline text={shippingNotice} />}
 
-        <button
-          onClick={handleAddToCart}
-          disabled={!selected?.availableForSale || isPending}
-          className={`w-full py-4 text-sm font-medium tracking-widest uppercase transition-colors ${
-            !selected?.availableForSale
-              ? 'bg-stone text-ink-muted cursor-not-allowed'
-              : added
-                ? 'bg-ink text-white'
-                : 'bg-ink text-white hover:opacity-80'
-          }`}
-        >
-          {isPending ? '···' : added ? '✓' : selected?.availableForSale ? addToCartLabel : soldOutLabel}
-        </button>
+        <div className="flex flex-col gap-2.5">
+          <button
+            onClick={() => handleAddToCart()}
+            disabled={!selected?.availableForSale || isPending}
+            className={`w-full py-4 font-headline text-lg tracking-[0.06em] uppercase transition-colors ${
+              !selected?.availableForSale
+                ? 'bg-line text-ink-muted cursor-not-allowed'
+                : 'bg-forest text-white hover:opacity-90'
+            }`}
+          >
+            {isPending ? '···' : added ? '✓' : selected?.availableForSale ? addToCartLabel : soldOutLabel}
+          </button>
+          {selected?.availableForSale && (
+            <button
+              onClick={() => handleAddToCart(true)}
+              disabled={isPending}
+              className="w-full py-3.5 border-2 border-forest text-forest font-headline text-lg tracking-[0.06em] uppercase hover:bg-forest hover:text-white transition-colors disabled:opacity-40"
+            >
+              {buyNowLabel}
+            </button>
+          )}
+        </div>
 
         {/* 선택한 사이즈가 품절이면 재입고 알림 신청 — 이탈 대신 수요를 수집 */}
         {selected && !selected.availableForSale && (

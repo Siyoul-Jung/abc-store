@@ -4,6 +4,7 @@
 @import "@fontsource/poppins/400.css";
 @import "@fontsource/poppins/600.css";
 @import "@fontsource/poppins/700.css";
+@import "@fontsource/anton/400.css";
 
 @theme {
   /* ── Backgrounds ── */
@@ -19,7 +20,11 @@
 
   /* ── Brand Accents ── */
   --color-citrus: oklch(80% 0.148 72);  /* 머스터드 골든, 배경 포인트 */
-  --color-coral:  oklch(57.7% 0.245 27.325);   /* 선명한 코랄, CTA */
+  --color-coral:  oklch(57.7% 0.245 27.325);   /* 선명한 코랄 — 에러·세일·위험 행동 전용 */
+  --color-forest: #174D2E;                     /* 브랜드 그린 — CTA·상단바·헤드라인 (Lounge 컨셉) */
+  --color-sun:    #F6CF57;                     /* 프린트 포인트: 옐로 배경 */
+  --color-sky:    #A9D8F5;                     /* 프린트 포인트: Crocodile/Blue */
+  --color-blush:  #F7B6CF;                     /* 프린트 포인트: Flamingo/Pink */
 
   /* ── Semantic Aliases ── */
   --color-background: var(--color-white);
@@ -27,11 +32,13 @@
   --color-foreground: var(--color-ink);
   --color-muted:      var(--color-ink-muted);
   --color-border:     var(--color-line);
-  --color-accent:     var(--color-coral);
+  --color-accent:     var(--color-forest);
 
   /* ── Typography ── */
   --font-sans: 'Noto Sans KR Variable', 'Noto Sans JP Variable', system-ui, sans-serif;
   --font-display: 'Poppins', system-ui, sans-serif;
+  /* 굵은 좁은 대문자 헤드라인. Anton엔 한글/일본어가 없어 해당 글자는 Noto 굵게로 폴백 */
+  --font-headline: 'Anton', 'Noto Sans KR Variable', 'Noto Sans JP Variable', Impact, sans-serif;
 }
 
 *, *::before, *::after {

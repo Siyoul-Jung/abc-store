@@ -90,11 +90,15 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 | `ink-muted` | #736E66 | 보조 텍스트 (WCAG AA 통과값. 구 #9A8F88은 대비 미달이라 교체) |
 | `surface` | #FAF7F3 (cream) | 카드, 푸터 배경 |
 | `border` | #E8E3DC (line) | 구분선 |
-| `coral` | oklch(57.7% 0.245 27.325) | CTA 버튼, 에러 |
+| `forest` | #174D2E | **브랜드 그린 — CTA·상단 슬로건바·헤드라인** (Lounge 컨셉, 2026-11) |
+| `coral` | oklch(57.7% 0.245 27.325) | 에러·세일·위험 행동 전용 (CTA에서 forest로 교체) |
+| `sun`/`sky`/`blush` | #F6CF57 / #A9D8F5 / #F7B6CF | 프린트 톤 배경 블록(이미지 없을 때 채움) |
 | `citrus` | oklch(80% 0.148 72) | 배경 포인트 |
 | `stone` | Tailwind 기본 stone | 품절 버튼 배경 |
 
-폰트: Noto Sans KR/JP (본문) · Poppins (display/헤더)
+폰트: Noto Sans KR/JP (본문) · Poppins (display) · **Anton (`font-headline`, 굵은 좁은 대문자 헤드라인 — 한글/일어는 Noto로 폴백)**
+
+> **Lounge 컨셉 (2026-11 대표 요청, 브랜치 feat/lounge-redesign)**: 성인 라운지 팬츠 단일 라인. 홈 = `components/lounge/HomeSections.tsx`(히어로·밸류띠·WHY 3카드·PICK YOUR PRINT·클로징), 상세 하단 = `FeaturePanels.tsx`(01·02·03), 카피는 `components/lounge/copy.ts`(영어 공통, 번역 미정). 헤더 nav는 SHOP·ABOUT만 + 상단 'FOR PEOPLE WHO RUN HOT.' 바(헤더 높이 96px → main `pt-24`). 상세 '바로 구매' = 담고 체크아웃 이동. 이미지 없으면 프린트 톤 색 블록
 
 ---
 

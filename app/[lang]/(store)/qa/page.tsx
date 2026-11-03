@@ -115,7 +115,7 @@ export default async function QaPage({
                   </div>
                   <p className="text-sm truncate">{q.title}</p>
                 </div>
-                <span className={`text-[11px] shrink-0 ml-4 mt-0.5 font-medium ${q.status === 'answered' ? 'text-coral' : 'text-ink-muted'}`}>
+                <span className={`text-[11px] shrink-0 ml-4 mt-0.5 font-medium ${q.status === 'answered' ? 'text-forest' : 'text-ink-muted'}`}>
                   {labels.status[q.status]}
                 </span>
               </Link>

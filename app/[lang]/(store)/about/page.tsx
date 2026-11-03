@@ -141,7 +141,7 @@ export default async function AboutPage({
       <Reveal>
       <section className="bg-white px-6 py-20 sm:py-28">
         <div className="max-w-2xl mx-auto text-center">
-          <p className="font-display text-xs tracking-[0.3em] uppercase font-semibold text-coral mb-5">
+          <p className="font-display text-xs tracking-[0.3em] uppercase font-semibold text-forest mb-5">
             {t.storyLabel}
           </p>
           <h2 className="text-2xl sm:text-3xl font-bold leading-snug break-keep whitespace-pre-line mb-8">
@@ -172,7 +172,7 @@ export default async function AboutPage({
       <Reveal>
       <section className="bg-surface px-6 py-20 sm:py-28">
         <div className="max-w-4xl mx-auto">
-          <p className="font-display text-xs tracking-[0.3em] uppercase font-semibold text-coral text-center mb-12 sm:mb-16">
+          <p className="font-display text-xs tracking-[0.3em] uppercase font-semibold text-forest text-center mb-12 sm:mb-16">
             {t.valuesLabel}
           </p>
           <div className="grid gap-10 sm:grid-cols-3 sm:gap-8">
@@ -215,7 +215,7 @@ export default async function AboutPage({
       {/* ── Contact CTA ── */}
       <Reveal>
       <section className="bg-white px-6 py-20 sm:py-24 text-center">
-        <p className="font-display text-xs tracking-[0.3em] uppercase font-semibold text-coral mb-4">
+        <p className="font-display text-xs tracking-[0.3em] uppercase font-semibold text-forest mb-4">
           {t.contactLabel}
         </p>
         <p className="text-sm sm:text-base text-ink-muted leading-relaxed break-keep max-w-md mx-auto mb-8">

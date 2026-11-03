@@ -78,7 +78,7 @@ export default async function CartPage({ params, searchParams }: Props) {
 
         <Link
           href={`/${lang}/checkout`}
-          className="w-full bg-coral text-white text-sm font-medium tracking-widest uppercase py-4 text-center hover:opacity-90 transition-opacity"
+          className="w-full bg-forest text-white text-sm font-medium tracking-widest uppercase py-4 text-center hover:opacity-90 transition-opacity"
         >
           {dict.cart.checkout}
         </Link>

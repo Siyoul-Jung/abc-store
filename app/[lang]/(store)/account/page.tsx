@@ -114,7 +114,7 @@ export default async function AccountPage({
           <span className="text-sm">{labels.contact}</span>
           <span className="flex items-center gap-2">
             {qAnswered > 0 ? (
-              <span className="text-[11px] font-medium text-coral">{labels.answered} {qAnswered}</span>
+              <span className="text-[11px] font-medium text-forest">{labels.answered} {qAnswered}</span>
             ) : qTotal > 0 ? (
               <span className="text-[11px] text-ink-muted">{qTotal}</span>
             ) : null}

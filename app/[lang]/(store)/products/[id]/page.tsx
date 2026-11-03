@@ -11,6 +11,7 @@ import { isAdultProduct } from '@/lib/utils/product'
 import ProductGrid from '@/components/home/ProductGrid'
 import RecentlyViewed from '@/components/product/RecentlyViewed'
 import ShareButtons from '@/components/product/ShareButtons'
+import FeaturePanels from '@/components/lounge/FeaturePanels'
 import ProductViewTracker from '@/components/analytics/ProductViewTracker'
 import type { Locale, Product } from '@/lib/shopify/types'
 import { SITE_URL as BASE } from '@/lib/utils/site'
@@ -101,7 +102,7 @@ export default async function ProductPage({ params }: Props) {
         <ProductImageGallery images={product.images.nodes} title={product.title} featuredUrl={product.featuredImage?.url} />
 
         <div className="flex flex-col gap-5">
-          <h1 className="text-xl md:text-2xl font-bold tracking-wide leading-tight break-keep">
+          <h1 className="font-headline text-3xl md:text-4xl uppercase text-forest leading-[1.05] break-keep">
             {stripTitlePrefix(product.title)}
           </h1>
 
@@ -120,6 +121,7 @@ export default async function ProductPage({ params }: Props) {
             initialPrice={firstVariant.price}
             initialCompareAtPrice={firstVariant.compareAtPrice}
             adult={adult}
+            buyNowLabel={lang === 'ja' ? '今すぐ購入' : lang === 'en' ? 'Buy it now' : '바로 구매'}
           />
 
           <ShareButtons
@@ -134,6 +136,11 @@ export default async function ProductPage({ params }: Props) {
           {lang === 'ko' && <ProductDisclosure adult={adult} />}
         </div>
 
+      </div>
+
+      {/* 장점 패널 — 모바일은 좌우 여백 없이 화면 끝까지 */}
+      <div className="-mx-4 sm:mx-0">
+        <FeaturePanels images={product.images.nodes} />
       </div>
 
       {recommended.length > 0 && (
