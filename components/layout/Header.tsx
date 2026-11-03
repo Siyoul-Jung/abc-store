@@ -11,7 +11,7 @@ import { getCartCount } from '@/lib/actions/cart'
 type NavItem = { label: string; href: string }
 
 type Dict = {
-  nav: { kids: string; adult: string; new: string; best: string; sale: string; about: string; cart: string; menu: string; close: string; account: string; login: string; qa: string }
+  nav: { shop: string; kids: string; adult: string; new: string; best: string; sale: string; about: string; cart: string; menu: string; close: string; account: string; login: string; qa: string }
 }
 
 type Props = { lang: string; dict: Dict }
@@ -53,15 +53,18 @@ export default function Header({ lang, dict }: Props) {
   }, [pathname])
 
 
+  // 성인 라운지 팬츠 단일 라인 → 컬렉션 분기 대신 SHOP·ABOUT 두 개만
   const navItems: NavItem[] = [
-    { label: dict.nav.new,   href: `/${lang}/collections/new` },
-    { label: dict.nav.kids,  href: `/${lang}/collections/kids` },
-    { label: dict.nav.adult, href: `/${lang}/collections/adult` },
-    { label: dict.nav.sale,  href: `/${lang}/collections/sale` },
+    { label: dict.nav.shop,  href: `/${lang}/products` },
+    { label: dict.nav.about, href: `/${lang}/about` },
   ]
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-30 bg-white transition-transform duration-300 ${hidden ? '-translate-y-full' : ''}`}>
+    <header className={`fixed top-0 left-0 right-0 z-30 bg-cream transition-transform duration-300 ${hidden ? '-translate-y-full' : ''}`}>
+      {/* 상단 브랜드 슬로건 바 — 헤더와 함께 고정(높이 h-8, main의 pt-24 = 8+16) */}
+      <div className="h-8 bg-forest text-white flex items-center justify-center">
+        <p className="font-headline text-[13px] tracking-[0.08em] uppercase">For people who run hot.</p>
+      </div>
       <div className="relative max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
         {/* 왼쪽: 데스크톱 nav / 모바일 햄버거+검색 */}
@@ -72,7 +75,7 @@ export default function Header({ lang, dict }: Props) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-[13px] font-normal text-ink hover:opacity-60 transition-opacity"
+                className="font-headline text-[15px] tracking-[0.06em] uppercase text-forest hover:opacity-60 transition-opacity"
               >
                 {item.label}
               </Link>
@@ -127,7 +130,7 @@ export default function Header({ lang, dict }: Props) {
                 <path d="M16 10a4 4 0 01-8 0" />
               </svg>
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-coral text-white text-[10px] font-medium rounded-full flex items-center justify-center leading-none">
+                <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-forest text-white text-[10px] font-medium rounded-full flex items-center justify-center leading-none">
                   {cartCount > 99 ? '99+' : cartCount}
                 </span>
               )}

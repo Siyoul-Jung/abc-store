@@ -98,7 +98,7 @@ export default async function QuestionDetailPage({
           {question.is_private && (
             <span className="text-[10px] text-ink-muted">🔒 {labels.privateLabel}</span>
           )}
-          <span className={`text-[11px] font-medium ml-auto ${question.status === 'answered' ? 'text-coral' : 'text-ink-muted'}`}>
+          <span className={`text-[11px] font-medium ml-auto ${question.status === 'answered' ? 'text-forest' : 'text-ink-muted'}`}>
             {labels[question.status as 'pending' | 'answered']}
           </span>
         </div>

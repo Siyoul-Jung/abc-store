@@ -25,7 +25,7 @@ export default async function StoreLayout({
   return (
     <>
       <Header lang={lang} dict={dict} />
-      <main className="flex-1 pt-16">
+      <main className="flex-1 pt-24">
         <NoticeBanner text={notice} href={noticeHref} />
         {children}
       </main>

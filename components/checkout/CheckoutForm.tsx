@@ -537,7 +537,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 flex-none accent-coral"
+              className="mt-0.5 h-4 w-4 flex-none accent-forest"
             />
             <span className="text-[11px] text-ink-muted leading-relaxed">
               <span className="text-coral font-medium">[필수]</span>{' '}
@@ -566,7 +566,7 @@ export default function CheckoutForm({ cart, locale, dict, account }: Props) {
           <button
             type="submit"
             disabled={isPaying || !tossReady || !payable}
-            className="w-full bg-coral text-white text-sm font-medium tracking-widest uppercase py-4 hover:opacity-90 transition-opacity disabled:opacity-40"
+            className="w-full bg-forest text-white text-sm font-medium tracking-widest uppercase py-4 hover:opacity-90 transition-opacity disabled:opacity-40"
           >
             {isPaying ? '···' : d.pay}
           </button>

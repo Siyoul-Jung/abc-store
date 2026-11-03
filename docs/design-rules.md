@@ -18,7 +18,8 @@
 | `ink` | 본문·제목 텍스트, **2순위 버튼 배경** |
 | `ink-muted` | 보조 텍스트, 라벨, 비활성 |
 | `line`(=border) | 구분선·테두리 |
-| `coral` | **1순위 CTA 배경** + 작은 강조 포인트(라벨·표식) |
+| `forest` | **1순위 CTA 배경** + 강조 포인트(라벨·표식) — 2026-11 Lounge 컨셉으로 coral에서 교체 |
+| `coral` | 에러·세일·위험 행동 전용 |
 | `citrus` | 배경 포인트 전용 (글자색으로 쓰지 말 것) |
 
 > ✅ 현재 전 페이지가 토큰만 사용 중 — 이 규칙은 이미 지켜지고 있음. 유지만 하면 됨.
@@ -31,13 +32,13 @@
 
 | 역할 | 예시 | 클래스 |
 |---|---|---|
-| **메인 구매바 (전체폭 최종 전환)** | 장바구니 주문, 체크아웃 결제 | `w-full bg-coral py-4 text-white …` — **사각(라운드 없음)** |
-| **1순위 CTA** | 컬렉션 보기, 신상 보기 | `rounded-full bg-coral px-6 py-3 text-sm font-medium text-white hover:opacity-90` |
+| **메인 구매바 (전체폭 최종 전환)** | 장바구니 주문, 체크아웃 결제 | `w-full bg-forest py-4 text-white …` — **사각(라운드 없음)** |
+| **1순위 CTA** | 컬렉션 보기, 신상 보기 | `rounded-full bg-forest px-6 py-3 text-sm font-medium text-white hover:opacity-90` |
 | **2순위 (보조 행동)** | 문의하기, 주소 추가/저장, Contact | `rounded-full bg-ink px-6 py-3 text-sm font-medium text-white hover:opacity-80` |
 | **3순위 (텍스트 링크)** | 뒤로, 취소, 더보기 | `text-sm text-ink-muted hover:text-ink transition-colors` (배경 없음) |
 
 - **모양**: **메인 구매바만 전체폭 사각**(이커머스 관용구 — 묵직한 최종 확정). 그 외 **모든 버튼은 `rounded-full`(알약형)**.
-- **색**: 한 화면의 coral 버튼은 하나 — "지금 할 가장 중요한 행동"에만.
+- **색**: 한 화면의 forest 버튼은 하나 — "지금 할 가장 중요한 행동"에만.
 - 탭 영역 최소 높이(`py-3` ≈ 44px) — 모바일 우선.
 
 ### 현황 (점검 완료)
