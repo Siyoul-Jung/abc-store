@@ -28,7 +28,7 @@ export default function SizeGuideModal({ locale, adult, onClose }: Props) {
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-none">
           <span className="text-sm font-bold tracking-widest uppercase">
-            {locale === 'ko' ? '사이즈 가이드' : 'サイズガイド'}
+            {locale === 'ko' ? '사이즈 가이드' : locale === 'ja' ? 'サイズガイド' : 'Size guide'}
           </span>
           <button
             onClick={onClose}

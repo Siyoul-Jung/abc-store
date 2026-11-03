@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { hasLocale } from '../../dictionaries'
+import type { Locale } from '@/lib/shopify/types'
 
 type Props = { params: Promise<{ lang: string }> }
 
@@ -10,7 +11,7 @@ type Section = {
   items: (string | InlineItem)[]
 }
 
-const content: Record<'ko' | 'ja', { title: string; sections: Section[] }> = {
+const content: Record<Locale, { title: string; sections: Section[] }> = {
   ko: {
     title: '환불정책',
     sections: [
@@ -117,18 +118,77 @@ const content: Record<'ko' | 'ja', { title: string; sections: Section[] }> = {
       },
     ],
   },
+  en: {
+    title: 'Refund Policy',
+    sections: [
+      {
+        title: 'Withdrawal of Offer (Refund Requests)',
+        items: [
+          'Returns may be requested within 7 days of the date you receive the product (Article 17 of Korea\'s Act on Consumer Protection in Electronic Commerce).',
+          'Exchanges are not processed separately; instead, we ask that you return the item and place a new order.',
+        ],
+      },
+      {
+        title: 'How to Request a Return',
+        items: [
+          { text: 'Please use the return request form on our website.', link: { label: 'Request a return →', href: '/returns' } },
+          '- Enter your order number and reason for return',
+          '- Attach photos of the product\'s condition (for defective or incorrectly shipped items)',
+        ],
+      },
+      {
+        title: 'Items Not Eligible for Return',
+        items: [
+          '- The value of the product has been diminished by wearing, washing, alteration, etc.',
+          '- The product has been damaged due to the customer\'s fault',
+          '- More than 7 days have passed since receipt',
+          '- Part of the product or its components (tags, accessories) is missing',
+        ],
+      },
+      {
+        title: 'Return Shipping Fees',
+        items: [
+          '- Change of mind or size exchange: the customer pays the round-trip shipping fee of KRW 7,000 (outbound KRW 3,500 + return pickup KRW 3,500)',
+          '- This applies equally to orders that qualified for free shipping (KRW 80,000 or more), including the shipping cost incurred at dispatch.',
+          '- The return shipping fee is deducted from the refund amount.',
+          '- Defective or incorrectly shipped items: the Company pays the return shipping fee (full refund).',
+        ],
+      },
+      {
+        title: 'Shipping Fees',
+        items: [
+          '- Standard shipping fee: KRW 3,500',
+          '- Free shipping on orders of KRW 80,000 or more',
+          '- Jeju Island: additional KRW 3,000',
+          '- Remote and island areas: additional KRW 4,000',
+        ],
+      },
+      {
+        title: 'Refund Processing',
+        items: [
+          'Refunds are processed within 3–5 business days after we confirm receipt of the returned item.',
+          '- Card payments: 3–5 business days, depending on the card issuer',
+          '- Bank transfers: 1–3 business days',
+        ],
+      },
+      {
+        title: 'Contact',
+        items: [{ text: 'Please use the customer board on our website.', link: { label: 'Go to board →', href: '/qa' } }],
+      },
+    ],
+  },
 }
 
 export async function generateMetadata({ params }: Props) {
   const { lang } = await params
-  return { title: content[(lang as 'ko' | 'ja')]?.title ?? content.ko.title }
+  return { title: hasLocale(lang) ? content[lang].title : content.ko.title }
 }
 
 export default async function RefundPage({ params }: Props) {
   const { lang } = await params
   if (!hasLocale(lang)) notFound()
 
-  const c = content[lang as 'ko' | 'ja']
+  const c = content[lang]
 
   return (
     <section className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">

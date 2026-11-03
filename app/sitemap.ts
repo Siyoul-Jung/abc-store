@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { getProducts } from '@/lib/shopify/storefront'
 import { gidToNumericId } from '@/lib/utils/format'
 import { SITE_URL as BASE } from '@/lib/utils/site'
-const LOCALES = ['ko', 'ja'] as const
+const LOCALES = ['ko', 'ja', 'en'] as const
 const COLLECTIONS = ['new', 'kids', 'adult', 'sale']
 const STATIC_PAGES = ['', '/about', '/collections/new', '/collections/kids', '/collections/adult', '/collections/sale', '/cart', '/returns']
 

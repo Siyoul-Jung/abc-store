@@ -26,7 +26,7 @@ type Props = {
   adult?: boolean
 }
 
-function ShippingTimeline({ text }: { text: string }) {
+function ShippingTimeline({ text, locale }: { text: string; locale: Locale }) {
   // 일정(오픈/배송 날짜)과 주의사항(- 으로 시작)을 분리
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
   const schedule = lines.filter(l => !l.startsWith('-') && /(오픈|배송)\s*[:：]/.test(l))
@@ -35,7 +35,7 @@ function ShippingTimeline({ text }: { text: string }) {
   return (
     <div className="border border-border px-4 py-3">
       <p className="text-xs font-semibold tracking-widest uppercase mb-3 text-ink">
-        {'오픈 & 배송 안내'}
+        {locale === 'ko' ? '오픈 & 배송 안내' : locale === 'ja' ? '発売・配送のご案内' : 'Release & shipping'}
       </p>
 
       {/* 일정: 오픈 · 배송 날짜 타임라인 */}
@@ -159,7 +159,7 @@ export default function VariantSelector({ variants, locale, productId, productTi
           </div>
         )}
 
-        {shippingNotice && <ShippingTimeline text={shippingNotice} />}
+        {shippingNotice && <ShippingTimeline text={shippingNotice} locale={locale} />}
 
         <button
           onClick={handleAddToCart}
@@ -207,7 +207,7 @@ export default function VariantSelector({ variants, locale, productId, productTi
                 onClick={() => setOpenSection(openSection === 'description' ? null : 'description')}
                 className="w-full flex items-center justify-between py-4 text-sm font-medium text-left"
               >
-                {locale === 'ko' ? '상품 설명' : '商品説明'}
+                {locale === 'ko' ? '상품 설명' : locale === 'ja' ? '商品説明' : 'Product details'}
                 <span className="text-ink-muted text-lg leading-none">{openSection === 'description' ? '−' : '+'}</span>
               </button>
               {openSection === 'description' && (
@@ -222,7 +222,7 @@ export default function VariantSelector({ variants, locale, productId, productTi
               onClick={() => setOpenSection(openSection === 'care' ? null : 'care')}
               className="w-full flex items-center justify-between py-4 text-sm font-medium text-left"
             >
-              {locale === 'ko' ? '소재 & 케어' : '素材・ケア'}
+              {locale === 'ko' ? '소재 & 케어' : locale === 'ja' ? '素材・ケア' : 'Materials & care'}
               <span className="text-ink-muted text-lg leading-none">{openSection === 'care' ? '−' : '+'}</span>
             </button>
             {openSection === 'care' && (
