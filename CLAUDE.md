@@ -98,7 +98,7 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 
 폰트: Noto Sans KR/JP (본문) · Poppins (display) · **Anton (`font-headline`, 굵은 좁은 대문자 헤드라인 — 한글/일어는 Noto로 폴백)**
 
-> **Lounge 컨셉 (2026-11 대표 요청, 브랜치 feat/lounge-redesign)**: 성인 라운지 팬츠 단일 라인. 홈 = `components/lounge/HomeSections.tsx`(히어로·밸류띠·WHY 3카드·PICK YOUR PRINT·클로징), 상세 하단 = `FeaturePanels.tsx`(01·02·03), 카피는 `components/lounge/copy.ts`(영어 공통, 번역 미정). 헤더 nav는 SHOP·ABOUT만 + 상단 'FOR PEOPLE WHO RUN HOT.' 바(헤더 높이 96px → main `pt-24`). 상세 '바로 구매' = 담고 체크아웃 이동. 이미지 없으면 프린트 톤 색 블록
+> **Lounge 컨셉 (2026-11 대표 요청, 브랜치 feat/lounge-redesign)**: 성인 라운지 팬츠 단일 라인. 홈 = `components/lounge/HomeSections.tsx`(히어로·밸류띠·WHY 3카드·PICK YOUR PRINT·클로징), 상세 하단 = `FeaturePanels.tsx`(01·02·03), 카피는 `components/lounge/copy.ts`(영어 공통, 번역 미정). 헤더 nav는 SHOP·ABOUT만 + 상단 'FOR PEOPLE WHO RUN HOT.' 바(헤더 높이 96px → main `pt-24`). 상세 '바로 구매' = 담고 체크아웃 이동, 본문 구매 버튼이 화면 위로 사라지면 하단 고정 구매바(VariantSelector 내 IntersectionObserver). 홈 브랜드 이미지(히어로·WHY·클로징)는 촬영본 전까지 프린트 톤 색 블록 — 히어로는 env `HERO_SLIDES` 설정 시 사용
 
 ---
 

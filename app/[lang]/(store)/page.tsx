@@ -33,20 +33,19 @@ export default async function HomePage({ params }: Props) {
   const products = await getProducts(lang as Locale, 6)
   const locale = lang as Locale
 
-  // 이미지: 히어로는 HERO_SLIDES 첫 장 → 없으면 첫 상품 대표컷. 나머지는 상품 이미지 재사용(실사 교체 전 임시).
+  // 브랜드 이미지 자리는 촬영본 전까지 프린트 톤 색 블록으로 비움(구 아동복 컷이 컨셉과 안 맞음).
+  // 히어로만 HERO_SLIDES 첫 장이 있으면 사용 — 촬영본 교체 시 env만 설정.
   const heroSlide = getHeroSlides()?.[0]
-  const lead = products[0]
-  const heroImage = heroSlide ? { url: heroSlide.src, altText: heroSlide.alt } : lead?.featuredImage
-  const whyImages = (lead?.images.nodes ?? []).slice(1, 4)
+  const heroImage = heroSlide ? { url: heroSlide.src, altText: heroSlide.alt } : null
   const prints = products.filter((p) => p.variants.nodes.some((v) => v.availableForSale)).slice(0, 4)
 
   return (
     <>
       <LoungeHero lang={locale} image={heroImage} />
       <ValueBand />
-      <WhySection images={whyImages} />
+      <WhySection images={[]} />
       <PrintPicker products={prints} lang={locale} />
-      <ClosingBanner lang={locale} image={products[1]?.featuredImage} />
+      <ClosingBanner lang={locale} image={null} />
       <Reveal>
         <InstagramFeed />
       </Reveal>

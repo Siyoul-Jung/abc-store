@@ -121,6 +121,7 @@ export default async function ProductPage({ params }: Props) {
             initialPrice={firstVariant.price}
             initialCompareAtPrice={firstVariant.compareAtPrice}
             adult={adult}
+            imageUrl={product.featuredImage?.url ?? product.images.nodes[0]?.url}
             buyNowLabel={lang === 'ja' ? '今すぐ購入' : lang === 'en' ? 'Buy it now' : '바로 구매'}
           />
 
