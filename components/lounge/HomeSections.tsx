@@ -79,7 +79,7 @@ export function WhySection({ images }: { images: Img[] }) {
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-5">
         {C.why.items.map((it, i) => (
           <div key={it.title} className="flex flex-col gap-4">
-            <div className="relative aspect-square overflow-hidden max-w-full">
+            <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden max-w-full">
               <Photo img={images[i]} tone={LOUNGE_TONES[i % LOUNGE_TONES.length]} sizes="(max-width: 640px) 100vw, 33vw" />
             </div>
             <div className="flex gap-3">

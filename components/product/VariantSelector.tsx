@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import type { ProductVariant, Locale, Money } from '@/lib/shopify/types'
 import { addToCart } from '@/lib/actions/cart'
@@ -26,6 +27,7 @@ type Props = {
   initialCompareAtPrice?: Money | null
   adult?: boolean
   buyNowLabel: string
+  imageUrl?: string
 }
 
 function ShippingTimeline({ text, locale }: { text: string; locale: Locale }) {
@@ -77,7 +79,7 @@ function ShippingTimeline({ text, locale }: { text: string; locale: Locale }) {
   )
 }
 
-export default function VariantSelector({ variants, locale, productId, productTitle, addToCartLabel, soldOutLabel, sizeGuideLabel, freeShippingNotice, descriptionHtml, careInstructions, shippingNotice, initialPrice, initialCompareAtPrice, adult, buyNowLabel }: Props) {
+export default function VariantSelector({ variants, locale, productId, productTitle, addToCartLabel, soldOutLabel, sizeGuideLabel, freeShippingNotice, descriptionHtml, careInstructions, shippingNotice, initialPrice, initialCompareAtPrice, adult, buyNowLabel, imageUrl }: Props) {
   const [selectedId, setSelectedId] = useState<string>(
     variants.find((v) => v.availableForSale)?.id ?? variants[0]?.id ?? '',
   )
@@ -87,6 +89,18 @@ export default function VariantSelector({ variants, locale, productId, productTi
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const [policyOpen, setPolicyOpen] = useState(false)
   const [openSection, setOpenSection] = useState<'description' | 'care' | null>(null)
+  // 하단 고정 구매바: 본문 구매 버튼이 화면 위로 스크롤돼 사라졌을 때만 노출(아래에 있을 땐 숨김)
+  const buyRef = useRef<HTMLDivElement>(null)
+  const [showSticky, setShowSticky] = useState(false)
+  useEffect(() => {
+    const el = buyRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([entry]) => {
+      setShowSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0)
+    })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
   const selected = variants.find((v) => v.id === selectedId)
   const hasOptions = variants.some((v) => v.selectedOptions.some((o) => o.name !== 'Title'))
@@ -169,7 +183,7 @@ export default function VariantSelector({ variants, locale, productId, productTi
 
         {shippingNotice && <ShippingTimeline text={shippingNotice} locale={locale} />}
 
-        <div className="flex flex-col gap-2.5">
+        <div ref={buyRef} className="flex flex-col gap-2.5">
           <button
             onClick={() => handleAddToCart()}
             disabled={!selected?.availableForSale || isPending}
@@ -250,6 +264,38 @@ export default function VariantSelector({ variants, locale, productId, productTi
           </div>
         </div>
       </div>
+
+      {selected?.availableForSale && (
+        <div
+          aria-hidden={!showSticky}
+          className={`fixed inset-x-0 bottom-0 z-20 bg-cream border-t border-border pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
+            showSticky ? 'translate-y-0' : 'translate-y-full pointer-events-none'
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
+            {imageUrl && (
+              <div className="relative hidden md:block w-12 h-14 shrink-0 overflow-hidden bg-surface">
+                <Image src={imageUrl} alt="" fill sizes="48px" className="object-cover" />
+              </div>
+            )}
+            <div className="hidden md:flex flex-col min-w-0">
+              <p className="text-sm font-semibold text-ink truncate">{productTitle}</p>
+              {hasOptions && <p className="text-xs text-ink-muted">{selected.selectedOptions[0]?.value}</p>}
+            </div>
+            <span className="ml-auto text-sm sm:text-base font-semibold text-ink whitespace-nowrap">
+              {formatPrice(currentPrice.amount, currentPrice.currencyCode, locale)}
+            </span>
+            <button
+              onClick={() => handleAddToCart()}
+              disabled={isPending}
+              tabIndex={showSticky ? 0 : -1}
+              className="flex-1 md:flex-none md:px-10 py-3 bg-forest text-white font-headline text-base tracking-[0.06em] uppercase hover:opacity-90 transition-opacity disabled:opacity-40"
+            >
+              {isPending ? '···' : added ? '✓' : addToCartLabel}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }
