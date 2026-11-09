@@ -1,7 +1,9 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import LanguageSwitcher from './LanguageSwitcher'
 
 type Dict = {
+  nav: { shop: string; why: string; about: string; qa: string }
   footer: {
     about: string; cs: string; faq: string; privacy: string; terms: string
     refund: string; returns: string; qa: string; company: string; copyright: string
@@ -27,14 +29,20 @@ export default function Footer({ lang, dict }: Props) {
   const csLinks = [
     { label: dict.footer.faq,     href: `/${lang}/faq` },
     { label: dict.footer.returns, href: `/${lang}/returns` },
-    { label: dict.footer.qa,      href: `/${lang}/qa` },
   ]
   // 회사·정책
   const companyLinks = [
-    { label: dict.footer.about,   href: `/${lang}/about` },
     { label: dict.footer.privacy, href: `/${lang}/privacy` },
     { label: dict.footer.terms,   href: `/${lang}/terms` },
     { label: dict.footer.refund,  href: `/${lang}/refund` },
+  ]
+
+  // 시안의 대표 링크 한 줄 — 나머지 고객지원·정책 링크는 아래 칸 유지
+  const mainLinks = [
+    { label: dict.nav.shop,  href: `/${lang}/products` },
+    { label: dict.nav.why,   href: `/${lang}#why` },
+    { label: dict.nav.about, href: `/${lang}/about` },
+    { label: dict.nav.qa,    href: `/${lang}/qa` },
   ]
 
   const colTitle = 'text-[11px] font-semibold tracking-widest uppercase text-ink mb-3'
@@ -44,21 +52,35 @@ export default function Footer({ lang, dict }: Props) {
     <footer className="bg-surface border-t border-border mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 flex flex-col gap-8">
 
+        {/* 로고 + 대표 링크 */}
+        <div className="flex flex-col items-center gap-4">
+          <Link href={`/${lang}`} className="block hover:opacity-60 transition-opacity">
+            <Image src="/logo.png" alt="applebuttercollege" width={300} height={44} className="block h-[44px] w-auto object-contain" />
+          </Link>
+          <nav className="flex flex-wrap justify-center gap-x-8 gap-y-2">
+            {mainLinks.map((l) => (
+              <Link key={l.href} href={l.href} className="font-headline text-[15px] tracking-[0.06em] uppercase text-forest hover:opacity-60 transition-opacity">
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
         {/* 상단: 3컬럼 (모바일 = 브랜드 전체폭 + 링크 2열) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
 
           {/* 브랜드 */}
           <div className="col-span-2 sm:col-span-1 flex flex-col gap-3">
-            <span className="text-sm font-semibold tracking-widest uppercase text-ink">
-              applebuttercollege
-            </span>
             <div className="flex flex-col gap-1">
               <a href="mailto:applebuttercollege.official@gmail.com" className="text-xs text-ink-muted hover:text-ink transition-colors [overflow-wrap:anywhere]">
                 applebuttercollege.official@gmail.com
               </a>
-              <a href="tel:01023398492" className="text-xs text-ink-muted hover:text-ink transition-colors w-fit">
-                010-2339-8492
-              </a>
+              {/* 전화는 국내 통신판매 표시용. 해외 고객은 이메일·문의 게시판으로 안내 */}
+              {lang === 'ko' && (
+                <a href="tel:01023398492" className="text-xs text-ink-muted hover:text-ink transition-colors w-fit">
+                  010-2339-8492
+                </a>
+              )}
             </div>
             <a
               href="https://www.instagram.com/applebuttercollege"

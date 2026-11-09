@@ -10,6 +10,10 @@ import PolicyModal from '@/components/product/PolicyModal'
 import RestockNotify from '@/components/product/RestockNotify'
 import { formatPrice, gidToNumericId } from '@/lib/utils/format'
 import { trackPixel } from '@/lib/analytics/pixel'
+import { LOUNGE_COPY } from '@/components/lounge/copy'
+import Link from 'next/link'
+
+const MAX_QUANTITY = 10
 
 type Props = {
   variants: ProductVariant[]
@@ -84,6 +88,7 @@ export default function VariantSelector({ variants, locale, productId, productTi
     variants.find((v) => v.availableForSale)?.id ?? variants[0]?.id ?? '',
   )
   const [added, setAdded] = useState(false)
+  const [quantity, setQuantity] = useState(1)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
@@ -95,9 +100,12 @@ export default function VariantSelector({ variants, locale, productId, productTi
   useEffect(() => {
     const el = buyRef.current
     if (!el) return
-    const io = new IntersectionObserver(([entry]) => {
-      setShowSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0)
-    })
+    // 감지 영역을 화면 아래로 크게 늘림 → '화면 위로 넘어감'이 유일한 경계가 되어,
+    // 버튼이 한 번도 안 보인 채 지나가도(빠른 스크롤·스크롤 복원) 이벤트가 발생한다.
+    const io = new IntersectionObserver(
+      ([entry]) => setShowSticky(!entry.isIntersecting),
+      { rootMargin: '0px 0px 100000px 0px' },
+    )
     io.observe(el)
     return () => io.disconnect()
   }, [])
@@ -109,11 +117,11 @@ export default function VariantSelector({ variants, locale, productId, productTi
   function handleAddToCart(goCheckout = false) {
     if (!selected?.availableForSale || isPending) return
     startTransition(async () => {
-      await addToCart(selected.id, locale)
+      await addToCart(selected.id, locale, quantity)
       trackPixel('AddToCart', {
         content_ids: [gidToNumericId(productId)],
         content_type: 'product',
-        value: Number(selected.price.amount),
+        value: Number(selected.price.amount) * quantity,
         currency: selected.price.currencyCode,
       })
       if (goCheckout) {
@@ -146,6 +154,13 @@ export default function VariantSelector({ variants, locale, productId, productTi
             </span>
           )}
         </div>
+
+        {adult && (
+          <div className="flex flex-col gap-0.5 -mt-3">
+            <p className="text-base text-ink">{LOUNGE_COPY.pdp.tagline}</p>
+            <p className="text-sm text-ink-muted">{LOUNGE_COPY.pdp.detail}</p>
+          </div>
+        )}
 
         {hasOptions && (
           <div className="flex flex-col gap-3">
@@ -183,6 +198,35 @@ export default function VariantSelector({ variants, locale, productId, productTi
 
         {shippingNotice && <ShippingTimeline text={shippingNotice} locale={locale} />}
 
+        {selected?.availableForSale && (
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium tracking-widest uppercase">
+              {locale === 'ko' ? '수량' : locale === 'ja' ? '数量' : 'Quantity'}
+            </span>
+            <div className="inline-flex w-fit border border-border">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+                aria-label="-"
+                className="min-w-11 min-h-11 text-lg disabled:opacity-30"
+              >
+                −
+              </button>
+              <span aria-live="polite" className="min-w-11 flex items-center justify-center text-sm border-x border-border">{quantity}</span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(MAX_QUANTITY, q + 1))}
+                disabled={quantity >= MAX_QUANTITY}
+                aria-label="+"
+                className="min-w-11 min-h-11 text-lg disabled:opacity-30"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        )}
+
         <div ref={buyRef} className="flex flex-col gap-2.5">
           <button
             onClick={() => handleAddToCart()}
@@ -205,6 +249,12 @@ export default function VariantSelector({ variants, locale, productId, productTi
             </button>
           )}
         </div>
+
+        {adult && (
+          <div className="text-xs text-ink-muted leading-relaxed -mt-2">
+            {LOUNGE_COPY.pdp.notes.map((n) => <p key={n}>{n}</p>)}
+          </div>
+        )}
 
         {/* 선택한 사이즈가 품절이면 재입고 알림 신청 — 이탈 대신 수요를 수집 */}
         {selected && !selected.availableForSale && (
@@ -262,6 +312,35 @@ export default function VariantSelector({ variants, locale, productId, productTi
               </div>
             )}
           </div>
+          {hasOptions && (
+            <button
+              type="button"
+              onClick={() => setSizeGuideOpen(true)}
+              className="w-full flex items-center justify-between py-4 text-sm font-medium text-left border-b border-border"
+            >
+              {sizeGuideLabel}
+              <span className="text-ink-muted text-lg leading-none">+</span>
+            </button>
+          )}
+          {/* 국내는 안내 모달, 해외는 환불정책 페이지(해외 배송 조건 확정 전까지) */}
+          {locale === 'ko' ? (
+            <button
+              type="button"
+              onClick={() => setPolicyOpen(true)}
+              className="w-full flex items-center justify-between py-4 text-sm font-medium text-left border-b border-border"
+            >
+              배송 · 교환/반품
+              <span className="text-ink-muted text-lg leading-none">+</span>
+            </button>
+          ) : (
+            <Link
+              href={`/${locale}/refund`}
+              className="w-full flex items-center justify-between py-4 text-sm font-medium border-b border-border"
+            >
+              {locale === 'ja' ? '配送・返品' : 'Shipping & returns'}
+              <span className="text-ink-muted text-lg leading-none">→</span>
+            </Link>
+          )}
         </div>
       </div>
 
