@@ -139,10 +139,12 @@ export default async function ProductPage({ params }: Props) {
 
       </div>
 
-      {/* 장점 패널 — 모바일은 좌우 여백 없이 화면 끝까지 */}
-      <div className="-mx-4 sm:mx-0">
-        <FeaturePanels images={product.images.nodes} />
-      </div>
+      {/* 장점 패널(라운지 팬츠 전용 문구라 adult 상품만) — 모바일은 좌우 여백 없이 화면 끝까지 */}
+      {adult && (
+        <div className="-mx-4 sm:mx-0">
+          <FeaturePanels images={product.images.nodes} />
+        </div>
+      )}
 
       {recommended.length > 0 && (
         <div className="mt-16 md:border-t md:border-border">

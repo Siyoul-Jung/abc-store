@@ -26,6 +26,17 @@ export const LOUNGE_COPY = {
     cta: 'Ready to get comfortable?',
     button: 'Shop lounge pants',
   },
+  // 상품 상세 — adult 태그 상품 전용(팬츠 사실 문구라 키즈·기타 상품에 노출 금지)
+  pdp: {
+    tagline: 'Cool feel. Soft touch. Built to last.',
+    detail: 'No side seams. No pockets. Made for comfort.',
+    notes: ['Pants only. T-shirt not included.', 'Shipping calculated at checkout.'],
+    block: {
+      title: ['No side seams.', 'No pockets.', 'Just comfort.'],
+      body: 'Designed without side seams or pockets for easy, everyday comfort.',
+      kicker: 'Put them on. You’ll get it.',
+    },
+  },
   // 상품 상세 01·02·03 패널
   features: [
     { no: '01', title: 'Feel cool.', body: 'Light comfort. All year round.' },

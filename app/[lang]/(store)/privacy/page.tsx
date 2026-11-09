@@ -137,7 +137,7 @@ Requests can be submitted through the customer board on our website and will be 
 ## 7. Chief Privacy Officer
 - Name: Koo Seungbum
 - Email: applebuttercollege.official@gmail.com
-- Phone: 010-2339-8492
+- Phone: +82-10-2339-8492
 
 ## 8. Business Information
 - Company name: HFFF Co., Ltd.

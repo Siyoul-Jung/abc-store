@@ -106,7 +106,7 @@ These Terms set out the conditions and procedures for using the services provide
 - Mail-order business registration number: 2022-Dasan-1147
 - Address: Room 10-006, Jebiei, 10F, 20 Dasansunhwan-ro, Namyangju-si, Gyeonggi-do (Dasan-dong), Republic of Korea
 - Email: applebuttercollege.official@gmail.com
-- Phone: 010-2339-8492
+- Phone: +82-10-2339-8492
 
 ## Article 3 (Definitions)
 - "User" means any person who uses the services provided by the Company under these Terms.

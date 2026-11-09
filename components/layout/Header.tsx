@@ -6,12 +6,13 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import MobileMenu from './MobileMenu'
 import SearchBar from './SearchBar'
+import LanguageSwitcher from './LanguageSwitcher'
 import { getCartCount } from '@/lib/actions/cart'
 
 type NavItem = { label: string; href: string }
 
 type Dict = {
-  nav: { shop: string; kids: string; adult: string; new: string; best: string; sale: string; about: string; cart: string; menu: string; close: string; account: string; login: string; qa: string }
+  nav: { shop: string; why: string; kids: string; adult: string; new: string; best: string; sale: string; about: string; cart: string; menu: string; close: string; account: string; login: string; qa: string }
 }
 
 type Props = { lang: string; dict: Dict }
@@ -56,6 +57,7 @@ export default function Header({ lang, dict }: Props) {
   // 성인 라운지 팬츠 단일 라인 → 컬렉션 분기 대신 SHOP·ABOUT 두 개만
   const navItems: NavItem[] = [
     { label: dict.nav.shop,  href: `/${lang}/products` },
+    { label: dict.nav.why,   href: `/${lang}#why` },
     { label: dict.nav.about, href: `/${lang}/about` },
   ]
 
@@ -136,6 +138,9 @@ export default function Header({ lang, dict }: Props) {
               )}
             </span>
           </Link>
+          <div className="hidden md:flex items-center border-l border-border pl-4">
+            <LanguageSwitcher lang={lang} />
+          </div>
         </div>
 
       </div>
