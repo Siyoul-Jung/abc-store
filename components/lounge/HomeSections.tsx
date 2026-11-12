@@ -36,7 +36,7 @@ export function LoungeHero({ lang, image }: { lang: Locale; image: Img }) {
     // 모바일: 글 → 사진 세로 배치 / md 이상: 사진을 전체 배경으로 깔고 제목을 위에 겹침
     <section className="relative bg-cream md:min-h-[620px] lg:min-h-[700px] md:flex md:items-center">
       <div className="relative z-10 max-w-7xl mx-auto w-full px-6 py-10 sm:py-14 md:py-20 flex flex-col items-start gap-4">
-        <h1 className="font-headline uppercase text-forest leading-[0.92] text-[56px] sm:text-[80px] md:text-[112px] lg:text-[136px] md:max-w-[8.5ch]">
+        <h1 className="font-headline uppercase text-forest leading-[0.92] text-[56px] sm:text-[80px] md:text-[112px] lg:text-[136px] max-w-[8.5ch]">
           {C.hero.headline}
         </h1>
         <p className="text-xl sm:text-2xl text-ink leading-snug">{C.hero.sub}</p>
@@ -45,7 +45,7 @@ export function LoungeHero({ lang, image }: { lang: Locale; image: Img }) {
           <CtaButton href={`/${lang}/products`}>{C.hero.cta}</CtaButton>
         </div>
       </div>
-      <div className="relative aspect-[4/3] md:absolute md:inset-0 md:aspect-auto max-w-full">
+      <div className={`relative aspect-[4/3] md:absolute md:inset-0 md:aspect-auto max-w-full ${image ? '' : 'hidden md:block'}`}>
         <Photo img={image} tone="bg-sun" sizes="100vw" priority />
         {/* 실사 위에서만 글자 가독성용 왼쪽 그라데이션 */}
         {image && <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-cream/90 via-cream/40 to-transparent" />}
@@ -89,12 +89,17 @@ export function WhySection({ images }: { images: Img[] }) {
     <section id="why" className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 scroll-mt-24">
       <h2 className="font-headline uppercase text-ink text-4xl sm:text-6xl leading-[0.95] text-balance">{C.why.title}</h2>
       <p className="mt-2 text-lg text-ink">{C.why.sub}</p>
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-5">
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
         {C.why.items.map((it, i) => (
-          <div key={it.title} className="flex flex-col gap-4">
-            <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden max-w-full">
-              <Photo img={images[i]} tone={LOUNGE_TONES[i % LOUNGE_TONES.length]} sizes="(max-width: 640px) 100vw, 33vw" />
-            </div>
+          <div
+            key={it.title}
+            className={images[i] ? 'flex flex-col gap-4' : `${LOUNGE_TONES[i % LOUNGE_TONES.length]} p-5 sm:p-6 sm:min-h-[260px] flex flex-col justify-end`}
+          >
+            {images[i] && (
+              <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden max-w-full">
+                <Photo img={images[i]} tone={LOUNGE_TONES[i % LOUNGE_TONES.length]} sizes="(max-width: 640px) 100vw, 33vw" />
+              </div>
+            )}
             <div className="flex gap-3">
               <span className="font-headline text-2xl text-ink leading-none pt-1">0{i + 1}</span>
               <div className="border-l border-ink pl-3 flex flex-col gap-1">
@@ -133,7 +138,7 @@ export function PrintPicker({ products, lang }: { products: Product[]; lang: Loc
                 <div className="relative aspect-[4/5] w-full overflow-hidden">
                   <Photo img={p.featuredImage ?? p.images.nodes[0]} tone={LOUNGE_TONES[i % LOUNGE_TONES.length]} sizes="(max-width: 640px) 50vw, 45vw" />
                 </div>
-                <p className="font-headline uppercase text-ink text-base sm:text-xl text-center leading-tight break-keep">
+                <p className="font-semibold text-ink text-sm sm:text-base text-center leading-snug break-keep">
                   {stripTitlePrefix(p.title)}
                 </p>
                 <p className="text-sm text-ink -mt-1">{formatPrice(price.amount, price.currencyCode, lang)}</p>
