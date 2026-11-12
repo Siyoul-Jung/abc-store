@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { gidToNumericId, formatPrice, stripTitlePrefix } from '@/lib/utils/format'
 import type { Product, Locale } from '@/lib/shopify/types'
-import { LOUNGE_COPY as C, LOUNGE_TONES } from './copy'
+import { LOUNGE_COPY, LOUNGE_TONES, loungeCopy } from './copy'
 
 // 홈 Lounge 컨셉 섹션 모음 — 서버 컴포넌트(클라이언트 JS 없음).
 // 이미지가 없으면 프린트 톤 색 블록으로 비워 둔다(실사 촬영본 교체 전 단계).
@@ -32,6 +32,7 @@ function CtaButton({ href, children }: { href: string; children: React.ReactNode
 }
 
 export function LoungeHero({ lang, image }: { lang: Locale; image: Img }) {
+  const C = loungeCopy(lang)
   return (
     // 모바일: 글 → 사진 세로 배치 / md 이상: 사진을 전체 배경으로 깔고 제목을 위에 겹침
     <section className="relative bg-cream md:min-h-[620px] lg:min-h-[700px] md:flex md:items-center">
@@ -39,7 +40,7 @@ export function LoungeHero({ lang, image }: { lang: Locale; image: Img }) {
         <h1 className="font-headline uppercase text-forest leading-[0.92] text-[56px] sm:text-[80px] md:text-[112px] lg:text-[136px] max-w-[8.5ch]">
           {C.hero.headline}
         </h1>
-        <p className="text-xl sm:text-2xl text-ink leading-snug">{C.hero.sub}</p>
+        <p className="text-xl sm:text-2xl text-ink leading-snug break-keep">{C.hero.sub}</p>
         <p className="text-base text-ink">{C.hero.detail}</p>
         <div className="mt-2">
           <CtaButton href={`/${lang}/products`}>{C.hero.cta}</CtaButton>
@@ -68,7 +69,7 @@ export function ValueBand({ icons = false }: { icons?: boolean }) {
   return (
     <div className="bg-forest text-white">
       <ul className="max-w-7xl mx-auto px-4 py-3 sm:py-3.5 flex items-center justify-center gap-2.5 sm:gap-10">
-        {C.values.map((v, i) => (
+        {LOUNGE_COPY.values.map((v, i) => (
           <li key={v} className="flex items-center gap-2.5 sm:gap-10">
             {i > 0 && <span aria-hidden className="h-4 sm:h-5 w-px bg-white/50" />}
             {icons && (
@@ -84,11 +85,12 @@ export function ValueBand({ icons = false }: { icons?: boolean }) {
   )
 }
 
-export function WhySection({ images }: { images: Img[] }) {
+export function WhySection({ lang, images }: { lang: Locale; images: Img[] }) {
+  const C = loungeCopy(lang)
   return (
     <section id="why" className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 scroll-mt-24">
       <h2 className="font-headline uppercase text-ink text-4xl sm:text-6xl leading-[0.95] text-balance">{C.why.title}</h2>
-      <p className="mt-2 text-lg text-ink">{C.why.sub}</p>
+      <p className="mt-2 text-lg text-ink break-keep">{C.why.sub}</p>
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
         {C.why.items.map((it, i) => (
           <div
@@ -116,6 +118,7 @@ export function WhySection({ images }: { images: Img[] }) {
 }
 
 export function PrintPicker({ products, lang }: { products: Product[]; lang: Locale }) {
+  const C = loungeCopy(lang)
   if (products.length === 0) return null
   return (
     <section className="border-t border-border">
@@ -123,7 +126,7 @@ export function PrintPicker({ products, lang }: { products: Product[]; lang: Loc
         <div className="flex items-end justify-between gap-4">
           <div>
             <h2 className="font-headline uppercase text-ink text-4xl sm:text-6xl leading-[0.95]">{C.prints.title}</h2>
-            <p className="mt-2 text-lg text-ink">{C.prints.sub}</p>
+            <p className="mt-2 text-lg text-ink break-keep">{C.prints.sub}</p>
           </div>
           <Link href={`/${lang}/products`} className="hidden sm:inline font-headline uppercase text-forest text-lg underline underline-offset-4 whitespace-nowrap">
             {C.prints.all} →
@@ -155,6 +158,7 @@ export function PrintPicker({ products, lang }: { products: Product[]; lang: Loc
 }
 
 export function ClosingBanner({ lang, image }: { lang: Locale; image: Img }) {
+  const C = loungeCopy(lang)
   return (
     <section>
       <div className="relative aspect-[16/10] sm:aspect-[21/7] w-full overflow-hidden max-w-full">

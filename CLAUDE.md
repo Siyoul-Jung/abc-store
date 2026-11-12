@@ -98,7 +98,7 @@ Tailwind v4 `@theme` 블록에서 커스텀 토큰 정의. `tailwind.config` 파
 
 폰트: Noto Sans KR/JP (본문) · Poppins (display) · **Anton (`font-headline`, 굵은 좁은 대문자 헤드라인 — 한글/일어는 Noto로 폴백)**
 
-> **Lounge 컨셉 (2026-11 대표 요청, 브랜치 feat/lounge-redesign)**: 성인 라운지 팬츠 단일 라인. 홈 = `components/lounge/HomeSections.tsx`(히어로·밸류띠·WHY 3카드·PICK YOUR PRINT·클로징), 상세 하단 = `FeaturePanels.tsx`(01·02·03), 카피는 `components/lounge/copy.ts`(영어 공통, 번역 미정). 헤더 nav는 SHOP·WHY ABC(홈 `#why`)·ABOUT + 데스크톱 언어전환, 푸터는 로고+대표 링크 한 줄(사업자 정보 유지, 전화번호는 ko만) + 상단 'FOR PEOPLE WHO RUN HOT.' 바(헤더 높이 96px → main `pt-24`). 상세 '바로 구매' = 담고 체크아웃 이동, 본문 구매 버튼이 화면 위로 사라지면 하단 고정 구매바(VariantSelector 내 IntersectionObserver). **팬츠 전용 문구·장점 패널은 `adult` 태그 상품에만**(`LOUNGE_COPY.pdp`, 키즈·기타 상품 노출 금지). 수량 선택 1~10. 홈 브랜드 이미지(히어로·WHY·클로징)는 촬영본 전까지 프린트 톤 색 블록 — 히어로는 env `HERO_SLIDES` 설정 시 사용
+> **Lounge 컨셉 (2026-11 대표 요청, 브랜치 feat/lounge-redesign)**: 성인 라운지 팬츠 단일 라인. 홈 = `components/lounge/HomeSections.tsx`(히어로·밸류띠·WHY 3카드·PICK YOUR PRINT·클로징), 상세 하단 = `FeaturePanels.tsx`(01·02·03), 카피는 `components/lounge/copy.ts` — 영어 헤드라인·버튼·밸류 문구는 전 locale 공통, 설명·안내 문장만 ko/ja 현지화(`loungeCopy(locale)`). 헤더 nav는 SHOP·WHY ABC(홈 `#why`)·ABOUT + 데스크톱 언어전환, 푸터는 로고+대표 링크 한 줄(사업자 정보 유지, 전화번호는 ko만) + 상단 'FOR PEOPLE WHO RUN HOT.' 바(헤더 높이 96px → main `pt-24`). 상세 '바로 구매' = 담고 체크아웃 이동, 본문 구매 버튼이 화면 위로 사라지면 하단 고정 구매바(VariantSelector 내 IntersectionObserver). **팬츠 전용 문구·장점 패널은 `adult` 태그 상품에만**(`LOUNGE_COPY.pdp`, 키즈·기타 상품 노출 금지). 수량 선택 1~10. 홈 브랜드 이미지(히어로·WHY·클로징)는 촬영본 전까지 프린트 톤 색 블록 — 히어로는 env `HERO_SLIDES` 설정 시 사용
 
 ---
 

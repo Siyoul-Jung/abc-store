@@ -142,7 +142,7 @@ export default async function ProductPage({ params }: Props) {
       {/* 장점 패널(라운지 팬츠 전용 문구라 adult 상품만) — 모바일은 좌우 여백 없이 화면 끝까지 */}
       {adult && (
         <div className="-mx-4 sm:mx-0">
-          <FeaturePanels images={product.images.nodes} />
+          <FeaturePanels locale={lang as Locale} images={product.images.nodes} />
         </div>
       )}
 
