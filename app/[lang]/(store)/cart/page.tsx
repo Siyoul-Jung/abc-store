@@ -31,7 +31,7 @@ export default async function CartPage({ params, searchParams }: Props) {
         <p className="text-base font-medium text-ink mb-7 break-keep">{dict.cart.empty}</p>
         <Link
           href={`/${lang}/products`}
-          className="inline-flex items-center gap-1.5 rounded-full bg-ink px-7 py-3 text-sm font-medium text-white hover:opacity-80 transition-opacity"
+          className="inline-flex items-center gap-1.5 rounded-full bg-forest px-7 py-3 text-sm font-medium text-white hover:opacity-90 transition-opacity"
         >
           {dict.common.viewAll}
           <span aria-hidden>→</span>

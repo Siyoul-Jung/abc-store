@@ -102,7 +102,7 @@ export default async function ProductPage({ params }: Props) {
         <ProductImageGallery images={product.images.nodes} title={product.title} featuredUrl={product.featuredImage?.url} />
 
         <div className="flex flex-col gap-5">
-          <h1 className="font-headline text-3xl md:text-4xl uppercase text-forest leading-[1.05] break-keep">
+          <h1 className="text-2xl md:text-3xl font-bold text-forest leading-snug break-keep">
             {stripTitlePrefix(product.title)}
           </h1>
 
@@ -147,7 +147,7 @@ export default async function ProductPage({ params }: Props) {
       )}
 
       {recommended.length > 0 && (
-        <div className="mt-16 md:border-t md:border-border">
+        <div className="mt-16 -mx-4 sm:mx-0 md:border-t md:border-border">
           <ProductGrid
             products={recommended}
             lang={lang as Locale}

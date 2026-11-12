@@ -45,8 +45,8 @@ export default function Footer({ lang, dict }: Props) {
     { label: dict.nav.qa,    href: `/${lang}/qa` },
   ]
 
-  const colTitle = 'text-[11px] font-semibold tracking-widest uppercase text-ink mb-3'
-  const colLink = 'text-xs text-ink-muted hover:text-ink transition-colors w-fit'
+  const colTitle = 'text-[11px] font-semibold tracking-widest uppercase text-ink mb-1.5'
+  const colLink = 'text-xs text-ink-muted hover:text-ink transition-colors w-fit py-1.5'
 
   return (
     <footer className="bg-surface border-t border-border mt-auto">
@@ -98,7 +98,7 @@ export default function Footer({ lang, dict }: Props) {
           </div>
 
           {/* 고객지원 */}
-          <nav className="flex flex-col gap-2.5">
+          <nav className="flex flex-col">
             <p className={colTitle}>{dict.footer.cs}</p>
             {csLinks.map((l) => (
               <Link key={l.href} href={l.href} className={colLink}>{l.label}</Link>
@@ -106,7 +106,7 @@ export default function Footer({ lang, dict }: Props) {
           </nav>
 
           {/* 회사·정책 */}
-          <nav className="flex flex-col gap-2.5">
+          <nav className="flex flex-col">
             <p className={colTitle}>{dict.footer.company}</p>
             {companyLinks.map((l) => (
               <Link key={l.href} href={l.href} className={colLink}>{l.label}</Link>
