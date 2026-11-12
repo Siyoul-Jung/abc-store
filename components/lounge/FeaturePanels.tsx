@@ -1,12 +1,14 @@
 import Image from 'next/image'
-import { LOUNGE_COPY as C, LOUNGE_TONES } from './copy'
+import type { Locale } from '@/lib/shopify/types'
+import { LOUNGE_TONES, loungeCopy } from './copy'
 import { ValueBand } from './HomeSections'
 
 type Img = { url: string; altText?: string | null }
 
 // 상품 상세 하단(adult 상품 전용) — 장점 띠 → 큰 문구 블록 → 01·02·03 패널.
 // 패널은 왼쪽 문구 / 오른쪽 이미지(없으면 프린트 톤 블록). 01·02는 데스크톱 2열, 03은 전체폭(초록 배경).
-export default function FeaturePanels({ images }: { images: Img[] }) {
+export default function FeaturePanels({ locale, images }: { locale: Locale; images: Img[] }) {
+  const C = loungeCopy(locale)
   // 상품컷은 앞 2장만 사용 — 뒤쪽은 보통 사이즈표·상세컷이라 패널에 부적합.
   const blockImage = images[0]
   const panelImages = [images[1]]
@@ -19,7 +21,7 @@ export default function FeaturePanels({ images }: { images: Img[] }) {
           <p className="font-headline uppercase text-forest leading-[0.95] text-[27px] sm:text-[64px]">
             {block.title.map((line) => <span key={line} className="block">{line}</span>)}
           </p>
-          <p className="text-sm sm:text-lg text-forest">{block.body}</p>
+          <p className="text-sm sm:text-lg text-forest break-keep">{block.body}</p>
           <p className="text-sm sm:text-lg font-semibold text-forest">{block.kicker}</p>
         </div>
         <div className="relative min-h-[260px] sm:min-h-[420px] bg-sky">

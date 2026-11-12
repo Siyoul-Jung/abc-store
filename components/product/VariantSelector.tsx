@@ -10,7 +10,7 @@ import PolicyModal from '@/components/product/PolicyModal'
 import RestockNotify from '@/components/product/RestockNotify'
 import { formatPrice, gidToNumericId } from '@/lib/utils/format'
 import { trackPixel } from '@/lib/analytics/pixel'
-import { LOUNGE_COPY } from '@/components/lounge/copy'
+import { loungeCopy } from '@/components/lounge/copy'
 import Link from 'next/link'
 
 const MAX_QUANTITY = 10
@@ -157,8 +157,8 @@ export default function VariantSelector({ variants, locale, productId, productTi
 
         {adult && (
           <div className="flex flex-col gap-0.5 -mt-3">
-            <p className="text-base text-ink">{LOUNGE_COPY.pdp.tagline}</p>
-            <p className="text-sm text-ink-muted">{LOUNGE_COPY.pdp.detail}</p>
+            <p className="text-base text-ink">{loungeCopy(locale).pdp.tagline}</p>
+            <p className="text-sm text-ink-muted break-keep">{loungeCopy(locale).pdp.detail}</p>
           </div>
         )}
 
@@ -252,7 +252,7 @@ export default function VariantSelector({ variants, locale, productId, productTi
 
         {adult && (
           <div className="text-xs text-ink-muted leading-relaxed -mt-2">
-            {LOUNGE_COPY.pdp.notes.map((n) => <p key={n}>{n}</p>)}
+            {loungeCopy(locale).pdp.notes.map((n) => <p key={n} className="break-keep">{n}</p>)}
           </div>
         )}
 

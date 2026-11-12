@@ -43,7 +43,7 @@ export default async function HomePage({ params }: Props) {
     <>
       <LoungeHero lang={locale} image={heroImage} />
       <ValueBand />
-      <WhySection images={[]} />
+      <WhySection lang={locale} images={[]} />
       <PrintPicker products={prints} lang={locale} />
       <ClosingBanner lang={locale} image={null} />
       <Reveal>
