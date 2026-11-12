@@ -21,7 +21,7 @@
 | 주문 생성 | Shopify Admin API (`lib/shopify/admin.ts` — `adminGql()` 사용, 토큰 확보 완료) |
 | 결제 (한국) | Toss Payments v2 (`https://js.tosspayments.com/v2/standard`) |
 | 결제 (일본) | Stripe (미구현, Phase 4 예정) |
-| 배포 | Vercel |
+| 배포 | Vercel — **함수 리전 서울 `icn1` 고정**(`vercel.json` regions). 토스 live 키가 2026-11-09부터 "국내 IP만 허용"이라 미국 리전에서 호출하면 승인·취소·환불이 `API_KEY_ACCESS_DENIED`로 막힘 |
 | 인스타그램 피드 | Meta Graph API (system user token) |
 
 ---
