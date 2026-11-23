@@ -48,7 +48,7 @@ export function LoungeHero({ lang, image }: { lang: Locale; image: Img }) {
       </div>
       <div className={`relative aspect-[4/3] md:absolute md:inset-0 md:aspect-auto max-w-full ${image ? '' : 'hidden md:block'}`}>
         {/* 촬영본은 피사체가 왼쪽 — md 이상에선 좌우 반전해 피사체를 오른쪽, 제목을 왼쪽에 둔다 */}
-        <Photo img={image} tone="bg-sun" sizes="100vw" priority imgClassName="md:-scale-x-100" />
+        <Photo img={image} tone="bg-sun" sizes="100vw" priority imgClassName="md:-scale-x-100 md:object-top" />
         {/* 실사 위에서만 글자 가독성용 왼쪽 그라데이션 */}
         {image && <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-cream/90 via-cream/40 to-transparent" />}
       </div>
