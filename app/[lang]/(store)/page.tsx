@@ -33,10 +33,11 @@ export default async function HomePage({ params }: Props) {
   const products = await getProducts(lang as Locale, 6)
   const locale = lang as Locale
 
-  // 브랜드 이미지 자리는 촬영본 전까지 프린트 톤 색 블록으로 비움(구 아동복 컷이 컨셉과 안 맞음).
-  // 히어로만 HERO_SLIDES 첫 장이 있으면 사용 — 촬영본 교체 시 env만 설정.
+  // 히어로: env HERO_SLIDES 첫 장 → 없으면 기본 라운지 컷(public/lounge). WHY·클로징은 촬영본 전까지 색 블록.
   const heroSlide = getHeroSlides()?.[0]
-  const heroImage = heroSlide ? { url: heroSlide.src, altText: heroSlide.alt } : null
+  const heroImage = heroSlide
+    ? { url: heroSlide.src, altText: heroSlide.alt }
+    : { url: '/lounge/hero-crocodile.jpg', altText: 'Crocodile lounge pants' }
   const prints = products.filter((p) => p.variants.nodes.some((v) => v.availableForSale)).slice(0, 4)
 
   return (
