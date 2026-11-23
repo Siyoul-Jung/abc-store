@@ -35,7 +35,7 @@ export function LoungeHero({ lang, image }: { lang: Locale; image: Img }) {
   const C = loungeCopy(lang)
   return (
     // 모바일: 글 → 사진 세로 배치 / md 이상: 사진을 전체 배경으로 깔고 제목을 위에 겹침
-    <section className="relative bg-cream md:min-h-[620px] lg:min-h-[700px] md:flex md:items-center">
+    <section className="relative bg-cream md:min-h-[620px] lg:min-h-[700px] 2xl:min-h-[min(48vw,820px)] md:flex md:items-center">
       <div className="relative z-10 max-w-7xl mx-auto w-full px-6 py-10 sm:py-14 md:py-20 flex flex-col items-start gap-4">
         <h1 className="font-headline uppercase text-forest leading-[0.92] text-[56px] sm:text-[80px] md:text-[112px] lg:text-[136px] max-w-[8.5ch]">
           {C.hero.headline}
@@ -47,8 +47,8 @@ export function LoungeHero({ lang, image }: { lang: Locale; image: Img }) {
         </div>
       </div>
       <div className={`relative aspect-[4/3] md:absolute md:inset-0 md:aspect-auto max-w-full ${image ? '' : 'hidden md:block'}`}>
-        {/* 촬영본은 피사체가 왼쪽 — md 이상에선 좌우 반전해 피사체를 오른쪽, 제목을 왼쪽에 둔다 */}
-        <Photo img={image} tone="bg-sun" sizes="100vw" priority imgClassName="md:-scale-x-100 md:object-top" />
+        {/* 가로 컷(피사체 오른쪽) — 모바일 4:3은 오른쪽 기준으로 잘라 인물 유지, md 이상은 위 기준(머리 잘림 방지) */}
+        <Photo img={image} tone="bg-sun" sizes="100vw" priority imgClassName="object-right md:object-top" />
         {/* 실사 위에서만 글자 가독성용 왼쪽 그라데이션 */}
         {image && <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-cream/90 via-cream/40 to-transparent" />}
       </div>
