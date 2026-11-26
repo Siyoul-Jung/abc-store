@@ -4,6 +4,9 @@ import { getProducts } from '@/lib/shopify/storefront'
 import ProductCard from '@/components/product/ProductCard'
 import type { Locale } from '@/lib/shopify/types'
 
+// Shopify 상품 공개/비공개·가격 변경이 재배포 없이 반영되도록 최대 60초마다 다시 생성(ISR)
+export const revalidate = 60
+
 export default async function ProductsPage({
   params,
 }: {
